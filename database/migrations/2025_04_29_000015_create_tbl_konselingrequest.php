@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tbl_konselingrequest', function (Blueprint $table) {
             $table->integer('id')->autoIncrement()->unsigned();
-            $table->integer('idsiswa')->unsigned();
+            $table->bigInteger('idsiswa')->unsigned();
             $table->text('deskripsi');
             $table->datetime('tanggal_permintaan');
             $table->enum('status', ['Pending', 'Approved', 'Rejected']);
