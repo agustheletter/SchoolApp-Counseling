@@ -1,1 +1,53 @@
 @import 'bootstrap/scss/bootstrap';
+
+// Custom variables
+$primary: #6d28d9;    // Purple-700 dari desain sebelumnya
+$secondary: #eab308;  // Yellow-500 dari desain sebelumnya
+
+// Import Bootstrap
+@import "bootstrap/scss/bootstrap";
+
+// Custom styles
+.bg-purple-gradient {
+  background: linear-gradient(to right, #6d28d9, #5b21b6);
+}
+
+.text-primary-light {
+  color: #c4b5fd;
+}
+
+.btn-primary {
+  background-color: $primary;
+  border-color: $primary;
+  &:hover {
+    background-color: darken($primary, 10%);
+    border-color: darken($primary, 10%);
+  }
+}
+
+.btn-secondary {
+  background-color: $secondary;
+  border-color: $secondary;
+  color: #000;
+  &:hover {
+    background-color: darken($secondary, 10%);
+    border-color: darken($secondary, 10%);
+    color: #000;
+  }
+}
+
+.btn-outline-primary {
+  border-color: $primary;
+  color: $primary;
+  &:hover {
+    background-color: $primary;
+    color: #fff;
+  }
+}
+
+// Font
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
