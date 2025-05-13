@@ -21,8 +21,8 @@
             @csrf
             
             <div class="mb-3">
-                <label for="name" class="form-label">Nama Lengkap</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required autofocus>
+                <label for="nama" class="form-label">Nama Lengkap</label>
+                <input type="text" class="form-control" id="nama" name="nama" value="{{ old('nama') }}" required autofocus>
             </div>
             
             <div class="mb-3">
