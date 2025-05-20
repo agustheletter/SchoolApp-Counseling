@@ -21,19 +21,19 @@
             </div>
             
             <div class="list-group mt-4 shadow-sm">
-                <a href="#" class="list-group-item list-group-item-action active">
+                <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action active">
                     <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                 </a>
-                <a href="#" class="list-group-item list-group-item-action">
+                <a href="{{ route('counseling.schedule') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-calendar-alt me-2"></i> Jadwal Konseling
                 </a>
-                <a href="#" class="list-group-item list-group-item-action">
+                <a href="{{ route('counseling.messages') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-comments me-2"></i> Pesan
                 </a>
-                <a href="#" class="list-group-item list-group-item-action">
+                <a href="{{ route('counseling.reports') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-file-alt me-2"></i> Laporan
                 </a>
-                <a href="#" class="list-group-item list-group-item-action">
+                <a href="{{ route('profile.settings') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-cog me-2"></i> Pengaturan
                 </a>
             </div>
@@ -115,7 +115,7 @@
                             <div class="d-flex align-items-center">
                                 <img src="https://via.placeholder.com/50" alt="Konselor" class="rounded-circle me-3">
                                 <div>
-                                    <h6 class="mb-0">Dr. Andi Wijaya</h6>
+                                    <h6 class="mb-0">Guru 1</h6>
                                     <p class="text-muted mb-0">Konselor Pendidikan</p>
                                 </div>
                             </div>
@@ -124,7 +124,7 @@
                             <div class="d-flex align-items-center">
                                 <img src="https://via.placeholder.com/50" alt="Konselor" class="rounded-circle me-3">
                                 <div>
-                                    <h6 class="mb-0">Siti Rahayu, M.Psi</h6>
+                                    <h6 class="mb-0">Guru 2</h6>
                                     <p class="text-muted mb-0">Psikolog Anak</p>
                                 </div>
                             </div>
@@ -133,7 +133,7 @@
                             <div class="d-flex align-items-center">
                                 <img src="https://via.placeholder.com/50" alt="Konselor" class="rounded-circle me-3">
                                 <div>
-                                    <h6 class="mb-0">Budi Santoso, S.Pd</h6>
+                                    <h6 class="mb-0">Guru 3</h6>
                                     <p class="text-muted mb-0">Konselor Karir</p>
                                 </div>
                             </div>
@@ -142,7 +142,7 @@
                             <div class="d-flex align-items-center">
                                 <img src="https://via.placeholder.com/50" alt="Konselor" class="rounded-circle me-3">
                                 <div>
-                                    <h6 class="mb-0">Dewi Lestari, M.Pd</h6>
+                                    <h6 class="mb-0">Guru 4</h6>
                                     <p class="text-muted mb-0">Konselor Akademik</p>
                                 </div>
                             </div>

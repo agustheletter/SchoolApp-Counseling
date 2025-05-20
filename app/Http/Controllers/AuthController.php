@@ -11,8 +11,7 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        // Gunakan cara baru untuk menerapkan middleware di Laravel 12
-        // Tidak lagi menggunakan $this->middleware()
+    
     }
 
     public function showLoginForm()
@@ -45,23 +44,18 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:tbl_users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         User::create([
-            'nama' => $request->nama,
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        Auth::attempt([
-            'email' => $request->email,
-            'password' => $request->password
-        ]);
-
-        return redirect()->route('dashboard');
+        return redirect()->route('login')->with('success', 'Akun Anda telah berhasil dibuat. Silakan login.');  
     }
 
     public function logout(Request $request)

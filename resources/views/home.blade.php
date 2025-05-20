@@ -25,15 +25,15 @@
     <!-- Features Section -->
     <section class="py-5 mt-5">
         <div class="container">
-            <h2 class="section-title text-center">Fitur <span class="highlight">Interaktif</span> Kami</h2>
+            <h2 class="section-title text-center">Fitur <span class="highlight">Utama</span> Kami</h2>
             <div class="row g-4">
                 <div class="col-md-4">
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-question-circle"></i>
                         </div>
-                        <h3>Konsultasi Online</h3>
-                        <p>Konsultasikan masalah Anda dengan konselor profesional kami melalui platform yang aman dan nyaman.</p>
+                        <h3>Layanan Konseling Edukatif & Fleksibel</h3>
+                        <p>Temukan kenyamanan dalam berbicara dan berkonsultasi dengan guru pilihan Anda kapan pun Anda butuhkan.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -41,8 +41,8 @@
                         <div class="feature-icon">
                             <i class="fas fa-brain"></i>
                         </div>
-                        <h3>Tes Minat Bakat</h3>
-                        <p>Temukan potensi dan bakat tersembunyi Anda melalui tes minat bakat yang komprehensif.</p>
+                        <h3>Pilih Guru Konseling Sesuai Kebutuhan</h3>
+                        <p>Setiap orang punya kebutuhan yang berbeda. Kami menyediakan berbagai pilihan guru profesional yang siap mendengarkan dan membantu Anda, sesuai dengan bidang dan pendekatan yang Anda cari.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -50,7 +50,7 @@
                         <div class="feature-icon">
                             <i class="fas fa-book-reader"></i>
                         </div>
-                        <h3>Materi Pembelajaran</h3>
+                        <h3>Materi Edukatif & Artikel Pembelajaran</h3>
                         <p>Akses berbagai materi pembelajaran yang dirancang untuk membantu perkembangan akademik dan pribadi Anda.</p>
                     </div>
                 </div>
