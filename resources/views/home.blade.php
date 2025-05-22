@@ -12,7 +12,7 @@
                     <p class="lead mb-4">Kami bertujuan membantu siswa menemukan kegembiraan dalam belajar dan tumbuh menjadi individu yang mandiri.</p>
                     <div class="d-flex flex-wrap gap-2">
                         <a href="{{ route('register') }}" class="btn btn-secondary btn-lg px-4 me-md-2">Mulai Sekarang</a>
-                        <a href="#" class="btn btn-outline-light btn-lg px-4">Pelajari Lebih Lanjut</a>
+                        <a href="{{ route('services') }}" class="btn btn-outline-light btn-lg px-4">Pelajari Lebih Lanjut</a>
                     </div>
                 </div>
                 <div class="col-lg-6">

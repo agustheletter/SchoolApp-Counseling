@@ -43,7 +43,7 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Selamat Datang, {{ Auth::user()->name }}</h5>
-                    <p>Ini adalah dashboard layanan konseling sekolah. Di sini Anda dapat melihat jadwal konseling, pesan, dan informasi penting lainnya.</p>
+                    <p>Ini adalah dashboard layanan konseling STM. Didalam halaman ini anda bisa menggunakan beberapa fitur yang disediakan oleh kami.</p>
                 </div>
             </div>
             

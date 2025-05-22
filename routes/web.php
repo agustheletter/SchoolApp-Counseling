@@ -6,7 +6,12 @@ use App\Http\Controllers\CounselingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::get('/about', [HomeController::class, 'about'])->name('about');
+Route::get('/services', [HomeController::class, 'services'])->name('services');
+Route::get('/aboutdev' , [HomeController::class, 'aboutdev'])->name('aboutdev');
 
 Route::middleware(['web'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

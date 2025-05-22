@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Layanan Konseling Sekolah - @yield('title', 'Beranda')</title>
+    <title>Layanan Konseling SMK NEGERI 1 CIMAHI - @yield('title', 'Beranda')</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -194,7 +194,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white py-3 shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="{{ route('home') }}">Konseling Sekolah</a>
+            <a class="navbar-brand" href="{{ route('home') }}">STMCounseling</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -204,13 +204,13 @@
                         <a class="nav-link" href="{{ route('home') }}">Beranda</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Layanan</a>
+                        <a class="nav-link" href="{{ route('services') }}">Layanan</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Tentang Kami</a>
+                        <a class="nav-link" href="{{ route('about') }}">Tentang Kami</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Kontak</a>
+                        <a class="nav-link" href="{{ route('contact') }}">Kontak</a>
                     </li>
                     @guest
                         <li class="nav-item">
@@ -264,9 +264,10 @@
                     <h5>Tautan Cepat</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="{{ route('home') }}" class="text-white text-decoration-none">Beranda</a></li>
-                        <li class="mb-2"><a href="#" class="text-white text-decoration-none">Layanan</a></li>
-                        <li class="mb-2"><a href="#" class="text-white text-decoration-none">Tentang Kami</a></li>
-                        <li class="mb-2"><a href="#" class="text-white text-decoration-none">Kontak</a></li>
+                        <li class="mb-2"><a href="{{ route('services') }}" class="text-white text-decoration-none">Layanan</a></li>
+                        <li class="mb-2"><a href="{{ route('about') }}" class="text-white text-decoration-none">Tentang Kami</a></li>
+                        <li class="mb-2"><a href="{{ route('contact') }}" class="text-white text-decoration-none">Kontak</a></li>
+                        <li class="mb-2"><a href="{{ route('aboutdev') }}" class="text-white text-decoration-none">About Developer</a></li>
                     </ul>
                 </div>
                 <div class="col-md-5 mb-4">
@@ -280,7 +281,7 @@
             </div>
             <hr class="mt-4 mb-4 bg-light">
             <div class="text-center">
-                <p class="mb-0">&copy; {{ date('Y') }} Konseling Sekolah. All rights reserved.</p>
+                <p class="mb-0">&copy; {{ date('Y') }} STMCounseling. All rights reserved.</p>
             </div>
         </div>
     </footer>
