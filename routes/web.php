@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CounselingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TeacherController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -42,4 +43,9 @@ Route::prefix('counseling')->name('counseling.')->group(function () {
 
 Route::prefix('profile')->name('profile.')->group(function () {
     Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
+});
+
+Route::prefix('teacher')->name('teacher.')->group(function(){
+    Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
+    Route::get('/request', [TeacherController::class, 'request'])->name('request');
 });
