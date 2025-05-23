@@ -37,6 +37,7 @@ Route::prefix('counseling')->name('counseling.')->group(function () {
     Route::get('/my-requests', [CounselingController::class, 'myRequests'])->name('my-requests');
     Route::get('/chat', [CounselingController::class, 'chat'])->name('chat');
     Route::get('/setting', [CounselingController::class, 'setting'])->name('setting');
+    Route::get('/history', [CounselingController::class, 'history'])->name('history');
 });
 
 Route::prefix('profile')->name('profile.')->group(function () {

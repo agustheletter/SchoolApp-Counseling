@@ -24,12 +24,15 @@ class CounselingController extends Controller
     }
     public function request(): View {
         return view("counseling.request");
-    }
+    }   
 
     public function myRequests(): View {
-        return view("counseling.my-requests");
+        return view("counseling.my-request");
     }
     public function chat(): View {
         return view("counseling.chat");
+    }
+    public function history(): View{
+        return view("counseling.history");
     }
 }

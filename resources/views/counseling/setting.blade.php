@@ -53,16 +53,6 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab" aria-controls="notifications" aria-selected="false">
-                                <i class="fas fa-bell me-2"></i> Notifikasi
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="privacy-tab" data-bs-toggle="tab" data-bs-target="#privacy" type="button" role="tab" aria-controls="privacy" aria-selected="false">
-                                <i class="fas fa-shield-alt me-2"></i> Privasi
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="appearance-tab" data-bs-toggle="tab" data-bs-target="#appearance" type="button" role="tab" aria-controls="appearance" aria-selected="false">
                                 <i class="fas fa-palette me-2"></i> Tampilan
                             </button>
@@ -82,7 +72,7 @@
                             
                             <h5 class="mb-4">Pengaturan Akun</h5>
                             
-                            <form action="{{ route('profile.update') }}" method="POST">
+                            <form action="#" method="POST">
                                 @csrf
                                 @method('PUT')
                                 
@@ -95,7 +85,7 @@
                                             </button>
                                         </div>
                                         <div>
-                                            <h6 class="mb-1">Ahmad Rizki</h6>
+                                            <h6 class="mb-1">Arkan Ardiansyah</h6>
                                             <p class="text-muted mb-0 small">Siswa</p>
                                         </div>
                                     </div>
@@ -104,18 +94,18 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6 mb-3 mb-md-0">
                                         <label for="name" class="form-label">Nama Lengkap</label>
-                                        <input type="text" class="form-control" id="name" name="name" value="Ahmad Rizki" required>
+                                        <input type="text" class="form-control" id="name" name="name" value="Arkan Ardiansyah" required>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="username" class="form-label">Username</label>
-                                        <input type="text" class="form-control" id="username" name="username" value="ahmad.rizki" required>
+                                        <input type="text" class="form-control" id="username" name="username" value="threesixty" required>
                                     </div>
                                 </div>
                                 
                                 <div class="row mb-3">
                                     <div class="col-md-6 mb-3 mb-md-0">
                                         <label for="email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email" name="email" value="ahmad.rizki@example.com" required>
+                                        <input type="email" class="form-control" id="email" name="email" value="arkan@stmnpbg.com" required>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="phone" class="form-label">Nomor Telepon</label>
@@ -125,7 +115,7 @@
                                 
                                 <div class="mb-3">
                                     <label for="bio" class="form-label">Bio</label>
-                                    <textarea class="form-control" id="bio" name="bio" rows="3">Siswa kelas XI IPA 2 yang tertarik dengan matematika dan teknologi.</textarea>
+                                    <textarea class="form-control" id="bio" name="bio" rows="3">Siswa Rekayasa Perangkat Lunak STMNPBDG 50</textarea>
                                 </div>
                                 
                                 <div class="d-flex justify-content-end">
@@ -146,7 +136,7 @@
                         <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
                             <h5 class="mb-4">Pengaturan Keamanan</h5>
                             
-                            <form action="{{ route('profile.update-password') }}" method="POST">
+                            <form action="#" method="POST">
                                 @csrf
                                 @method('PUT')
                                 
@@ -189,21 +179,21 @@
                                     <tbody>
                                         <tr>
                                             <td>Chrome di Windows</td>
-                                            <td>Jakarta, Indonesia</td>
+                                            <td>Cimahi, Indonesia</td>
                                             <td>192.168.1.1</td>
                                             <td>Hari ini, 09:30</td>
                                             <td><span class="badge bg-success">Saat Ini</span></td>
                                         </tr>
                                         <tr>
-                                            <td>Safari di iPhone</td>
-                                            <td>Jakarta, Indonesia</td>
+                                            <td>Chrome di Android</td>
+                                            <td>Cimahi, Indonesia</td>
                                             <td>192.168.1.2</td>
                                             <td>Kemarin, 15:45</td>
                                             <td><span class="badge bg-secondary">Berhasil</span></td>
                                         </tr>
                                         <tr>
                                             <td>Chrome di Windows</td>
-                                            <td>Jakarta, Indonesia</td>
+                                            <td>Cimahi, Indonesia</td>
                                             <td>192.168.1.1</td>
                                             <td>3 hari lalu, 10:15</td>
                                             <td><span class="badge bg-secondary">Berhasil</span></td>
@@ -217,7 +207,7 @@
                         <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
                             <h5 class="mb-4">Pengaturan Notifikasi</h5>
                             
-                            <form action="{{ route('profile.notifications.update') }}" method="POST">
+                            <form action="" method="POST">
                                 @csrf
                                 @method('PUT')
                                 
@@ -318,7 +308,7 @@
                         <div class="tab-pane fade" id="privacy" role="tabpanel" aria-labelledby="privacy-tab">
                             <h5 class="mb-4">Pengaturan Privasi</h5>
                             
-                            <form action="{{ route('profile.privacy.update') }}" method="POST">
+                            <form action="#" method="POST">
                                 @csrf
                                 @method('PUT')
                                 
@@ -404,7 +394,7 @@
                         <div class="tab-pane fade" id="appearance" role="tabpanel" aria-labelledby="appearance-tab">
                             <h5 class="mb-4">Pengaturan Tampilan</h5>
                             
-                            <form action="{{ route('profile.appearance.update') }}" method="POST">
+                            <form action="#" method="POST">
                                 @csrf
                                 @method('PUT')
                                 
@@ -465,65 +455,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <h6 class="mb-3">Warna Aksen</h6>
-                                <div class="mb-4">
-                                    <div class="d-flex flex-wrap gap-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="accent_color" id="accentBlue" value="blue" checked style="display: none;">
-                                            <label class="form-check-label" for="accentBlue">
-                                                <div class="rounded-circle p-3 bg-primary" style="width: 40px; height: 40px; cursor: pointer;"></div>
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="accent_color" id="accentGreen" value="green" style="display: none;">
-                                            <label class="form-check-label" for="accentGreen">
-                                                <div class="rounded-circle p-3 bg-success" style="width: 40px; height: 40px; cursor: pointer;"></div>
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="accent_color" id="accentPurple" value="purple" style="display: none;">
-                                            <label class="form-check-label" for="accentPurple">
-                                                <div class="rounded-circle p-3" style="width: 40px; height: 40px; cursor: pointer; background-color: #6c5ce7;"></div>
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="accent_color" id="accentRed" value="red" style="display: none;">
-                                            <label class="form-check-label" for="accentRed">
-                                                <div class="rounded-circle p-3 bg-danger" style="width: 40px; height: 40px; cursor: pointer;"></div>
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="accent_color" id="accentOrange" value="orange" style="display: none;">
-                                            <label class="form-check-label" for="accentOrange">
-                                                <div class="rounded-circle p-3 bg-warning" style="width: 40px; height: 40px; cursor: pointer;"></div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <h6 class="mb-3">Ukuran Font</h6>
-                                <div class="mb-4">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="font_size" id="fontSizeSmall" value="small">
-                                        <label class="form-check-label" for="fontSizeSmall">
-                                            Kecil
-                                        </label>
-                                    </div>
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="font_size" id="fontSizeMedium" value="medium" checked>
-                                        <label class="form-check-label" for="fontSizeMedium">
-                                            Sedang
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="font_size" id="fontSizeLarge" value="large">
-                                        <label class="form-check-label" for="fontSizeLarge">
-                                            Besar
-                                        </label>
-                                    </div>
-                                </div>
-                                
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-primary">Simpan Pengaturan</button>
                                 </div>

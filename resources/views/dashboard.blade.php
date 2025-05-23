@@ -56,7 +56,7 @@
                             </div>
                             <h5 class="card-title">Jadwal Konseling</h5>
                             <p class="card-text">0 Jadwal Aktif</p>
-                            <a href="#" class="btn btn-sm btn-primary">Buat Jadwal</a>
+                            <a href="{{ route('counseling.schedule') }}" class="btn btn-sm btn-primary">Buat Jadwal</a>
                         </div>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
                             </div>
                             <h5 class="card-title">Pesan</h5>
                             <p class="card-text">0 Pesan Baru</p>
-                            <a href="#" class="btn btn-sm btn-primary">Lihat Pesan</a>
+                            <a href="{{ route('counseling.messages') }}" class="btn btn-sm btn-primary">Lihat Pesan</a>
                         </div>
                     </div>
                 </div>
