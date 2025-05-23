@@ -6,6 +6,7 @@ use App\Http\Controllers\CounselingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\AdminController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -48,4 +49,8 @@ Route::prefix('profile')->name('profile.')->group(function () {
 Route::prefix('teacher')->name('teacher.')->group(function(){
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
     Route::get('/request', [TeacherController::class, 'request'])->name('request');
+});
+
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 });
