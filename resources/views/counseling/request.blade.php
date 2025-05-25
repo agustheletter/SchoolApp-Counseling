@@ -1,3 +1,19 @@
+@if($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
 @extends('layouts.app')
 
 @section('title', 'Permintaan Konseling')
@@ -18,16 +34,18 @@
                         </div>
                     @endif
 
-                    <form action="#" method="POST">
+                    <form action="{{ route('counseling.request.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label for="counselor_id" class="form-label">Pilih Konselor</label>
-                            <select class="form-select @error('counselor_id') is-invalid @enderror" id="counselor_id" name="counselor_id" required>
+                            <select class="form-select @error('counselor_id') is-invalid @enderror" 
+                                    id="counselor_id" 
+                                    name="counselor_id" 
+                                    required>
                                 <option value="" selected disabled>-- Pilih Konselor --</option>
-                                <option value="1">Guru Konselor 1</option>
-                                <option value="2">Guru Konselor 2 </option>
-                                <option value="3">Guru Konselor 3</option>
-                                <option value="4">Guru Konselor 4</option>
+                                @foreach($counselors as $counselor)
+                                    <option value="{{ $counselor->id }}">{{ $counselor->nama }}</option>
+                                @endforeach
                             </select>
                             @error('counselor_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -35,58 +53,45 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="category" class="form-label">Kategori Konseling</label>
-                            <select class="form-select @error('category') is-invalid @enderror" id="category" name="category" required>
+                            <label for="kategori" class="form-label">Kategori Konseling</label>
+                            <select class="form-select @error('kategori') is-invalid @enderror" 
+                                    id="kategori" 
+                                    name="kategori" 
+                                    required>
                                 <option value="" selected disabled>-- Pilih Kategori --</option>
-                                <option value="academic">Akademik</option>
-                                <option value="career">Karir</option>
-                                <option value="personal">Pribadi</option>
-                                <option value="social">Sosial</option>
-                                <option value="other">Lainnya</option>
+                                <option value="Pribadi">Pribadi</option>
+                                <option value="Akademik">Akademik</option>
+                                <option value="Karir">Karir</option>
+                                <option value="Lainnya">Lainnya</option>
                             </select>
-                            @error('category')
+                            @error('kategori')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="preferred_date" class="form-label">Tanggal yang Diinginkan</label>
-                            <input type="date" class="form-control @error('preferred_date') is-invalid @enderror" id="preferred_date" name="preferred_date" min="{{ date('Y-m-d') }}" required>
-                            @error('preferred_date')
+                            <label for="tanggal_permintaan" class="form-label">Tanggal Konseling</label>
+                            <input type="datetime-local" 
+                                   class="form-control @error('tanggal_permintaan') is-invalid @enderror" 
+                                   id="tanggal_permintaan" 
+                                   name="tanggal_permintaan" 
+                                   value="{{ old('tanggal_permintaan') }}" 
+                                   required>
+                            @error('tanggal_permintaan')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="preferred_time" class="form-label">Waktu yang Diinginkan</label>
-                            <select class="form-select @error('preferred_time') is-invalid @enderror" id="preferred_time" name="preferred_time" required>
-                                <option value="" selected disabled>-- Pilih Waktu --</option>
-                                <option value="08:00">08:00 - 09:00</option>
-                                <option value="09:00">09:00 - 10:00</option>
-                                <option value="10:00">10:00 - 11:00</option>
-                                <option value="11:00">11:00 - 12:00</option>
-                                <option value="13:00">13:00 - 14:00</option>
-                            </select>
-                            @error('preferred_time')
+                            <label for="deskripsi" class="form-label">Deskripsi Masalah</label>
+                            <textarea class="form-control @error('deskripsi') is-invalid @enderror" 
+                                      id="deskripsi" 
+                                      name="deskripsi" 
+                                      rows="4" 
+                                      required>{{ old('deskripsi') }}</textarea>
+                            @error('deskripsi')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="subject" class="form-label">Judul Konseling</label>
-                            <input type="text" class="form-control @error('subject') is-invalid @enderror" id="subject" name="subject" placeholder="Masukkan judul konseling" required>
-                            @error('subject')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Deskripsi Masalah</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="5" placeholder="Jelaskan masalah yang ingin Anda konsultasikan..." required></textarea>
-                            @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <div class="form-text">Deskripsi Anda akan dijaga kerahasiaannya dan hanya dapat diakses oleh konselor yang Anda pilih.</div>
                         </div>
 
                         <div class="mb-3 form-check">

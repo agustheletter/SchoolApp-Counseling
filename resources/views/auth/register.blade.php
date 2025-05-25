@@ -21,7 +21,7 @@
             @csrf
             
             <div class="mb-3">
-                <label for="nama" class="form-label">Nama Lengkap</label>
+                <label for="name" class="form-label">Nama Lengkap dan Gelar</label>
                 <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required autofocus>
             </div>
             
@@ -38,6 +38,24 @@
             <div class="mb-3">
                 <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
                 <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Jenis Kelamin</label>
+                <div class="d-flex gap-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="gender" id="gender-male" value="male" {{ old('gender') == 'male' ? 'checked' : '' }} required>
+                        <label class="form-check-label" for="gender-male">
+                            Laki-laki
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="gender" id="gender-female" value="female" {{ old('gender') == 'female' ? 'checked' : '' }} required>
+                        <label class="form-check-label" for="gender-female">
+                            Perempuan
+                        </label>
+                    </div>
+                </div>
             </div>
             
             <div class="d-grid gap-2">

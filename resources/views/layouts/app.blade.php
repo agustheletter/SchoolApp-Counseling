@@ -11,6 +11,8 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <style>
         :root {
             --primary: #6c5ce7;
@@ -186,6 +188,25 @@
             left: 50%;
             transform: translateX(-50%);
         }
+
+        .nav-item.dropdown {
+        display: flex;
+        align-items: center;
+    }
+    
+    .nav-item.dropdown img {
+        border: 2px solid var(--primary);
+        transition: border-color 0.3s ease;
+    }
+    
+    .nav-item.dropdown:hover img {
+        border-color: var(--secondary);
+    }
+    
+    .dropdown-menu-end {
+        right: 0;
+        left: auto;
+    }
     </style>
     
     @yield('styles')
@@ -199,7 +220,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('home') }}">Beranda</a>
                     </li>
@@ -212,6 +233,8 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('contact') }}">Kontak</a>
                     </li>
+                </ul>
+                <ul class="navbar-nav">
                     @guest
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('login') }}">Masuk</a>
@@ -220,11 +243,17 @@
                             <a class="btn btn-primary ms-2" href="{{ route('register') }}">Daftar</a>
                         </li>
                     @else
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown d-flex align-items-center">
+                            <img src="{{ Auth::user()->avatar_url }}" 
+                                 alt="Profile" 
+                                 class="rounded-circle me-2" 
+                                 width="32" 
+                                 height="32"
+                                 style="object-fit: cover;">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ Auth::user()->name }}
+                                {{ Auth::user()->nama }}
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="{{ route('dashboard') }}">Layanan Konseling</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>

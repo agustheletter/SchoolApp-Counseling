@@ -7,6 +7,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\AdminController;
+use App\Http\Middleware\CheckRole;
+use App\Http\Controllers\UserSettingController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -30,27 +32,40 @@ Route::get('/dashboard', [HomeController::class, 'dashboard'])
     ->middleware('auth')
     ->name('dashboard');
 
-Route::prefix('counseling')->name('counseling.')->group(function () {
+Route::prefix('counseling')->name('counseling.')->middleware(['auth', CheckRole::class . ':user'])->group(function ()  {
     Route::get('/messages', [CounselingController::class, 'message'])->name('messages');
     Route::get('/reports', [CounselingController::class, 'reports'])->name('reports');
     Route::get('/schedule', [CounselingController::class, 'schedule'])->name('schedule');
     Route::get('/profile', [CounselingController::class,'profile'])->name('profile');
     Route::get('/request', [CounselingController::class, 'request'])->name('request');
+    Route::post('/request', [CounselingController::class, 'storeRequest'])->name('request.store');
     Route::get('/my-requests', [CounselingController::class, 'myRequests'])->name('my-requests');
     Route::get('/chat', [CounselingController::class, 'chat'])->name('chat');
     Route::get('/setting', [CounselingController::class, 'setting'])->name('setting');
     Route::get('/history', [CounselingController::class, 'history'])->name('history');
+    Route::get('/request/{id}', [CounselingController::class, 'show'])->name('request.show');
+    Route::delete('/request/{id}/cancel', [CounselingController::class, 'cancel'])->name('request.cancel');
 });
 
 Route::prefix('profile')->name('profile.')->group(function () {
     Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
 });
 
-Route::prefix('teacher')->name('teacher.')->group(function(){
+Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:guru'])->group(function(){
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
     Route::get('/request', [TeacherController::class, 'request'])->name('request');
 });
 
-Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/settings', [UserSettingController::class, 'index'])->name('profile.settings');
+    Route::put('/settings/account', [UserSettingController::class, 'updateAccount'])->name('settings.account');
+    Route::put('/settings/security', [UserSettingController::class, 'updateSecurity'])->name('settings.security');
+    Route::post('/settings/avatar', [UserSettingController::class, 'updateAvatar'])->name('settings.avatar');
+    Route::delete('/settings/delete-account', [UserSettingController::class, 'deleteAccount'])->name('settings.delete-account');
+    Route::put('/settings/appearance', [UserSettingController::class, 'updateAppearance'])->name('settings.appearance');
+    Route::get('/settings/login-history', [UserSettingController::class, 'getLoginHistory'])->name('settings.login-history');
 });

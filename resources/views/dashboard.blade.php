@@ -15,7 +15,7 @@
                     <h6 class="text-center">{{ Auth::user()->name }}</h6>
                     <p class="text-center text-muted">{{ Auth::user()->email }}</p>
                     <div class="d-grid gap-2">
-                        <a href="#" class="btn btn-outline-primary btn-sm">Edit Profil</a>
+                        <a href="{{ route('profile.settings') }}" class="btn btn-outline-primary btn-sm">Edit Profil</a>
                     </div>
                 </div>
             </div>

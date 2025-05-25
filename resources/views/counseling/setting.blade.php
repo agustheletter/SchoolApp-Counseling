@@ -72,55 +72,101 @@
                             
                             <h5 class="mb-4">Pengaturan Akun</h5>
                             
-                            <form action="#" method="POST">
-                                @csrf
-                                @method('PUT')
-                                
-                                <div class="mb-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="position-relative me-3">
-                                            <img src="https://via.placeholder.com/100" alt="Profile" class="rounded-circle" width="80" height="80">
-                                            <button type="button" class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle p-1" style="width: 28px; height: 28px;">
+                            <!-- Profile Section with Avatar -->
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="position-relative me-3">
+                                        <img src="{{ auth()->user()->avatar_url }}" 
+                                             alt="Profile" 
+                                             class="rounded-circle" 
+                                             width="80" 
+                                             height="80" 
+                                             style="object-fit: cover;" 
+                                             id="avatarPreview"
+                                             data-original="{{ auth()->user()->avatar_url }}">
+                                        
+                                        <form action="{{ route('settings.avatar') }}" 
+                                              method="POST" 
+                                              enctype="multipart/form-data" 
+                                              id="avatarForm">
+                                            @csrf
+                                            <input type="file" 
+                                                   name="avatar" 
+                                                   id="avatarInput" 
+                                                   class="d-none" 
+                                                   accept="image/*">
+                                            <button type="button" 
+                                                    onclick="document.getElementById('avatarInput').click()" 
+                                                    class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle p-1" 
+                                                    style="width: 28px; height: 28px;">
                                                 <i class="fas fa-camera"></i>
                                             </button>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Arkan Ardiansyah</h6>
-                                            <p class="text-muted mb-0 small">Siswa</p>
-                                        </div>
+                                        </form>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">{{ $user->nama }}</h6>
+                                        <p class="text-muted mb-0 small">{{ ucfirst($user->role) }}</p>
                                     </div>
                                 </div>
-                                
+                            </div>
+
+                            <!-- Account Settings Form -->
+                            <form action="{{ route('settings.account') }}" method="POST">
+                                @csrf
+                                @method('PUT')
                                 <div class="row mb-3">
                                     <div class="col-md-6 mb-3 mb-md-0">
-                                        <label for="name" class="form-label">Nama Lengkap</label>
-                                        <input type="text" class="form-control" id="name" name="name" value="Arkan Ardiansyah" required>
+                                        <label for="nama" class="form-label">Nama Lengkap</label>
+                                        <input type="text" class="form-control @error('nama') is-invalid @enderror" 
+                                               id="nama" name="nama" value="{{ $user->nama }}" required>
+                                        @error('nama')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label for="username" class="form-label">Username</label>
-                                        <input type="text" class="form-control" id="username" name="username" value="threesixty" required>
+                                        <input type="text" class="form-control" id="username" name="username" value="{{ $user->username }}" required>
                                     </div>
                                 </div>
                                 
                                 <div class="row mb-3">
                                     <div class="col-md-6 mb-3 mb-md-0">
                                         <label for="email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email" name="email" value="arkan@stmnpbg.com" required>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}" required>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="phone" class="form-label">Nomor Telepon</label>
-                                        <input type="tel" class="form-control" id="phone" name="phone" value="081234567890">
+                                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ $user->phone }}">
                                     </div>
                                 </div>
                                 
+                                <!-- Add NIP field for guru role -->
+                                @if($user->role === 'guru')
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="nip" class="form-label">Nomor Induk Kepegawaian (NIP)</label>
+                                        <input type="text" 
+                                               class="form-control @error('nip') is-invalid @enderror" 
+                                               id="nip" 
+                                               name="nip" 
+                                               value="{{ $user->nip }}" 
+                                               pattern="[0-9]{18}" 
+                                               maxlength="18"
+                                               placeholder="Masukkan 18 digit NIP">
+                                        <div class="form-text">Format: 18 digit angka</div>
+                                        @error('nip')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                @endif
+                                
                                 <div class="mb-3">
                                     <label for="bio" class="form-label">Bio</label>
-                                    <textarea class="form-control" id="bio" name="bio" rows="3">Siswa Rekayasa Perangkat Lunak STMNPBDG 50</textarea>
+                                    <textarea class="form-control" id="bio" name="bio" rows="3">{{ $user->bio }}</textarea>
                                 </div>
                                 
-                                <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                </div>
+                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                             </form>
                             
                             <hr class="my-4">
@@ -136,7 +182,8 @@
                         <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
                             <h5 class="mb-4">Pengaturan Keamanan</h5>
                             
-                            <form action="#" method="POST">
+                            <!-- Security Settings Form -->
+                            <form action="{{ route('settings.security') }}" method="POST">
                                 @csrf
                                 @method('PUT')
                                 
@@ -166,7 +213,7 @@
                             <h5 class="mb-4">Riwayat Login</h5>
                             
                             <div class="table-responsive">
-                                <table class="table table-hover">
+                                <table class="table table-hover" id="loginHistoryTable">
                                     <thead>
                                         <tr>
                                             <th>Perangkat</th>
@@ -394,7 +441,8 @@
                         <div class="tab-pane fade" id="appearance" role="tabpanel" aria-labelledby="appearance-tab">
                             <h5 class="mb-4">Pengaturan Tampilan</h5>
                             
-                            <form action="#" method="POST">
+                            <!-- Appearance Settings Form -->
+                            <form action="{{ route('settings.appearance') }}" method="POST">
                                 @csrf
                                 @method('PUT')
                                 
@@ -476,15 +524,19 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle me-2"></i> Tindakan ini tidak dapat dibatalkan. Semua data Anda akan dihapus secara permanen.
-                </div>
-                <p>Silakan ketik <strong>HAPUS AKUN SAYA</strong> untuk mengonfirmasi:</p>
-                <input type="text" class="form-control" id="deleteConfirmation" placeholder="HAPUS AKUN SAYA">
-                <div class="mt-3">
-                    <label for="deleteReason" class="form-label">Alasan penghapusan (opsional):</label>
-                    <textarea class="form-control" id="deleteReason" rows="3"></textarea>
-                </div>
+                <form id="deleteAccountForm" action="{{ route('settings.delete-account') }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Tindakan ini tidak dapat dibatalkan. Semua data Anda akan dihapus secara permanen.
+                    </div>
+                    <p>Silakan ketik <strong>HAPUS AKUN SAYA</strong> untuk mengonfirmasi:</p>
+                    <input type="text" class="form-control" id="deleteConfirmation" name="confirmation" placeholder="HAPUS AKUN SAYA">
+                    <div class="mt-3">
+                        <label for="deleteReason" class="form-label">Alasan penghapusan (opsional):</label>
+                        <textarea class="form-control" id="deleteReason" name="reason" rows="3"></textarea>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -498,45 +550,130 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Delete account confirmation
         const deleteConfirmation = document.getElementById('deleteConfirmation');
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const deleteAccountForm = document.getElementById('deleteAccountForm');
         
         deleteConfirmation.addEventListener('input', function() {
-            if (this.value === 'HAPUS AKUN SAYA') {
-                confirmDeleteBtn.disabled = false;
-            } else {
-                confirmDeleteBtn.disabled = true;
-            }
+            confirmDeleteBtn.disabled = this.value !== 'HAPUS AKUN SAYA';
         });
         
         confirmDeleteBtn.addEventListener('click', function() {
-            // In a real app, this would send an AJAX request to delete the account
-            alert('Akun Anda telah dihapus.');
-            window.location.href = "{{ route('home') }}";
-        });
-        
-        // Accent color selection
-        const accentColors = document.querySelectorAll('input[name="accent_color"]');
-        accentColors.forEach(color => {
-            color.nextElementSibling.addEventListener('click', function() {
-                // Remove border from all colors
-                accentColors.forEach(c => {
-                    c.nextElementSibling.querySelector('div').style.border = 'none';
-                });
-                
-                // Add border to selected color
-                this.querySelector('div').style.border = '2px solid #000';
-                
-                // Check the radio button
-                color.checked = true;
-            });
-            
-            // Set initial border for checked color
-            if (color.checked) {
-                color.nextElementSibling.querySelector('div').style.border = '2px solid #000';
+            if (confirm('Apakah Anda yakin ingin menghapus akun ini? Tindakan ini tidak dapat dibatalkan.')) {
+                deleteAccountForm.submit();
             }
         });
+    });
+    
+    // Avatar upload handler
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatarInput = document.getElementById('avatarInput');
+        const avatarForm = document.getElementById('avatarForm');
+        const avatarPreview = document.getElementById('avatarPreview');
+
+        if (avatarInput && avatarForm) {
+            avatarInput.addEventListener('change', function(e) {
+                e.preventDefault();
+                if (this.files && this.files[0]) {
+                    const formData = new FormData(avatarForm);
+                    
+                    // Show preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        avatarPreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(this.files[0]);
+
+                    // Send AJAX request
+                    fetch(avatarForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            // Don't set Content-Type header when sending FormData
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Success notification
+                            alert('Foto profil berhasil diperbarui');
+                        } else {
+                            // Error notification
+                            alert('Gagal mengupload foto profil');
+                            // Revert preview
+                            avatarPreview.src = avatarPreview.getAttribute('data-original');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat mengupload foto');
+                        // Revert preview
+                        avatarPreview.src = avatarPreview.getAttribute('data-original');
+                    });
+                }
+            });
+        }
+    });
+    
+    function loadLoginHistory() {
+        fetch('{{ route("settings.login-history") }}')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#loginHistoryTable tbody');
+                tbody.innerHTML = '';
+                
+                data.forEach(entry => {
+                    const row = `
+                        <tr>
+                            <td>${entry.device}</td>
+                            <td>${entry.location}</td>
+                            <td>${entry.ip_address}</td>
+                            <td>${formatLoginTime(entry.login_at)}</td>
+                            <td>
+                                <span class="badge bg-${entry.status === 'current' ? 'success' : 'secondary'}">
+                                    ${entry.status === 'current' ? 'Saat Ini' : 'Berhasil'}
+                            </span>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function formatLoginTime(timestamp) {
+        if (!timestamp) return 'Never';
+        
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        
+        // Less than 24 hours
+        if (diff < 24 * 60 * 60 * 1000) {
+            return 'Hari ini, ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        // Less than 48 hours
+        if (diff < 48 * 60 * 60 * 1000) {
+            return 'Kemarin, ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        // More than 48 hours
+        return date.toLocaleDateString('id-ID', { 
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadLoginHistory();
     });
 </script>
 @endsection

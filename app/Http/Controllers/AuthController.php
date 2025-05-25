@@ -45,17 +45,29 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'gender' => 'required|in:male,female',
+            'email' => 'required|string|email|max:255|unique:tbl_users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
+        // Generate username from name
+        $username = strtolower(str_replace(' ', '', $request->name)) . rand(100, 999);
+
+        // Set default avatar based on gender
+        $avatar = $request->gender === 'male' ? 'default-male.png' : 'default-female.png';
+
         User::create([
-            'name' => $request->name,
+            'nama' => $request->name,
+            'gender' => $request->gender,
+            'username' => $username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'avatar' => $avatar,
+            'role' => 'user',
         ]);
 
-        return redirect()->route('login')->with('success', 'Akun Anda telah berhasil dibuat. Silakan login.');  
+        return redirect()->route('login')
+            ->with('success', 'Akun Anda telah berhasil dibuat. Silakan login.');  
     }
 
     public function logout(Request $request)
@@ -64,5 +76,10 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');
+    }
+    
+    protected function authenticated(Request $request, $user)
+    {
+        $user->recordLogin($request);
     }
 }

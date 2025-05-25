@@ -6,27 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('tbl_konselingrequest', function (Blueprint $table) {
-            $table->integer('id')->autoIncrement()->unsigned();
-            $table->bigInteger('idsiswa')->unsigned();
+            $table->id();
+            $table->unsignedBigInteger('idsiswa');
+            $table->unsignedBigInteger('idguru');
+            $table->enum('kategori', ['Pribadi', 'Akademik', 'Karir', 'Lainnya']);
+            $table->dateTime('tanggal_permintaan');
             $table->text('deskripsi');
-            $table->datetime('tanggal_permintaan');
-            $table->enum('status', ['Pending', 'Approved', 'Rejected']);
+            $table->enum('status', ['Pending', 'Approved', 'Rejected', 'Completed'])->default('Pending');
             $table->timestamps();
 
-            $table->foreign('idsiswa')->references('idsiswa')->on('tbl_siswa')->onDelete('cascade');
+            $table->foreign('idsiswa')->references('id')->on('tbl_users')->onDelete('cascade');
+            $table->foreign('idguru')->references('id')->on('tbl_users')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('tbl_konselingrequest');
     }

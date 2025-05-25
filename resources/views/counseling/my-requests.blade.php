@@ -24,7 +24,7 @@
                     <a href="{{ route('counseling.history') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-history me-2"></i> Riwayat Konseling
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action">
+                    <a href="{{ route('counseling.setting') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-user-edit me-2"></i> Edit Profil
                     </a>
                 </div>
@@ -55,105 +55,84 @@
                                 <tr>
                                     <th>No.</th>
                                     <th>Tanggal Pengajuan</th>
-                                    <th>Konselor</th>
                                     <th>Jadwal</th>
-                                    <th>Kategori</th>
+                                    <th>Deskripsi</th>
                                     <th>Status</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Contoh data -->
+                                @forelse($requests as $key => $request)
                                 <tr>
-                                    <td>1</td>
-                                    <td>10 Mei 2023</td>
-                                    <td>Dr. Andi Wijaya</td>
-                                    <td>15 Mei 2023, 10:00</td>
-                                    <td>Akademik</td>
-                                    <td><span class="badge bg-warning text-dark">Menunggu</span></td>
+                                    <td>{{ $requests->firstItem() + $key }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($request->created_at)->format('d M Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($request->tanggal_permintaan)->format('d M Y, H:i') }}</td>
+                                    <td>{{ Str::limit($request->deskripsi, 30) }}</td>
+                                    <td>
+                                        @switch($request->status)
+                                            @case('Pending')
+                                                <span class="badge bg-warning text-dark">Menunggu</span>
+                                                @break
+                                            @case('Approved')
+                                                <span class="badge bg-success">Disetujui</span>
+                                                @break
+                                            @case('Completed')
+                                                <span class="badge bg-secondary">Selesai</span>
+                                                @break
+                                            @case('Rejected')
+                                                <span class="badge bg-danger">Ditolak</span>
+                                                @break
+                                        @endswitch
+                                    </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <a href="#" class="btn btn-info" data-bs-toggle="tooltip" title="Detail">
+                                            <a href="{{ route('counseling.request.show', $request->id) }}" 
+                                               class="btn btn-info" 
+                                               data-bs-toggle="tooltip" 
+                                               title="Detail">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="#" class="btn btn-danger" data-bs-toggle="tooltip" title="Batalkan">
-                                                <i class="fas fa-times"></i>
+                                            @if($request->status == 'Pending')
+                                                <form action="{{ route('counseling.request.cancel', $request->id) }}" 
+                                                      method="POST" 
+                                                      class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" 
+                                                            class="btn btn-danger" 
+                                                            data-bs-toggle="tooltip" 
+                                                            title="Batalkan"
+                                                            onclick="return confirm('Apakah Anda yakin ingin membatalkan permintaan ini?')">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">Belum ada permintaan konseling</h5>
+                                            <a href="{{ route('counseling.request') }}" class="btn btn-primary mt-2">
+                                                Ajukan Konseling Sekarang
                                             </a>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>5 Mei 2023</td>
-                                    <td>Siti Rahayu, M.Psi</td>
-                                    <td>12 Mei 2023, 13:00</td>
-                                    <td>Pribadi</td>
-                                    <td><span class="badge bg-success">Disetujui</span></td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="#" class="btn btn-info" data-bs-toggle="tooltip" title="Detail">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="btn btn-primary" data-bs-toggle="tooltip" title="Mulai Chat">
-                                                <i class="fas fa-comments"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>1 Mei 2023</td>
-                                    <td>Budi Santoso, S.Pd</td>
-                                    <td>3 Mei 2023, 14:00</td>
-                                    <td>Karir</td>
-                                    <td><span class="badge bg-secondary">Selesai</span></td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="#" class="btn btn-info" data-bs-toggle="tooltip" title="Detail">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="btn btn-success" data-bs-toggle="tooltip" title="Beri Ulasan">
-                                                <i class="fas fa-star"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>25 April 2023</td>
-                                    <td>Dewi Lestari, M.Pd</td>
-                                    <td>28 April 2023, 09:00</td>
-                                    <td>Sosial</td>
-                                    <td><span class="badge bg-danger">Ditolak</span></td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="#" class="btn btn-info" data-bs-toggle="tooltip" title="Detail">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="btn btn-primary" data-bs-toggle="tooltip" title="Ajukan Ulang">
-                                                <i class="fas fa-redo"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
 
                     <!-- Pagination -->
-                    <nav aria-label="Page navigation" class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
+                    @if($requests->hasPages())
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $requests->links() }}
+                    </div>
+                    @endif
                 </div>
             </div>
 
