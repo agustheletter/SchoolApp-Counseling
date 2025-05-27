@@ -11,5 +11,11 @@ class AdminController extends Controller
     {
         return view('admin.dashboard');
     }
+
+    public function student(): View
+    {
+       return view('admin.student.v_student');
+    }
+        
 }
 

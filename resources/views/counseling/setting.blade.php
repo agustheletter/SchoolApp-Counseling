@@ -8,7 +8,7 @@
         <div class="col-lg-3 mb-4">
             <!-- Sidebar Menu -->
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white"> {{-- Biarkan bg-primary untuk styling spesifik sidebar header --}}
                     <h5 class="mb-0">Menu Siswa</h5>
                 </div>
                 <div class="list-group list-group-flush">
@@ -40,7 +40,8 @@
         <div class="col-lg-9">
             <!-- Settings Tabs -->
             <div class="card shadow-sm">
-                <div class="card-header bg-white"> {{-- Bootstrap akan menangani warna header ini di dark mode --}}
+                {{-- bg-white DIHAPUS dari sini. Warna akan dikontrol oleh CSS Variables. --}}
+                <div class="card-header"> 
                     <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="account-tab" data-bs-toggle="tab" data-bs-target="#account" type="button" role="tab" aria-controls="account" aria-selected="true">
@@ -57,19 +58,6 @@
                                 <i class="fas fa-palette me-2"></i> Tampilan
                             </button>
                         </li>
-                        {{-- Jika Anda ingin menambahkan tab Notifikasi dan Privasi kembali, uncomment di sini --}}
-                        {{-- 
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab" aria-controls="notifications" aria-selected="false">
-                                <i class="fas fa-bell me-2"></i> Notifikasi
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="privacy-tab" data-bs-toggle="tab" data-bs-target="#privacy" type="button" role="tab" aria-controls="privacy" aria-selected="false">
-                                <i class="fas fa-user-shield me-2"></i> Privasi
-                            </button>
-                        </li>
-                        --}}
                     </ul>
                 </div>
                 <div class="card-body">
@@ -252,7 +240,6 @@
                                     <label for="current_password" class="form-label">Password Saat Ini</label>
                                     <input type="password" class="form-control @error('current_password') is-invalid @enderror" 
                                            id="current_password" name="current_password" required>
-                                    {{-- Error individual tidak ditampilkan lagi karena sudah ditangani di atas --}}
                                 </div>
                                 
                                 <div class="mb-3">
@@ -261,7 +248,6 @@
                                            id="new_password" name="new_password" required
                                            aria-describedby="newPasswordHelp">
                                     <div id="newPasswordHelp" class="form-text">Password harus minimal 8 karakter dan mengandung huruf besar, huruf kecil, angka, dan simbol.</div>
-                                    {{-- Error individual tidak ditampilkan lagi karena sudah ditangani di atas --}}
                                 </div>
                                 
                                 <div class="mb-4">
@@ -289,18 +275,11 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {{-- Data akan dimuat oleh JavaScript --}}
                                         <tr><td colspan="5" class="text-center py-4">Memuat riwayat login...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        
-                        {{-- Hapus atau komentari Tab Notifikasi dan Privasi jika tidak digunakan saat ini --}}
-                        {{-- 
-                        <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab"> ... (Konten Notifikasi) </div>
-                        <div class="tab-pane fade" id="privacy" role="tabpanel" aria-labelledby="privacy-tab"> ... (Konten Privasi) </div> 
-                        --}}
                         
                         <!-- Appearance Settings -->
                         <div class="tab-pane fade" id="appearance" role="tabpanel" aria-labelledby="appearance-tab">
@@ -310,7 +289,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             @endif
-                             @error('theme') {{-- Menampilkan error validasi tema --}}
+                             @error('theme')
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                     {{ $message }}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -319,13 +298,13 @@
 
                             <h5 class="mb-4">Pengaturan Tampilan</h5>
                             
-                            <form action="{{ route('settings.appearance') }}" method="POST">
+                            <form action="{{ route('settings.appearance') }}" method="POST" id="appearanceForm">
                                 @csrf
                                 @method('PUT')
                                 
                                 <h6 class="mb-3">Tema</h6>
                                 <div class="row mb-4">
-                                    <div class="col-md-6 mb-3"> {{-- Diubah ke col-md-6 --}}
+                                    <div class="col-md-6 mb-3">
                                         <div class="card h-100 card-theme-option" data-theme-value="light">
                                             <div class="card-body p-2">
                                                 <div class="form-check">
@@ -343,7 +322,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mb-3"> {{-- Diubah ke col-md-6 --}}
+                                    <div class="col-md-6 mb-3">
                                         <div class="card h-100 card-theme-option" data-theme-value="dark">
                                             <div class="card-body p-2">
                                                 <div class="form-check">
@@ -361,7 +340,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    {{-- Opsi Sistem Dihapus --}}
                                 </div>
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-primary">Simpan Pengaturan</button>
@@ -390,10 +368,10 @@
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i> Tindakan ini tidak dapat dibatalkan. Semua data Anda akan dihapus secara permanen.
                     </div>
-                    @error('confirmation') {{-- Error untuk konfirmasi hapus akun --}}
+                    @error('confirmation')
                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                     @enderror
-                     @error('error') {{-- Error umum dari controller saat hapus akun --}}
+                     @error('error')
                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                     @enderror
                     <p>Untuk mengonfirmasi, silakan ketik: <br><strong>HAPUS AKUN SAYA</strong></p>
@@ -416,14 +394,75 @@
 @endsection
 
 @section('styles')
+{{-- CSS Variables ini bisa dipindahkan ke file CSS global (misal public/css/app.css) jika diinginkan --}}
+{{-- Jika dipindahkan, Anda tidak perlu :root dan [data-bs-theme="dark"] body di sini, hanya styling spesifik tabs --}}
 <style>
+    /* Jika CSS Variables umum sudah ada di app.blade.php atau app.css, bagian :root dan [data-bs-theme="dark"] body ini bisa dihapus dari sini */
+    :root {
+        /* Nav Tabs Specific Variables (Light Mode) */
+        --app-nav-tabs-link-color: var(--bs-gray-600); /* Warna teks link tab tidak aktif */
+        --app-nav-tabs-link-hover-color: var(--app-primary); /* Warna teks link tab hover */
+        --app-nav-tabs-link-active-color: var(--app-body-color); /* Warna teks link tab aktif */
+        --app-nav-tabs-link-active-bg: var(--app-card-bg); /* Background link tab aktif */
+        --app-nav-tabs-link-active-border-color: var(--bs-border-color); /* Warna border untuk tab aktif */
+        --app-nav-tabs-border-color: var(--bs-border-color); /* Warna border bawah nav-tabs */
+    }
+
+    [data-bs-theme="dark"] {
+        /* Nav Tabs Specific Overrides for Dark Mode */
+        --app-nav-tabs-link-color: var(--bs-gray-500);
+        --app-nav-tabs-link-hover-color: var(--app-primary); /* Primary dark */
+        --app-nav-tabs-link-active-color: var(--app-white-text); /* Teks putih */
+        --app-nav-tabs-link-active-bg: var(--app-primary); /* Background primary dark */
+        --app-nav-tabs-link-active-border-color: var(--app-primary); /* Border primary dark */
+        --app-nav-tabs-border-color: var(--bs-border-color);
+    }
+
+    /* Styling untuk Card Header tempat Tabs berada */
+    .card-header {
+        background-color: var(--app-card-header-bg, var(--app-card-bg)) !important; /* Fallback ke app-card-bg jika app-card-header-bg tidak didefinisikan */
+        border-bottom-color: var(--app-nav-tabs-border-color) !important;
+    }
+
+    /* Styling Nav Tabs */
+    .nav-tabs {
+        border-bottom-color: var(--app-nav-tabs-border-color);
+    }
+
+    .nav-tabs .nav-link {
+        color: var(--app-nav-tabs-link-color);
+        border: 1px solid transparent;
+        border-bottom-color: transparent !important; /* Hilangkan border bawah default Bootstrap */
+        margin-bottom: -1px; /* Untuk menempelkan border bawah .nav-link.active ke border .nav-tabs */
+    }
+
+    .nav-tabs .nav-link:hover,
+    .nav-tabs .nav-link:focus {
+        color: var(--app-nav-tabs-link-hover-color);
+        border-color: transparent transparent var(--app-nav-tabs-border-color) transparent; /* Hanya border bawah saat hover non-aktif */
+        isolation: isolate; /* Untuk z-index stacking jika diperlukan */
+    }
+
+    .nav-tabs .nav-link.active {
+        color: var(--app-nav-tabs-link-active-color);
+        background-color: var(--app-nav-tabs-link-active-bg);
+        border-color: var(--app-nav-tabs-link-active-border-color) var(--app-nav-tabs-link-active-border-color) var(--app-nav-tabs-link-active-bg); /* Border bawah sama dengan background aktif */
+    }
+    /* Hapus border atas card-header-tabs jika ada */
+    .nav-tabs.card-header-tabs {
+        margin-bottom: -1px; /* Overlap border card-header */
+    }
+
+
+    /* Styling untuk Theme Preview Cards */
     .card-theme-option {
         cursor: pointer;
         transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border: 1px solid var(--bs-border-color); /* Gunakan variabel Bootstrap untuk border */
     }
     .card-theme-option:hover {
         transform: translateY(-5px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        box-shadow: var(--bs-box-shadow-lg) !important; /* Gunakan variabel Bootstrap untuk shadow */
     }
     .card-theme-option .form-check-input {
         position: absolute;
@@ -436,38 +475,21 @@
     }
 
     /* Fix untuk preview tema agar tidak terpengaruh tema utama saat di dark mode */
-    [data-bs-theme="dark"] .theme-preview.bg-light {
-        background-color: #f8f9fa !important; /* Bootstrap $gray-100 */
+    .theme-preview.bg-light { /* Tidak perlu [data-bs-theme="dark"] di sini karena ini adalah preview */
+        background-color: #f8f9fa !important;
     }
-    [data-bs-theme="dark"] .theme-preview.bg-light .theme-preview-body.bg-white {
-        background-color: #ffffff !important; /* Bootstrap $white */
+    .theme-preview.bg-light .theme-preview-body.bg-white {
+        background-color: #ffffff !important;
     }
-    /* Untuk preview dark theme agar tetap konsisten */
     .theme-preview.bg-dark {
-         background-color: #212529 !important; /* Bootstrap $dark */
+         background-color: #212529 !important;
+    }
+    .theme-preview .theme-preview-header.bg-primary {
+         background-color: #0d6efd !important; /* Warna primary Bootstrap default untuk preview */
     }
     .theme-preview.bg-dark .theme-preview-body.bg-secondary {
-        background-color: #6c757d !important; /* Bootstrap $secondary */
+        background-color: #343a40 !important; /* Mirip --dark-surface-bg untuk preview */
     }
-
-    /* Styling Sidebar untuk Dark Mode jika diperlukan (Bootstrap 5.3+ harusnya sudah handle ini dengan baik) */
-    /* Anda bisa menambahkan override di sini jika tampilan default Bootstrap tidak sesuai keinginan */
-    /*
-    [data-bs-theme="dark"] .list-group-item {
-        background-color: var(--bs-dark-bg-subtle); 
-        color: var(--bs-body-color);
-        border-color: var(--bs-border-color-translucent);
-    }
-    [data-bs-theme="dark"] .list-group-item.active {
-        background-color: var(--bs-primary);
-        color: var(--bs-white);
-        border-color: var(--bs-primary);
-    }
-    [data-bs-theme="dark"] .list-group-item-action:hover,
-    [data-bs-theme="dark"] .list-group-item-action:focus {
-        background-color: var(--bs-tertiary-bg);
-    }
-    */
 </style>
 @endsection
 
@@ -486,8 +508,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         confirmDeleteBtn.addEventListener('click', function() {
-            // Tidak perlu confirm() JavaScript lagi karena validasi teks sudah cukup
-            // dan controller akan melakukan validasi server-side.
             deleteAccountForm.submit();
         });
     }
@@ -503,21 +523,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 const formData = new FormData(avatarForm);
                 const originalSrc = avatarPreview.getAttribute('data-original');
 
-                // Show preview
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     avatarPreview.src = event.target.result;
                 };
                 reader.readAsDataURL(this.files[0]);
 
-                // Send AJAX request
                 fetch(avatarForm.action, {
                     method: 'POST',
                     body: formData,
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json', // Penting untuk response JSON
+                        'Accept': 'application/json',
                     }
                 })
                 .then(response => {
@@ -528,9 +546,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(data => {
                     if (data.success && data.avatar_url) {
-                        // Update data-original dengan URL baru dari server
                         avatarPreview.setAttribute('data-original', data.avatar_url);
-                        // Anda bisa menggunakan notifikasi yang lebih baik (Toast, SweetAlert)
                         alert(data.message || 'Foto profil berhasil diperbarui.');
                     } else {
                         throw new Error(data.message || 'Gagal mengupload foto profil.');
@@ -542,10 +558,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (error && error.message) {
                         errorMessage = error.message;
                     } else if (error && error.errors && error.errors.avatar && error.errors.avatar[0]) {
-                        errorMessage = error.errors.avatar[0]; // Ambil pesan error validasi jika ada
+                        errorMessage = error.errors.avatar[0];
                     }
                     alert(errorMessage);
-                    avatarPreview.src = originalSrc; // Revert preview ke gambar asli
+                    avatarPreview.src = originalSrc;
                 });
             }
         });
@@ -559,7 +575,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tbody = loginHistoryTable.querySelector('tbody');
         tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Memuat riwayat login...</td></tr>';
 
-        fetch("{{ route('settings.login-history') }}") // Pastikan route ini benar
+        fetch("{{ route('settings.login-history') }}")
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -567,7 +583,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                tbody.innerHTML = ''; // Kosongkan tbody sebelum mengisi data baru
+                tbody.innerHTML = '';
                 if (data && data.length > 0) {
                     data.forEach(entry => {
                         const row = `
@@ -601,23 +617,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const date = new Date(timestamp);
             const now = new Date();
 
-            // Cek apakah tanggal valid
             if (isNaN(date.getTime())) {
                 return 'Invalid Date';
             }
 
             const optionsDate = { day: 'numeric', month: 'long', year: 'numeric' };
-            const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: false }; // Gunakan format 24 jam
+            const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: false };
 
             const dateString = date.toLocaleDateString('id-ID', optionsDate);
-            const timeString = date.toLocaleTimeString('id-ID', optionsTime).replace(/\./g, ':'); // Ganti titik dengan : untuk waktu
+            const timeString = date.toLocaleTimeString('id-ID', optionsTime).replace(/\./g, ':');
 
-            // Cek apakah hari ini
             if (date.toDateString() === now.toDateString()) {
                 return `Hari ini, ${timeString}`;
             }
 
-            // Cek apakah kemarin
             const yesterday = new Date(now);
             yesterday.setDate(now.getDate() - 1);
             if (date.toDateString() === yesterday.toDateString()) {
@@ -632,27 +645,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Panggil fungsi loadLoginHistory saat DOM siap
     loadLoginHistory();
 
     // --- Theme Card Click Handler ---
     const themeOptionCards = document.querySelectorAll('.card-theme-option');
     themeOptionCards.forEach(card => {
         card.addEventListener('click', function(event) {
-            // Hindari trigger jika yang diklik adalah input radio itu sendiri
-            if (event.target.type === 'radio') return;
+            if (event.target.type === 'radio') return; // Jangan lakukan apa-apa jika radio yang diklik
             
             const radioInput = this.querySelector('input[type="radio"]');
             if (radioInput) {
                 radioInput.checked = true;
-                // Anda bisa menambahkan dispatch event change di sini jika diperlukan
-                // radioInput.dispatchEvent(new Event('change', { bubbles: true }));
+                // Trigger perubahan tema secara langsung untuk preview (opsional)
+                // const themeValue = radioInput.value;
+                // document.documentElement.setAttribute('data-bs-theme', themeValue);
+                // localStorage.setItem('theme', themeValue); // Simpan untuk konsistensi jika pengguna tidak submit
             }
         });
     });
 
-    // --- Tab Persistence (Opsional, jika ingin tab tetap aktif setelah refresh/redirect) ---
-    // Menggunakan localStorage untuk menyimpan tab aktif
+    // Ketika radio button tema diubah, update atribut data-bs-theme secara langsung untuk preview
+    const themeRadioButtons = document.querySelectorAll('input[name="theme"]');
+    themeRadioButtons.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                document.documentElement.setAttribute('data-bs-theme', this.value);
+                // Tidak perlu localStorage.setItem di sini karena form akan disubmit
+            }
+        });
+    });
+
+
+    // --- Tab Persistence ---
     const settingsTabs = document.querySelectorAll('#settingsTabs .nav-link');
     const savedTab = localStorage.getItem('activeSettingsTab');
 
@@ -670,8 +694,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Jika ada pesan error atau sukses pada suatu tab, aktifkan tab tersebut
-    // Contoh: Jika ada error validasi di tab security, aktifkan tab security
+    // Activate tab based on server-side errors/success messages
     @if($errors->has('current_password') || $errors->has('new_password') || session('success_security') || (session('error') && session('from_security')))
         const securityTab = new bootstrap.Tab(document.getElementById('security-tab'));
         securityTab.show();
@@ -681,12 +704,15 @@ document.addEventListener('DOMContentLoaded', function() {
         appearanceTab.show();
         localStorage.setItem('activeSettingsTab', '#appearance');
     @elseif($errors->any() && !$errors->has('current_password') && !$errors->has('new_password') && !$errors->has('theme') && !$errors->has('confirmation') || (session('success') && !session('success_security') && !session('success_appearance')))
+        // Default to account tab if no other specific errors/success
         const accountTab = new bootstrap.Tab(document.getElementById('account-tab'));
-        accountTab.show();
-        localStorage.setItem('activeSettingsTab', '#account');
+        if (!savedTab) { // Hanya tampilkan jika tidak ada tab yang disimpan sebelumnya
+            accountTab.show();
+            localStorage.setItem('activeSettingsTab', '#account');
+        }
     @endif
 
-    // Jika modal delete account memiliki error, tampilkan modalnya
+    // Show delete account modal if there are errors
     @if($errors->has('confirmation') || ($errors->has('error') && session('from_delete_account')))
         const deleteAccountModal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
         deleteAccountModal.show();

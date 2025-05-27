@@ -111,4 +111,21 @@ class CounselingController extends Controller
         return redirect()->route('counseling.my-requests')
             ->with('success', 'Permintaan konseling berhasil dibatalkan.');
     }
+
+    public function dashboard()
+    {
+        $pendingRequests = CounselingRequest::where('status', 'Pending')->count();
+        $todaySessions = CounselingRequest::whereDate('tanggal_permintaan', now())->count();
+        $activeStudents = CounselingRequest::distinct('idsiswa')->count();
+        $monthlySessions = CounselingRequest::whereMonth('tanggal_permintaan', now()->month)->count();
+        $latestRequests = CounselingRequest::with('student')->latest()->take(5)->get();
+
+        return view('teacher.dashboard', compact(
+            'pendingRequests',
+            'todaySessions',
+            'activeStudents',
+            'monthlySessions',
+            'latestRequests'
+        ));
+    }
 }

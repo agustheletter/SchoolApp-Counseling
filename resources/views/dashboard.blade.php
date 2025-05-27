@@ -2,6 +2,152 @@
 
 @section('title', 'Dashboard')
 
+@section('styles')
+<style>
+    /* ------------------------------------------------------------- */
+    /* CSS Variables untuk Dashboard (Light Mode Defaults)          */
+    /* ------------------------------------------------------------- */
+    :root {
+        /* Warna dasar yang mungkin sudah ada dari app.blade.php, tapi kita definisikan ulang untuk kejelasan */
+        --db-primary-color: #0d6efd; /* Warna primary Bootstrap default */
+        --db-text-muted-color: #6c757d;
+
+        /* Warna spesifik untuk card di dashboard (Light Mode) */
+        --db-card-bg: #ffffff;
+        --db-card-color: #212529; /* Warna teks dalam card */
+        --db-card-header-bg: #ffffff; /* Atau sedikit berbeda jika diinginkan, misal #f8f9fa */
+        --db-card-header-color: #212529; /* Warna teks di header card */
+        --db-card-border-color: #dee2e6;
+
+        /* Warna untuk list group item (Light Mode) */
+        --db-list-group-item-bg: #ffffff;
+        --db-list-group-item-color: #212529;
+        --db-list-group-item-border-color: rgba(0, 0, 0, 0.125);
+        --db-list-group-item-active-bg: var(--db-primary-color);
+        --db-list-group-item-active-color: #ffffff;
+        --db-list-group-item-action-hover-bg: #f8f9fa;
+    }
+
+    /* ------------------------------------------------------------- */
+    /* CSS Variables untuk Dashboard (Dark Mode Overrides)           */
+    /* Menggunakan [data-bs-theme="dark"] sebagai selector utama     */
+    /* karena itu yang diatur oleh JavaScript theme-toggle Anda      */
+    /* ------------------------------------------------------------- */
+    [data-bs-theme="dark"] { /* Atau body.dark-mode jika Anda menggunakan class itu */
+        --db-primary-color: #4dabf7; /* Warna primary yang lebih cerah untuk dark mode */
+        --db-text-muted-color: #adb5bd;
+
+        /* Warna spesifik untuk card di dashboard (Dark Mode) */
+        --db-card-bg: #343a40; /* Background card gelap */
+        --db-card-color: #f8f9fa; /* Teks terang dalam card */
+        --db-card-header-bg: #3e444a; /* Background header card sedikit lebih terang dari body card */
+        --db-card-header-color: #f8f9fa; /* Teks terang di header card */
+        --db-card-border-color: #495057;
+
+        /* Warna untuk list group item (Dark Mode) */
+        --db-list-group-item-bg: #343a40;
+        --db-list-group-item-color: #f8f9fa;
+        --db-list-group-item-border-color: rgba(255, 255, 255, 0.125);
+        --db-list-group-item-active-bg: var(--db-primary-color);
+        --db-list-group-item-active-color: #212529; /* Teks gelap di atas primary terang */
+        --db-list-group-item-action-hover-bg: #3e444a; /* Warna hover sedikit berbeda */
+    }
+
+    /* ------------------------------------------------------------- */
+    /* Menerapkan Variabel ke Elemen Card di Dashboard             */
+    /* ------------------------------------------------------------- */
+
+    /* Target card umum di dalam kolom .col-md-3 (sidebar) dan .col-md-9 (konten utama) */
+    /* Ini untuk menghindari mempengaruhi card lain di luar dashboard jika ada */
+    .container .row .col-md-3 .card,
+    .container .row .col-md-9 .card {
+        background-color: var(--db-card-bg) !important; /* !important untuk override style inline atau Bootstrap */
+        color: var(--db-card-color) !important;
+        border-color: var(--db-card-border-color) !important;
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .container .row .col-md-3 .card .card-title,
+    .container .row .col-md-9 .card .card-title {
+        color: var(--db-card-header-color) !important; /* Judul card */
+    }
+    
+    .container .row .col-md-3 .card p,
+    .container .row .col-md-9 .card p {
+        color: var(--db-card-color) !important; /* Teks paragraf dalam card */
+    }
+
+    .container .row .col-md-3 .card .text-muted,
+    .container .row .col-md-9 .card .text-muted {
+        color: var(--db-text-muted-color) !important; /* Teks muted dalam card */
+    }
+    
+    /* Target card-header spesifik di dashboard */
+    .container .row .col-md-9 .card .card-header {
+        background-color: var(--db-card-header-bg) !important;
+        color: var(--db-card-header-color) !important;
+        border-bottom-color: var(--db-card-border-color) !important; /* Border bawah header card */
+    }
+    .container .row .col-md-9 .card .card-header .card-title {
+        color: var(--db-card-header-color) !important; /* Judul di dalam header card */
+    }
+
+    /* List Group di Sidebar dan Aktivitas Terbaru */
+    .list-group {
+        --bs-list-group-border-color: var(--db-list-group-item-border-color); /* Bootstrap 5.3 variable */
+    }
+    .list-group-item {
+        background-color: var(--db-list-group-item-bg) !important;
+        color: var(--db-list-group-item-color) !important;
+        border-color: var(--db-list-group-item-border-color) !important;
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+    .list-group-item.active {
+        background-color: var(--db-list-group-item-active-bg) !important;
+        color: var(--db-list-group-item-active-color) !important;
+        border-color: var(--db-list-group-item-active-bg) !important;
+    }
+    .list-group-item-action:hover,
+    .list-group-item-action:focus {
+        background-color: var(--db-list-group-item-action-hover-bg) !important;
+        /* color: var(--db-list-group-item-color) !important; (opsional, tergantung desain) */
+    }
+
+    /* Styling untuk ikon display-4 di card summary */
+    .container .row .col-md-9 .card .display-4.text-primary {
+        color: var(--db-primary-color) !important;
+    }
+
+    /* Tombol Outline Primary di Sidebar */
+    .btn-outline-primary {
+        --bs-btn-color: var(--db-primary-color);
+        --bs-btn-border-color: var(--db-primary-color);
+        --bs-btn-hover-color: #fff; /* Teks putih saat hover */
+        --bs-btn-hover-bg: var(--db-primary-color);
+        --bs-btn-hover-border-color: var(--db-primary-color);
+        --bs-btn-active-color: #fff;
+        --bs-btn-active-bg: var(--db-primary-color);
+        --bs-btn-active-border-color: var(--db-primary-color);
+        --bs-btn-disabled-color: var(--db-primary-color);
+        --bs-btn-disabled-bg: transparent;
+    }
+
+    /* Tombol Primary (jika tidak dihandle global) */
+    .btn-primary {
+        --bs-btn-color: #fff; /* Teks selalu putih untuk tombol primary solid */
+        --bs-btn-bg: var(--db-primary-color);
+        --bs-btn-border-color: var(--db-primary-color);
+        --bs-btn-hover-color: #fff;
+        --bs-btn-hover-bg: color-mix(in srgb, var(--db-primary-color) 85%, black); /* Sedikit lebih gelap */
+        --bs-btn-hover-border-color: color-mix(in srgb, var(--db-primary-color) 80%, black);
+        --bs-btn-active-color: #fff;
+        --bs-btn-active-bg: color-mix(in srgb, var(--db-primary-color) 80%, black);
+        --bs-btn-active-border-color: color-mix(in srgb, var(--db-primary-color) 75%, black);
+    }
+
+</style>
+@endsection
+
 @section('content')
 <div class="container py-5">
     <div class="row">
@@ -94,7 +240,9 @@
             </div>
             
             <div class="card shadow-sm mt-4">
-                <div class="card-header bg-white">
+                {{-- bg-white bisa dihapus, atau biarkan jika ingin fallback jika CSS gagal load --}}
+                {{-- Dengan !important di CSS, bg-white akan di-override --}}
+                <div class="card-header"> 
                     <h5 class="card-title mb-0">Aktivitas Terbaru</h5>
                 </div>
                 <div class="card-body">
@@ -111,7 +259,7 @@
             </div>
             
             <div class="card shadow-sm mt-4">
-                <div class="card-header bg-white">
+                <div class="card-header">
                     <h5 class="card-title mb-0">Konselor yang Tersedia</h5>
                 </div>
                 <div class="card-body">
@@ -158,4 +306,10 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+{{-- Tidak ada JavaScript spesifik yang dibutuhkan di sini untuk tema, --}}
+{{-- karena perubahan tema dihandle global oleh script di app.blade.php --}}
+{{-- atau oleh theme-toggle.js Anda --}}
 @endsection

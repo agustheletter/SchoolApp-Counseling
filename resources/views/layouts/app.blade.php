@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-{{-- Tambahkan atribut data-bs-theme di sini --}}
 <html lang="id" data-bs-theme="{{ Auth::check() && Auth::user()->theme ? Auth::user()->theme : config('app.default_theme', 'light') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Layanan Konseling SMK NEGERI 1 CIMAHI - @yield('title', 'Beranda')</title>
     
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"> {{-- Versi Bootstrap diperbarui ke 5.3.2 untuk dukungan data-bs-theme yang lebih baik --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"> 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -15,7 +14,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <style>
-        /* Variabel warna dasar */
+        
         :root {
             --primary-light: #6c5ce7;
             --secondary-light: #ffc107;
@@ -25,18 +24,16 @@
             --primary-hover-light: #5649c0;
             --secondary-hover-light: #e0a800;
 
-            /* Dark theme colors (contoh, bisa disesuaikan) */
-            --primary-dark: #8a7ff0; /* Sedikit lebih terang dari primary-light */
-            --secondary-dark: #ffd043; /* Sedikit lebih terang dari secondary-light */
-            --dark-bg: #212529; /* Bootstrap $dark */
-            --dark-surface-bg: #343a40; /* Bootstrap $gray-800, untuk cards, navbar, footer */
-            --light-text-dark-theme: #f8f9fa; /* Teks terang di tema gelap */
-            --muted-text-dark-theme: #adb5bd; /* Bootstrap $gray-500 */
+            --primary-dark: #8a7ff0; 
+            --secondary-dark: #ffd043; 
+            --dark-bg: #212529;  
+            --dark-surface-bg: #343a40;  
+            --light-text-dark-theme: #f8f9fa;  
+            --muted-text-dark-theme: #adb5bd;  
             --primary-hover-dark: #796de0;
             --secondary-hover-dark: #f0c032;
-        }
-
-        /* Default (Light Theme) Variables */
+        } 
+        
         body {
             --app-primary: var(--primary-light);
             --app-secondary: var(--secondary-light);
@@ -110,7 +107,6 @@
              background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28248, 249, 250, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
         }
 
-
         /* Button styling */
         .btn-primary {
             background-color: var(--app-btn-primary-bg);
@@ -178,15 +174,146 @@
             /* ... sisa style blog-card ... */
         }
         
-        /* Auth form styling */
+        /* Auth form styling - DIPERBAIKI */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 15px;
+            background: linear-gradient(135deg, var(--app-primary) 0%, var(--app-secondary) 100%);
+        }
+        
         .auth-form {
             background-color: var(--app-card-bg);
-            color: var(--app-body-color); /* Warna teks dalam card */
-            /* ... sisa style auth-form ... */
+            color: var(--app-body-color);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            border: none;
+            transition: all 0.3s ease;
         }
+        
+        [data-bs-theme="dark"] .auth-form {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .auth-form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        [data-bs-theme="dark"] .auth-form:hover {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+        
         .auth-form h2 {
             color: var(--app-primary);
-            /* ... sisa style auth-form h2 ... */
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+        
+        .auth-form .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background-color: var(--app-card-bg);
+            color: var(--app-body-color);
+            margin-bottom: 20px;
+        }
+        
+        .auth-form .form-control:focus {
+            border-color: var(--app-primary);
+            box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.15);
+            background-color: var(--app-card-bg);
+        }
+        
+        [data-bs-theme="dark"] .auth-form .form-control {
+            border-color: #495057;
+            background-color: var(--app-card-bg);
+        }
+        
+        [data-bs-theme="dark"] .auth-form .form-control:focus {
+            border-color: var(--app-primary);
+            background-color: var(--app-card-bg);
+        }
+        
+        .auth-form .btn-primary {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+        
+        .auth-form .text-center a {
+            color: var(--app-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .auth-form .text-center a:hover {
+            color: var(--app-secondary);
+            text-decoration: underline;
+        }
+        
+        .auth-back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        
+        .auth-back-btn a {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .auth-back-btn a:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .auth-back-btn i {
+            margin-right: 8px;
+        }
+        
+        /* Responsive untuk auth form */
+        @media (max-width: 576px) {
+            .auth-form {
+                padding: 30px 25px;
+                margin: 15px;
+                max-width: 100%;
+            }
+            
+            .auth-container {
+                padding: 20px 10px;
+            }
+            
+            .auth-back-btn {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 20px;
+                text-align: center;
+            }
         }
         
         /* Footer styling */
@@ -285,7 +412,13 @@
                                 {{ Auth::user()->nama }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{{ route('dashboard') }}">Layanan Konseling</a></li>
+                                @if(Auth::check() && Auth::user()->role === 'guru')
+                                    <li><a class="dropdown-item" href="{{ route('teacher.dashboard') }}">Dashboard Guru</a></li>
+                                @elseif(Auth::check() && Auth::user()->role === 'admin')
+                                    <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">Dashboard Admin</a></li>
+                                @elseif(Auth::check())
+                                    <li><a class="dropdown-item" href="{{ route('dashboard') }}">Layanan Konseling</a></li>
+                                @endif
                                 {{-- Tambahkan link ke halaman pengaturan di sini --}}
                                 <li><a class="dropdown-item" href="{{ route('profile.settings') }}">Pengaturan</a></li>
                                 <li><hr class="dropdown-divider"></li>

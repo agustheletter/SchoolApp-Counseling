@@ -335,9 +335,6 @@
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="{{ route('admin.dashboard') }}" class="nav-link">Dashboard</a>
             </li>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="#" class="nav-link">Bantuan</a>
-            </li>
         </ul>
 
         <!-- Right navbar links -->
@@ -361,73 +358,6 @@
                             </div>
                         </div>
                     </form>
-                </div>
-            </li>
-
-            <!-- Messages Dropdown Menu -->
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="far fa-comments"></i>
-                    <span class="badge badge-danger navbar-badge">3</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <a href="#" class="dropdown-item">
-                        <div class="media">
-                            <img src="/placeholder.svg?height=50&width=50" alt="User Avatar" class="img-size-50 mr-3 img-circle">
-                            <div class="media-body">
-                                <h3 class="dropdown-item-title">
-                                    Dr. Sarah Johnson
-                                    <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
-                                </h3>
-                                <p class="text-sm">Permintaan konseling darurat dari siswa...</p>
-                                <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 menit yang lalu</p>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <div class="media">
-                            <img src="/placeholder.svg?height=50&width=50" alt="User Avatar" class="img-size-50 mr-3 img-circle">
-                            <div class="media-body">
-                                <h3 class="dropdown-item-title">
-                                    Ahmad Wijaya
-                                    <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
-                                </h3>
-                                <p class="text-sm">Laporan konseling bulan ini sudah selesai</p>
-                                <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 2 jam yang lalu</p>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item dropdown-footer">Lihat Semua Pesan</a>
-                </div>
-            </li>
-            
-            <!-- Notifications Dropdown Menu -->
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="far fa-bell"></i>
-                    <span class="badge badge-warning navbar-badge">15</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <span class="dropdown-item dropdown-header">15 Notifikasi</span>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <i class="fas fa-envelope mr-2"></i> 4 permintaan konseling baru
-                        <span class="float-right text-muted text-sm">3 menit</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <i class="fas fa-users mr-2"></i> 8 siswa baru terdaftar
-                        <span class="float-right text-muted text-sm">12 jam</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <i class="fas fa-file mr-2"></i> 3 laporan baru
-                        <span class="float-right text-muted text-sm">2 hari</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item dropdown-footer">Lihat Semua Notifikasi</a>
                 </div>
             </li>
             
@@ -522,7 +452,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('admin.student') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Siswa</p>
                                     <span class="badge badge-primary right">150</span>
@@ -607,84 +537,6 @@
                                 </a>
                             </li>
                         </ul>
-                    </li>
-                    
-                    <!-- Reports -->
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-chart-bar"></i>
-                            <p>
-                                Laporan & Analitik
-                                <i class="fas fa-angle-left right"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Laporan Konseling</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Laporan User</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Analitik Dashboard</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    
-                    <!-- Settings -->
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-cogs"></i>
-                            <p>
-                                Pengaturan Sistem
-                                <i class="fas fa-angle-left right"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Pengaturan Umum</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Notifikasi</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Backup & Restore</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    
-                    <!-- Activity Log -->
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-history"></i>
-                            <p>Log Aktivitas</p>
-                        </a>
-                    </li>
-                    
-                    <!-- System Info -->
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-info-circle"></i>
-                            <p>Info Sistem</p>
-                        </a>
                     </li>
                     
                     <li class="nav-header">AKSI CEPAT</li>

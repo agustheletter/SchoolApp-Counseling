@@ -76,6 +76,53 @@
         background-color: #6c5ce7;
         color: white;
     }
+    
+    /* PERBAIKAN UNTUK RATING PROGRESS BARS */
+    .rating-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        min-height: 24px; /* Konstrain tinggi minimum */
+    }
+    
+    .rating-row:last-child {
+        margin-bottom: 0;
+    }
+    
+    .rating-stars-fixed {
+        width: 80px; /* Fixed width untuk konsistensi */
+        flex-shrink: 0; /* Prevent shrinking */
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        color: #ffc107;
+    }
+    
+    .rating-stars-fixed .far {
+        color: #e9ecef;
+    }
+    
+    .progress-container {
+        flex: 1; /* Take remaining space */
+        margin: 0 12px; /* Consistent spacing */
+        min-width: 0; /* Allow shrinking if needed */
+    }
+    
+    .progress-fixed {
+        height: 8px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .rating-count {
+        width: 20px; /* Fixed width untuk angka */
+        flex-shrink: 0;
+        text-align: right;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #6c757d;
+    }
 </style>
 @endsection
 
@@ -328,101 +375,27 @@
                 <div class="card-header bg-white">
                     <h5 class="mb-0">Statistik Konseling</h5>
                 </div>
-                <div class="card-body">
-                    <div class="mb-4">
-                        <h6 class="mb-3">Jenis Konseling</h6>
-                        <canvas id="counselingTypeChart" height="200"></canvas>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h6 class="mb-3">Penilaian Konseling</h6>
-                        <div class="d-flex align-items-center mb-2">
-                            <div class="rating-stars me-2">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <div class="progress flex-grow-1" style="height: 8px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <span class="ms-2">6</span>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <div class="rating-stars me-2">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="far fa-star"></i>
-                            </div>
-                            <div class="progress flex-grow-1" style="height: 8px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <span class="ms-2">3</span>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <div class="rating-stars me-2">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="far fa-star"></i>
-                                <i class="far fa-star"></i>
-                            </div>
-                            <div class="progress flex-grow-1" style="height: 8px;">
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <span class="ms-2">1</span>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <div class="rating-stars me-2">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="far fa-star"></i>
-                                <i class="far fa-star"></i>
-                                <i class="far fa-star"></i>
-                            </div>
-                            <div class="progress flex-grow-1" style="height: 8px;">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <span class="ms-2">0</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <div class="rating-stars me-2">
-                                <i class="fas fa-star"></i>
-                                <i class="far fa-star"></i>
-                                <i class="far fa-star"></i>
-                                <i class="far fa-star"></i>
-                                <i class="far fa-star"></i>
-                            </div>
-                            <div class="progress flex-grow-1" style="height: 8px;">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <span class="ms-2">0</span>
-                        </div>
-                    </div>
-                    
+
                     <div>
                         <h6 class="mb-3">Konselor yang Paling Sering Dikonsultasi</h6>
                         <div class="d-flex align-items-center mb-3">
-                            <img src="https://via.placeholder.com/50x50" class="rounded-circle me-3" alt="Dr. Andi Wijaya">
+                            <img src="https://via.placeholder.com/50x50" class="rounded-circle me-3" alt="Guru Konseling 1">
                             <div>
-                                <h6 class="mb-0">Dr. Andi Wijaya</h6>
+                                <h6 class="mb-0">Guru Konseling 1</h6>
                                 <p class="text-muted mb-0 small">5 sesi</p>
                             </div>
                         </div>
                         <div class="d-flex align-items-center mb-3">
-                            <img src="https://via.placeholder.com/50x50" class="rounded-circle me-3" alt="Dewi Lestari, M.Pd">
+                            <img src="https://via.placeholder.com/50x50" class="rounded-circle me-3" alt="Guru Konseling 2">
                             <div>
-                                <h6 class="mb-0">Dewi Lestari, M.Pd</h6>
+                                <h6 class="mb-0">Guru Konseling 2</h6>
                                 <p class="text-muted mb-0 small">3 sesi</p>
                             </div>
                         </div>
                         <div class="d-flex align-items-center">
-                            <img src="https://via.placeholder.com/50x50" class="rounded-circle me-3" alt="Budi Santoso, S.Pd">
+                            <img src="https://via.placeholder.com/50x50" class="rounded-circle me-3" alt="Guru Konseling 3">
                             <div>
-                                <h6 class="mb-0">Budi Santoso, S.Pd</h6>
+                                <h6 class="mb-0">Guru Konseling 3</h6>
                                 <p class="text-muted mb-0 small">2 sesi</p>
                             </div>
                         </div>
@@ -430,60 +403,10 @@
                 </div>
             </div>
             
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Timeline Konseling</h5>
-                </div>
-                <div class="card-body">
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-date">15 Mei 2023</div>
-                                <h6 class="mb-1">Konseling Akademik</h6>
-                                <p class="mb-0 text-muted small">Strategi belajar efektif untuk persiapan ujian akhir</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-date">28 April 2023</div>
-                                <h6 class="mb-1">Konseling Karir</h6>
-                                <p class="mb-0 text-muted small">Eksplorasi minat dan bakat untuk pemilihan jurusan kuliah</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-date">10 April 2023</div>
-                                <h6 class="mb-1">Konseling Pribadi (Dibatalkan)</h6>
-                                <p class="mb-0 text-muted small">Manajemen stres dan kecemasan</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-date">22 Maret 2023</div>
-                                <h6 class="mb-1">Konseling Sosial</h6>
-                                <p class="mb-0 text-muted small">Pengembangan keterampilan komunikasi dan resolusi konflik</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-date">5 Maret 2023</div>
-                                <h6 class="mb-1">Konseling Akademik (Dibatalkan)</h6>
-                                <p class="mb-0 text-muted small">Perencanaan studi dan pemilihan mata pelajaran</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Detail Sesi 1 -->
 <div class="modal fade" id="sessionDetailModal1" tabindex="-1" aria-labelledby="sessionDetailModal1Label" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

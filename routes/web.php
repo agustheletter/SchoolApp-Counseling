@@ -50,13 +50,18 @@ Route::prefix('profile')->name('profile.')->group(function () {
     Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
 });
 
-Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:guru'])->group(function(){
-    Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
+Route::prefix('teacher')->name('teacher.')->middleware(['auth', CheckRole::class . ':guru'])->group(function(){
+    Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
     Route::get('/request', [TeacherController::class, 'request'])->name('request');
+    Route::post('/teacher/request/{id}/approve', [TeacherController::class, 'approveRequest'])->name('teacher.request.approve');
+    Route::post('/teacher/request/{id}/reject', [TeacherController::class, 'rejectRequest'])->name('teacher.request.reject');
+    Route::post('/teacher/request/{id}/complete', [TeacherController::class, 'completeRequest'])->name('teacher.request.complete');
 });
 
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', CheckRole::class . ':admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/student', [AdminController::class, 'student'])->name('student');
+    
 });
 
 Route::middleware(['auth'])->group(function () {

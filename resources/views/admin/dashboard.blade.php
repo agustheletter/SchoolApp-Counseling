@@ -78,19 +78,7 @@
         </div>
     </div>
     
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-success">
-            <div class="inner">
-                <h3>53<sup style="font-size: 20px">%</sup></h3>
-                <p>Tingkat Kehadiran</p>
-            </div>
-            <div class="icon">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <a href="#" class="small-box-footer">Selengkapnya <i class="fas fa-arrow-circle-right"></i></a>
-        </div>
-    </div>
-    
+
     <div class="col-lg-3 col-6">
         <div class="small-box bg-warning">
             <div class="inner">
@@ -174,7 +162,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h6 class="mb-1">Sesi konseling akademik selesai</h6>
-                            <p class="text-muted mb-0 small">Dr. Sarah dengan siswa Rina Wijaya - Kelas XII IPA 1</p>
+                            <p class="text-muted mb-0 small">Guru Konselor 1 Telah menyelesaikan konseling dengan Hasby Muhammad Sahwa</p>
                         </div>
                         <small class="text-muted">5 menit lalu</small>
                     </div>
@@ -184,7 +172,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h6 class="mb-1">Permintaan konseling karir baru</h6>
-                            <p class="text-muted mb-0 small">Dari siswa Budi Santoso - Kelas XI IPS 2</p>
+                            <p class="text-muted mb-0 small">Dari siswa Arkan Ardiansyah - XI RPL A</p>
                         </div>
                         <small class="text-muted">15 menit lalu</small>
                     </div>
@@ -194,7 +182,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h6 class="mb-1">Laporan konseling pribadi dibuat</h6>
-                            <p class="text-muted mb-0 small">Ahmad Wijaya membuat laporan untuk siswa Sari Indah</p>
+                            <p class="text-muted mb-0 small">Ahmad Wijaya membuat laporan untuk siswa Yusuf Leonardo</p>
                         </div>
                         <small class="text-muted">1 jam lalu</small>
                     </div>
@@ -207,16 +195,6 @@
                             <p class="text-muted mb-0 small">5 siswa baru ditambahkan ke sistem</p>
                         </div>
                         <small class="text-muted">2 jam lalu</small>
-                    </div>
-                </div>
-                
-                <div class="activity-item academic">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="mb-1">Backup data sistem berhasil</h6>
-                            <p class="text-muted mb-0 small">Backup otomatis database dan file sistem</p>
-                        </div>
-                        <small class="text-muted">3 jam lalu</small>
                     </div>
                 </div>
             </div>
@@ -262,61 +240,7 @@
     
     <!-- Right col -->
     <section class="col-lg-5 connectedSortable">
-        <!-- Notifikasi Penting -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-bell mr-1"></i>
-                    Notifikasi Penting
-                </h3>
-                <div class="card-tools">
-                    <span class="badge badge-danger">3</span>
-                </div>
-            </div>
-            <div class="card-body p-0">
-                <div class="notification-item">
-                    <div class="d-flex align-items-center">
-                        <div class="notification-icon bg-danger">
-                            <i class="fas fa-exclamation-triangle text-white"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">Permintaan Konseling Darurat</h6>
-                            <p class="text-muted mb-0 small">Siswa membutuhkan konseling segera</p>
-                            <small class="text-muted">2 menit lalu</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="notification-item">
-                    <div class="d-flex align-items-center">
-                        <div class="notification-icon bg-warning">
-                            <i class="fas fa-clock text-white"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">Jadwal Konseling Bentrok</h6>
-                            <p class="text-muted mb-0 small">2 sesi dijadwalkan pada waktu yang sama</p>
-                            <small class="text-muted">15 menit lalu</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="notification-item">
-                    <div class="d-flex align-items-center">
-                        <div class="notification-icon bg-info">
-                            <i class="fas fa-info-circle text-white"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">Update Sistem Tersedia</h6>
-                            <p class="text-muted mb-0 small">Versi 1.1.0 siap untuk diinstall</p>
-                            <small class="text-muted">1 jam lalu</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer text-center">
-                <a href="#" class="btn btn-sm btn-outline-primary">Lihat Semua Notifikasi</a>
-            </div>
-        </div>
+       
 
         <!-- Statistik Konselor -->
         <div class="card">
@@ -367,97 +291,6 @@
                 </div>
                 <div class="progress progress-sm mb-3">
                     <div class="progress-bar bg-warning" style="width: 55%"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Jadwal Hari Ini -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-calendar-day mr-1"></i>
-                    Jadwal Hari Ini
-                </h3>
-                <div class="card-tools">
-                    <span class="badge badge-primary">5 sesi</span>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Konselor</th>
-                                <th>Siswa</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>09:00</td>
-                                <td>Dr. Sarah</td>
-                                <td>Rina W.</td>
-                                <td><span class="badge badge-success badge-status">Selesai</span></td>
-                            </tr>
-                            <tr>
-                                <td>10:30</td>
-                                <td>Ahmad W.</td>
-                                <td>Budi S.</td>
-                                <td><span class="badge badge-primary badge-status">Berlangsung</span></td>
-                            </tr>
-                            <tr>
-                                <td>13:00</td>
-                                <td>Siti N.</td>
-                                <td>Sari I.</td>
-                                <td><span class="badge badge-warning badge-status">Terjadwal</span></td>
-                            </tr>
-                            <tr>
-                                <td>14:30</td>
-                                <td>Dr. Sarah</td>
-                                <td>Andi P.</td>
-                                <td><span class="badge badge-warning badge-status">Terjadwal</span></td>
-                            </tr>
-                            <tr>
-                                <td>15:30</td>
-                                <td>Ahmad W.</td>
-                                <td>Dewi S.</td>
-                                <td><span class="badge badge-warning badge-status">Terjadwal</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- System Status -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-server mr-1"></i>
-                    Status Sistem
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span>Server Status</span>
-                    <span class="badge badge-success">Online</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span>Database</span>
-                    <span class="badge badge-success">Connected</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span>Storage</span>
-                    <span class="badge badge-warning">75% Used</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span>Last Backup</span>
-                    <span class="badge badge-info">2 hours ago</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span>Active Users</span>
-                    <span class="badge badge-primary">42 online</span>
                 </div>
             </div>
         </div>
@@ -804,5 +637,78 @@ window.dashboardUtils = {
     showNotification: showNotification,
     updateStatistics: updateStatistics
 };
+
+// Approve, reject, complete request functions
+function approveRequest() {
+    if (currentRequestId) {
+        fetch(`/request/${currentRequestId}/approve`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Permintaan konseling berhasil diterima!');
+                location.reload();
+            } else {
+                alert('Gagal menerima permintaan konseling.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan. Silakan coba lagi.');
+        });
+    }
+}
+
+function rejectRequest() {
+    if (currentRequestId) {
+        fetch(`/request/${currentRequestId}/reject`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Permintaan konseling berhasil ditolak.');
+                location.reload();
+            } else {
+                alert('Gagal menolak permintaan konseling.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan. Silakan coba lagi.');
+        });
+    }
+}
+
+function completeRequest() {
+    if (currentRequestId) {
+        fetch(`/request/${currentRequestId}/complete`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Permintaan konseling berhasil diselesaikan.');
+                location.reload();
+            } else {
+                alert('Gagal menyelesaikan permintaan konseling.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan. Silakan coba lagi.');
+        });
+    }
+}
 </script>
 @endsection

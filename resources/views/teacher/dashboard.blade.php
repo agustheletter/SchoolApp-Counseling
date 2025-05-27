@@ -1,3 +1,4 @@
+{{-- filepath: d:\Project\School_App\counseling\counseling-fix\SchoolApp-Counseling\resources\views\teacher\dashboard.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Dashboard Konselor')
@@ -97,7 +98,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h1 class="h3 mb-0">Dashboard Konselor</h1>
-                    <p class="text-muted mb-0">Selamat datang kembali, Arkan Ardiansyah</p>
+                    <p class="text-muted mb-0">Selamat datang kembali, {{ auth()->user()->name }}</p>
                 </div>
                 <div>
                    <a href="{{ route('teacher.request') }}" class="btn btn-outline-primary quick-action-btn">
@@ -118,7 +119,7 @@
                             <i class="fas fa-clock"></i>
                         </div>
                         <div>
-                            <h3 class="mb-0">8</h3>
+                            <h3 class="mb-0">{{ $pendingRequests }}</h3>
                             <p class="text-muted mb-0">Permintaan Pending</p>
                         </div>
                     </div>
@@ -134,7 +135,7 @@
                             <i class="fas fa-calendar-check"></i>
                         </div>
                         <div>
-                            <h3 class="mb-0">5</h3>
+                            <h3 class="mb-0">{{ $todaySessions }}</h3>
                             <p class="text-muted mb-0">Sesi Hari Ini</p>
                         </div>
                     </div>
@@ -150,7 +151,7 @@
                             <i class="fas fa-users"></i>
                         </div>
                         <div>
-                            <h3 class="mb-0">42</h3>
+                            <h3 class="mb-0">{{ $activeStudents }}</h3>
                             <p class="text-muted mb-0">Siswa Aktif</p>
                         </div>
                     </div>
@@ -166,7 +167,7 @@
                             <i class="fas fa-chart-line"></i>
                         </div>
                         <div>
-                            <h3 class="mb-0">156</h3>
+                            <h3 class="mb-0">{{ $monthlySessions }}</h3>
                             <p class="text-muted mb-0">Total Sesi Bulan Ini</p>
                         </div>
                     </div>
@@ -175,100 +176,41 @@
         </div>
     </div>
 
+    <!-- Permintaan Konseling Terbaru -->
     <div class="row">
-        <!-- Permintaan Konseling Terbaru -->
         <div class="col-lg-8 mb-4">
             <div class="card">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div class="card-header bg-white">
                     <h5 class="mb-0">Permintaan Konseling Terbaru</h5>
-                    <a href="" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
                 </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        <!-- Request 1 -->
-                        <div class="list-group-item request-card priority-high">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="https://via.placeholder.com/40x40" class="rounded-circle me-3" alt="Student">
-                                        <div>
-                                            <h6 class="mb-0">Hasby Muhammad Sahwa</h6>
-                                            <small class="text-muted">Kelas XI RPL A • NIS: 1234567890</small>
-                                        </div>
-                                        <span class="badge bg-danger ms-auto">Prioritas Tinggi</span>
-                                    </div>
-                                    <p class="mb-2"><strong>Jenis:</strong> Konseling Pribadi</p>
-                                    <p class="mb-2"><strong>Topik:</strong> Masalah kecemasan dan stres menghadapi hidup sebagai perantau</p>
-                                    <p class="mb-2 text-muted"><i class="fas fa-clock me-1"></i> Diajukan 2 jam yang lalu</p>
-                                    <p class="mb-0"><strong>Preferensi Waktu:</strong> Senin-Rabu, 10:00-12:00</p>
-                                </div>
-                                <div class="ms-3">
-                                    <button class="btn btn-sm btn-success me-1" onclick="approveRequest(1)">
-                                        <i class="fas fa-check"></i> Terima
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="rejectRequest(1)">
-                                        <i class="fas fa-times"></i> Tolak
-                                    </button>
-                                </div>
+                <div class="card-body">
+                    @forelse ($latestRequests as $request)
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-1"><strong>{{ $request->student->nama }}</strong> mengajukan konseling.</p>
+                                <p class="mb-1"><strong>Kategori:</strong> {{ $request->kategori }}</p>
+                                <p class="mb-1"><strong>Deskripsi:</strong> {{ $request->deskripsi }}</p>
+                                <div class="activity-time">{{ $request->created_at->diffForHumans() }}</div>
                             </div>
+                            <span class="badge bg-{{ $request->priorityBadge }}">{{ $request->priorityLabel }}</span>
                         </div>
-                        
-                        <!-- Request 2 -->
-                        <div class="list-group-item request-card priority-medium">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="https://via.placeholder.com/40x40" class="rounded-circle me-3" alt="Student">
-                                        <div>
-                                            <h6 class="mb-0">Kitna Mahardika Favian</h6>
-                                            <small class="text-muted">Kelas XII RPL A • NIS: 1234567891</small>
-                                        </div>
-                                        <span class="badge bg-warning ms-auto">Prioritas Sedang</span>
-                                    </div>
-                                    <p class="mb-2"><strong>Jenis:</strong> Konseling Akademik</p>
-                                    <p class="mb-2"><strong>Topik:</strong> Strategi belajar untuk persiapan UTBK</p>
-                                    <p class="mb-2 text-muted"><i class="fas fa-clock me-1"></i> Diajukan 4 jam yang lalu</p>
-                                    <p class="mb-0"><strong>Preferensi Waktu:</strong> Selasa-Kamis, 13:00-15:00</p>
-                                </div>
-                                <div class="ms-3">
-                                    <button class="btn btn-sm btn-success me-1" onclick="approveRequest(2)">
-                                        <i class="fas fa-check"></i> Terima
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="rejectRequest(2)">
-                                        <i class="fas fa-times"></i> Tolak
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Request 3 -->
-                        <div class="list-group-item request-card priority-low">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="https://via.placeholder.com/40x40" class="rounded-circle me-3" alt="Student">
-                                        <div>
-                                            <h6 class="mb-0">Raden Airlangga Dewanata</h6>
-                                            <small class="text-muted">Kelas XI RPL A • NIS: 1234567892</small>
-                                        </div>
-                                        <span class="badge bg-success ms-auto">Prioritas Rendah</span>
-                                    </div>
-                                    <p class="mb-2"><strong>Jenis:</strong> Konseling Karir</p>
-                                    <p class="mb-2"><strong>Topik:</strong> Eksplorasi minat dan bakat untuk pemilihan jurusan</p>
-                                    <p class="mb-2 text-muted"><i class="fas fa-clock me-1"></i> Diajukan 1 hari yang lalu</p>
-                                    <p class="mb-0"><strong>Preferensi Waktu:</strong> Senin-Jumat, 08:00-10:00</p>
-                                </div>
-                                <div class="ms-3">
-                                    <button class="btn btn-sm btn-success me-1" onclick="approveRequest(3)">
-                                        <i class="fas fa-check"></i> Terima
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="rejectRequest(3)">
-                                        <i class="fas fa-times"></i> Tolak
-                                    </button>
-                                </div>
-                            </div>
+                        <!-- Action Buttons -->
+                        <div class="mt-2">
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#approveModal" onclick="setRequestId({{ $request->id }})">
+                                <i class="fas fa-check"></i> Terima
+                            </button>
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal" onclick="setRequestId({{ $request->id }})">
+                                <i class="fas fa-times"></i> Tolak
+                            </button>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#completeModal" onclick="setRequestId({{ $request->id }})">
+                                <i class="fas fa-check-circle"></i> Selesaikan
+                            </button>
                         </div>
                     </div>
+                    @empty
+                    <p class="text-muted">Belum ada permintaan konseling terbaru.</p>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -279,103 +221,28 @@
             <div class="card mb-4">
                 <div class="card-header bg-white">
                     <h5 class="mb-0">Jadwal Hari Ini</h5>
-                    <small class="text-muted">{{ date('d F Y') }}</small>
+                    <small class="text-muted">{{ now()->format('d F Y') }}</small>
                 </div>
                 <div class="card-body">
+                    @forelse ($todaySchedule as $schedule)
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold">09:00 - 10:00</span>
-                            <span class="badge bg-primary">Akademik</span>
+                            <span class="fw-bold">{{ $schedule->tanggal_permintaan->format('H:i') }}</span>
+                            <span class="badge bg-primary">{{ $schedule->kategori }}</span>
                         </div>
-                        <p class="mb-1">Yusuf Leonardo - Kelas XI TEI A</p>
-                        <small class="text-muted">Strategi belajar matematika</small>
+                        <p class="mb-1">{{ $schedule->student->nama }} - Kelas {{ $schedule->student->class }}</p>
+                        <small class="text-muted">{{ $schedule->deskripsi }}</small>
                     </div>
-                    
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold">11:00 - 12:00</span>
-                            <span class="badge bg-warning">Pribadi</span>
-                        </div>
-                        <p class="mb-1">Rizky Prasetya - Kelas XI RPL A</p>
-                        <small class="text-muted">Manajemen stres</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold">13:00 - 14:00</span>
-                            <span class="badge bg-success">Karir</span>
-                        </div>
-                        <p class="mb-1">Supri Stending - Kelas X MEKA A</p>
-                        <small class="text-muted">Pemilihan jurusan kuliah</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold">15:00 - 16:00</span>
-                            <span class="badge bg-info">Sosial</span>
-                        </div>
-                        <p class="mb-1">Saepodein - Kelas Ruang Guru</p>
-                        <small class="text-muted">Adaptasi lingkungan sekolah</small>
-                    </div>
-                    
-                    <div class="text-center mt-3">
-                        <a href="" class="btn btn-outline-primary btn-sm">Lihat Jadwal Lengkap</a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Aktivitas Terbaru -->
-            <div class="card">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Aktivitas Terbaru</h5>
-                </div>
-                <div class="card-body">
-                    <div class="activity-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="mb-1">Sesi konseling dengan <strong>Yusuf Leonardo</strong> selesai</p>
-                                <div class="activity-time">2 jam yang lalu</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="mb-1">Permintaan konseling dari <strong>Rizky Prasetya</strong> diterima</p>
-                                <div class="activity-time">3 jam yang lalu</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="mb-1">Laporan konseling untuk <strong>Supri Stending</strong> dibuat</p>
-                                <div class="activity-time">5 jam yang lalu</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="mb-1">Jadwal konseling minggu depan diperbarui</p>
-                                <div class="activity-time">1 hari yang lalu</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-center mt-3">
-                        <a href="#" class="btn btn-outline-primary btn-sm">Lihat Semua Aktivitas</a>
-                    </div>
+                    @empty
+                    <p class="text-muted">Tidak ada jadwal konseling untuk hari ini.</p>
+                    @endforelse
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Approve Request -->
+<!-- Approve Modal -->
 <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -384,46 +251,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="approveForm">
-                    <div class="mb-3">
-                        <label for="scheduledDate" class="form-label">Tanggal Konseling</label>
-                        <input type="date" class="form-control" id="scheduledDate" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="scheduledTime" class="form-label">Waktu Konseling</label>
-                        <input type="time" class="form-control" id="scheduledTime" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="duration" class="form-label">Durasi (menit)</label>
-                        <select class="form-select" id="duration">
-                            <option value="45">45 menit</option>
-                            <option value="60" selected>60 menit</option>
-                            <option value="90">90 menit</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="location" class="form-label">Lokasi</label>
-                        <select class="form-select" id="location">
-                            <option value="room1">Ruang Konseling 1</option>
-                            <option value="room2">Ruang Konseling 2</option>
-                            <option value="online">Online (Video Call)</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="notes" class="form-label">Catatan (Opsional)</label>
-                        <textarea class="form-control" id="notes" rows="3" placeholder="Catatan tambahan untuk siswa..."></textarea>
-                    </div>
-                </form>
+                Apakah Anda yakin ingin menerima permintaan konseling ini?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-success" onclick="confirmApprove()">Terima Permintaan</button>
+                <button type="button" class="btn btn-success" onclick="approveRequest()">Terima</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Reject Request -->
+<!-- Reject Modal -->
 <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -432,35 +270,30 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="rejectForm">
-                    <div class="mb-3">
-                        <label for="rejectReason" class="form-label">Alasan Penolakan</label>
-                        <select class="form-select" id="rejectReason" required>
-                            <option value="">Pilih alasan...</option>
-                            <option value="schedule_conflict">Konflik jadwal</option>
-                            <option value="not_suitable">Tidak sesuai dengan keahlian</option>
-                            <option value="insufficient_info">Informasi tidak lengkap</option>
-                            <option value="other">Lainnya</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="rejectNotes" class="form-label">Catatan Tambahan</label>
-                        <textarea class="form-control" id="rejectNotes" rows="3" placeholder="Berikan penjelasan lebih detail..." required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="alternativeCounselor" class="form-label">Saran Konselor Alternatif (Opsional)</label>
-                        <select class="form-select" id="alternativeCounselor">
-                            <option value="">Pilih konselor alternatif...</option>
-                            <option value="counselor1">Guru Konseling 1 - Konseling Pribadi</option>
-                            <option value="counselor2">Guru Konseling 2 - Konseling Karir</option>
-                            <option value="counselor3">Guru Konseling 3 - Konseling Sosial</option>
-                        </select>
-                    </div>
-                </form>
+                Apakah Anda yakin ingin menolak permintaan konseling ini?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-danger" onclick="confirmReject()">Tolak Permintaan</button>
+                <button type="button" class="btn btn-danger" onclick="rejectRequest()">Tolak</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Complete Modal -->
+<div class="modal fade" id="completeModal" tabindex="-1" aria-labelledby="completeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="completeModalLabel">Selesaikan Permintaan Konseling</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menyelesaikan permintaan konseling ini?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="completeRequest()">Selesaikan</button>
             </div>
         </div>
     </div>
@@ -470,67 +303,81 @@
 @section('scripts')
 <script>
     let currentRequestId = null;
-    
-    function approveRequest(requestId) {
+
+    function setRequestId(requestId) {
         currentRequestId = requestId;
-        const approveModal = new bootstrap.Modal(document.getElementById('approveModal'));
-        approveModal.show();
     }
-    
-    function rejectRequest(requestId) {
-        currentRequestId = requestId;
-        const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
-        rejectModal.show();
-    }
-    
-    function confirmApprove() {
-        // Validasi form
-        const form = document.getElementById('approveForm');
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
+
+    function approveRequest() {
+        if (currentRequestId) {
+            fetch(`/request/${currentRequestId}/approve`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Permintaan konseling berhasil diterima!');
+                    location.reload();
+                } else {
+                    alert('Gagal menerima permintaan konseling.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+            });
         }
-        
-        // Simulasi AJAX request
-        console.log('Approving request ID:', currentRequestId);
-        
-        // Tampilkan notifikasi sukses
-        alert('Permintaan konseling berhasil diterima! Notifikasi telah dikirim ke siswa.');
-        
-        // Tutup modal
-        const approveModal = bootstrap.Modal.getInstance(document.getElementById('approveModal'));
-        approveModal.hide();
-        
-        // Refresh halaman atau update UI
-        location.reload();
     }
-    
-    function confirmReject() {
-        // Validasi form
-        const form = document.getElementById('rejectForm');
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
+
+    function rejectRequest() {
+        if (currentRequestId) {
+            fetch(`/request/${currentRequestId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Permintaan konseling berhasil ditolak.');
+                    location.reload();
+                } else {
+                    alert('Gagal menolak permintaan konseling.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+            });
         }
-        
-        // Simulasi AJAX request
-        console.log('Rejecting request ID:', currentRequestId);
-        
-        // Tampilkan notifikasi sukses
-        alert('Permintaan konseling telah ditolak. Notifikasi telah dikirim ke siswa.');
-        
-        // Tutup modal
-        const rejectModal = bootstrap.Modal.getInstance(document.getElementById('rejectModal'));
-        rejectModal.hide();
-        
-        // Refresh halaman atau update UI
-        location.reload();
     }
-    
-    // Auto-refresh untuk update real-time (opsional)
-    setInterval(function() {
-        // Implementasi auto-refresh untuk permintaan baru
-        console.log('Checking for new requests...');
-    }, 30000); // Check setiap 30 detik
+
+    function completeRequest() {
+        if (currentRequestId) {
+            fetch(`/request/${currentRequestId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Permintaan konseling berhasil diselesaikan.');
+                    location.reload();
+                } else {
+                    alert('Gagal menyelesaikan permintaan konseling.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+            });
+        }
+    }
 </script>
 @endsection
