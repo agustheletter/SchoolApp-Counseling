@@ -21,14 +21,14 @@
                     <a href="{{ route('counseling.my-requests') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-list me-2"></i> Permintaan Saya
                     </a>
-                    <a href="{{ route('counseling.schedule') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-calendar-alt me-2"></i> Jadwal Konseling
+                    <a href="{{ route('counseling.history') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-history me-2"></i> Riwayat Konseling
                     </a>
                     <a href="{{ route('counseling.messages') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-envelope me-2"></i> Pesan
+                        <i class="fas fa-comments me-2"></i> Pesan
                     </a>
                     <a href="{{ route('counseling.reports') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-chart-bar me-2"></i> Laporan
+                        <i class="fas fa-file-alt me-2"></i> Laporan
                     </a>
                     <a href="{{ route('profile.settings') }}" class="list-group-item list-group-item-action active">
                         <i class="fas fa-cog me-2"></i> Pengaturan
@@ -40,7 +40,7 @@
         <div class="col-lg-9">
             <!-- Settings Tabs -->
             <div class="card shadow-sm">
-                <div class="card-header bg-white">
+                <div class="card-header bg-white"> {{-- Bootstrap akan menangani warna header ini di dark mode --}}
                     <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="account-tab" data-bs-toggle="tab" data-bs-target="#account" type="button" role="tab" aria-controls="account" aria-selected="true">
@@ -57,33 +57,62 @@
                                 <i class="fas fa-palette me-2"></i> Tampilan
                             </button>
                         </li>
+                        {{-- Jika Anda ingin menambahkan tab Notifikasi dan Privasi kembali, uncomment di sini --}}
+                        {{-- 
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab" aria-controls="notifications" aria-selected="false">
+                                <i class="fas fa-bell me-2"></i> Notifikasi
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="privacy-tab" data-bs-toggle="tab" data-bs-target="#privacy" type="button" role="tab" aria-controls="privacy" aria-selected="false">
+                                <i class="fas fa-user-shield me-2"></i> Privasi
+                            </button>
+                        </li>
+                        --}}
                     </ul>
                 </div>
                 <div class="card-body">
                     <div class="tab-content" id="settingsTabsContent">
                         <!-- Account Settings -->
                         <div class="tab-pane fade show active" id="account" role="tabpanel" aria-labelledby="account-tab">
-                            @if(session('success'))
+                            {{-- Pesan sukses spesifik untuk Akun --}}
+                            @if(session('success') && !session('success_security') && !session('success_appearance'))
                                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                                     {{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
+                            {{-- Menampilkan error validasi umum untuk tab akun --}}
+                            @if ($errors->any() && 
+                                 !$errors->has('current_password') && !$errors->has('new_password') && /* Error Keamanan */
+                                 !$errors->has('theme') && /* Error Tampilan */
+                                 !$errors->has('confirmation') /* Error Hapus Akun */
+                                )
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <strong>Oops! Terjadi kesalahan.</strong>
+                                    <ul class="mb-0 mt-2">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             @endif
                             
                             <h5 class="mb-4">Pengaturan Akun</h5>
                             
-                            <!-- Profile Section with Avatar -->
                             <div class="mb-4">
                                 <div class="d-flex align-items-center">
                                     <div class="position-relative me-3">
-                                        <img src="{{ auth()->user()->avatar_url }}" 
-                                             alt="Profile" 
+                                        <img src="{{ Auth::user()->avatar_url }}" 
+                                             alt="Profile {{ Auth::user()->nama }}" 
                                              class="rounded-circle" 
                                              width="80" 
                                              height="80" 
                                              style="object-fit: cover;" 
                                              id="avatarPreview"
-                                             data-original="{{ auth()->user()->avatar_url }}">
+                                             data-original="{{ Auth::user()->avatar_url }}">
                                         
                                         <form action="{{ route('settings.avatar') }}" 
                                               method="POST" 
@@ -94,23 +123,23 @@
                                                    name="avatar" 
                                                    id="avatarInput" 
                                                    class="d-none" 
-                                                   accept="image/*">
+                                                   accept="image/jpeg,image/png,image/jpg">
                                             <button type="button" 
                                                     onclick="document.getElementById('avatarInput').click()" 
                                                     class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle p-1" 
-                                                    style="width: 28px; height: 28px;">
+                                                    style="width: 28px; height: 28px;"
+                                                    title="Ubah Foto Profil">
                                                 <i class="fas fa-camera"></i>
                                             </button>
                                         </form>
                                     </div>
                                     <div>
-                                        <h6 class="mb-1">{{ $user->nama }}</h6>
-                                        <p class="text-muted mb-0 small">{{ ucfirst($user->role) }}</p>
+                                        <h6 class="mb-1">{{ Auth::user()->nama }}</h6>
+                                        <p class="text-muted mb-0 small">{{ ucfirst(Auth::user()->role) }}</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Account Settings Form -->
                             <form action="{{ route('settings.account') }}" method="POST">
                                 @csrf
                                 @method('PUT')
@@ -118,30 +147,41 @@
                                     <div class="col-md-6 mb-3 mb-md-0">
                                         <label for="nama" class="form-label">Nama Lengkap</label>
                                         <input type="text" class="form-control @error('nama') is-invalid @enderror" 
-                                               id="nama" name="nama" value="{{ $user->nama }}" required>
+                                               id="nama" name="nama" value="{{ old('nama', Auth::user()->nama) }}" required>
                                         @error('nama')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label for="username" class="form-label">Username</label>
-                                        <input type="text" class="form-control" id="username" name="username" value="{{ $user->username }}" required>
+                                        <input type="text" class="form-control @error('username') is-invalid @enderror" 
+                                               id="username" name="username" value="{{ old('username', Auth::user()->username) }}" required>
+                                        @error('username')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                                 
                                 <div class="row mb-3">
                                     <div class="col-md-6 mb-3 mb-md-0">
                                         <label for="email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}" required>
+                                        <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                                               id="email" name="email" value="{{ old('email', Auth::user()->email) }}" required>
+                                        @error('email')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label for="phone" class="form-label">Nomor Telepon</label>
-                                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ $user->phone }}">
+                                        <input type="tel" class="form-control @error('phone') is-invalid @enderror" 
+                                               id="phone" name="phone" value="{{ old('phone', Auth::user()->phone) }}">
+                                        @error('phone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                                 
-                                <!-- Add NIP field for guru role -->
-                                @if($user->role === 'guru')
+                                @if(Auth::user()->role === 'guru')
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="nip" class="form-label">Nomor Induk Kepegawaian (NIP)</label>
@@ -149,7 +189,7 @@
                                                class="form-control @error('nip') is-invalid @enderror" 
                                                id="nip" 
                                                name="nip" 
-                                               value="{{ $user->nip }}" 
+                                               value="{{ old('nip', Auth::user()->nip) }}" 
                                                pattern="[0-9]{18}" 
                                                maxlength="18"
                                                placeholder="Masukkan 18 digit NIP">
@@ -163,7 +203,11 @@
                                 
                                 <div class="mb-3">
                                     <label for="bio" class="form-label">Bio</label>
-                                    <textarea class="form-control" id="bio" name="bio" rows="3">{{ $user->bio }}</textarea>
+                                    <textarea class="form-control @error('bio') is-invalid @enderror" 
+                                              id="bio" name="bio" rows="3">{{ old('bio', Auth::user()->bio) }}</textarea>
+                                    @error('bio')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
@@ -180,22 +224,44 @@
                         
                         <!-- Security Settings -->
                         <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+                            @if(session('success_security'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    {{ session('success_security') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
+                            @if($errors->has('current_password') || $errors->has('new_password') || $errors->has('error') && session('from_security'))
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <strong>Oops! Terjadi kesalahan.</strong>
+                                    <ul class="mb-0 mt-2">
+                                        @error('current_password') <li>{{ $message }}</li> @enderror
+                                        @error('new_password') <li>{{ $message }}</li> @enderror
+                                        @error('error') <li>{{ $message }}</li> @enderror
+                                    </ul>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
+
                             <h5 class="mb-4">Pengaturan Keamanan</h5>
                             
-                            <!-- Security Settings Form -->
                             <form action="{{ route('settings.security') }}" method="POST">
                                 @csrf
                                 @method('PUT')
                                 
                                 <div class="mb-3">
                                     <label for="current_password" class="form-label">Password Saat Ini</label>
-                                    <input type="password" class="form-control" id="current_password" name="current_password" required>
+                                    <input type="password" class="form-control @error('current_password') is-invalid @enderror" 
+                                           id="current_password" name="current_password" required>
+                                    {{-- Error individual tidak ditampilkan lagi karena sudah ditangani di atas --}}
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="new_password" class="form-label">Password Baru</label>
-                                    <input type="password" class="form-control" id="new_password" name="new_password" required>
-                                    <div class="form-text">Password harus minimal 8 karakter dan mengandung huruf, angka, dan simbol.</div>
+                                    <input type="password" class="form-control @error('new_password') is-invalid @enderror" 
+                                           id="new_password" name="new_password" required
+                                           aria-describedby="newPasswordHelp">
+                                    <div id="newPasswordHelp" class="form-text">Password harus minimal 8 karakter dan mengandung huruf besar, huruf kecil, angka, dan simbol.</div>
+                                    {{-- Error individual tidak ditampilkan lagi karena sudah ditangani di atas --}}
                                 </div>
                                 
                                 <div class="mb-4">
@@ -211,7 +277,6 @@
                             <hr class="my-4">
                             
                             <h5 class="mb-4">Riwayat Login</h5>
-                            
                             <div class="table-responsive">
                                 <table class="table table-hover" id="loginHistoryTable">
                                     <thead>
@@ -224,240 +289,52 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>Chrome di Windows</td>
-                                            <td>Cimahi, Indonesia</td>
-                                            <td>192.168.1.1</td>
-                                            <td>Hari ini, 09:30</td>
-                                            <td><span class="badge bg-success">Saat Ini</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Chrome di Android</td>
-                                            <td>Cimahi, Indonesia</td>
-                                            <td>192.168.1.2</td>
-                                            <td>Kemarin, 15:45</td>
-                                            <td><span class="badge bg-secondary">Berhasil</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Chrome di Windows</td>
-                                            <td>Cimahi, Indonesia</td>
-                                            <td>192.168.1.1</td>
-                                            <td>3 hari lalu, 10:15</td>
-                                            <td><span class="badge bg-secondary">Berhasil</span></td>
-                                        </tr>
+                                        {{-- Data akan dimuat oleh JavaScript --}}
+                                        <tr><td colspan="5" class="text-center py-4">Memuat riwayat login...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                         
-                        <!-- Notification Settings -->
-                        <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
-                            <h5 class="mb-4">Pengaturan Notifikasi</h5>
-                            
-                            <form action="" method="POST">
-                                @csrf
-                                @method('PUT')
-                                
-                                <h6 class="mb-3">Metode Pemberitahuan</h6>
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="emailNotifications" name="email_notifications" checked>
-                                                <label class="form-check-label" for="emailNotifications">Email</label>
-                                            </div>
-                                            <div class="form-text">Terima notifikasi melalui email</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="browserNotifications" name="browser_notifications" checked>
-                                                <label class="form-check-label" for="browserNotifications">Browser</label>
-                                            </div>
-                                            <div class="form-text">Terima notifikasi di browser saat online</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <h6 class="mb-3">Jenis Notifikasi</h6>
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="counselingNotifications" name="counseling_notifications" checked>
-                                                <label class="form-check-label" for="counselingNotifications">Konseling</label>
-                                            </div>
-                                            <div class="form-text">Permintaan, persetujuan, dan pengingat konseling</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="messageNotifications" name="message_notifications" checked>
-                                                <label class="form-check-label" for="messageNotifications">Pesan</label>
-                                            </div>
-                                            <div class="form-text">Pesan baru dari konselor</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="systemNotifications" name="system_notifications" checked>
-                                                <label class="form-check-label" for="systemNotifications">Sistem</label>
-                                            </div>
-                                            <div class="form-text">Pembaruan sistem dan pengumuman</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="materialNotifications" name="material_notifications" checked>
-                                                <label class="form-check-label" for="materialNotifications">Materi</label>
-                                            </div>
-                                            <div class="form-text">Materi dan sumber daya baru</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <h6 class="mb-3">Frekuensi Email</h6>
-                                <div class="mb-4">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="email_frequency" id="emailFrequencyRealtime" value="realtime" checked>
-                                        <label class="form-check-label" for="emailFrequencyRealtime">
-                                            Langsung
-                                        </label>
-                                        <div class="form-text">Kirim email segera saat ada notifikasi baru</div>
-                                    </div>
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="email_frequency" id="emailFrequencyDaily" value="daily">
-                                        <label class="form-check-label" for="emailFrequencyDaily">
-                                            Harian
-                                        </label>
-                                        <div class="form-text">Kirim ringkasan harian dari semua notifikasi</div>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="email_frequency" id="emailFrequencyWeekly" value="weekly">
-                                        <label class="form-check-label" for="emailFrequencyWeekly">
-                                            Mingguan
-                                        </label>
-                                        <div class="form-text">Kirim ringkasan mingguan dari semua notifikasi</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-primary">Simpan Pengaturan</button>
-                                </div>
-                            </form>
-                        </div>
-                        
-                        <!-- Privacy Settings -->
-                        <div class="tab-pane fade" id="privacy" role="tabpanel" aria-labelledby="privacy-tab">
-                            <h5 class="mb-4">Pengaturan Privasi</h5>
-                            
-                            <form action="#" method="POST">
-                                @csrf
-                                @method('PUT')
-                                
-                                <h6 class="mb-3">Visibilitas Profil</h6>
-                                <div class="mb-4">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="profile_visibility" id="profileVisibilityPublic" value="public">
-                                        <label class="form-check-label" for="profileVisibilityPublic">
-                                            Publik
-                                        </label>
-                                        <div class="form-text">Semua pengguna dapat melihat profil Anda</div>
-                                    </div>
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="profile_visibility" id="profileVisibilitySchool" value="school" checked>
-                                        <label class="form-check-label" for="profileVisibilitySchool">
-                                            Sekolah
-                                        </label>
-                                        <div class="form-text">Hanya pengguna dari sekolah yang sama yang dapat melihat profil Anda</div>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="profile_visibility" id="profileVisibilityPrivate" value="private">
-                                        <label class="form-check-label" for="profileVisibilityPrivate">
-                                            Pribadi
-                                        </label>
-                                        <div class="form-text">Hanya konselor dan administrator yang dapat melihat profil Anda</div>
-                                    </div>
-                                </div>
-                                
-                                <h6 class="mb-3">Riwayat Konseling</h6>
-                                <div class="mb-4">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="counseling_history_visibility" id="counselingHistoryVisibilityAll" value="all">
-                                        <label class="form-check-label" for="counselingHistoryVisibilityAll">
-                                            Semua Konselor
-                                        </label>
-                                        <div class="form-text">Semua konselor dapat melihat riwayat konseling Anda</div>
-                                    </div>
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="counseling_history_visibility" id="counselingHistoryVisibilityAssigned" value="assigned" checked>
-                                        <label class="form-check-label" for="counselingHistoryVisibilityAssigned">
-                                            Konselor yang Ditugaskan
-                                        </label>
-                                        <div class="form-text">Hanya konselor yang pernah menangani Anda yang dapat melihat riwayat konseling Anda</div>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="counseling_history_visibility" id="counselingHistoryVisibilityNone" value="none">
-                                        <label class="form-check-label" for="counselingHistoryVisibilityNone">
-                                            Tidak Ada
-                                        </label>
-                                        <div class="form-text">Konselor hanya dapat melihat sesi konseling yang mereka tangani</div>
-                                    </div>
-                                </div>
-                                
-                                <h6 class="mb-3">Data dan Privasi</h6>
-                                <div class="mb-4">
-                                    <div class="form-check form-switch mb-2">
-                                        <input class="form-check-input" type="checkbox" id="dataAnalytics" name="data_analytics" checked>
-                                        <label class="form-check-label" for="dataAnalytics">Analitik Data</label>
-                                        <div class="form-text">Izinkan penggunaan data Anda untuk analisis dan peningkatan layanan</div>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="thirdPartySharing" name="third_party_sharing">
-                                        <label class="form-check-label" for="thirdPartySharing">Berbagi dengan Pihak Ketiga</label>
-                                        <div class="form-text">Izinkan berbagi data Anda dengan pihak ketiga untuk tujuan pendidikan</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-primary">Simpan Pengaturan</button>
-                                </div>
-                            </form>
-                            
-                            <hr class="my-4">
-                            
-                            <h5 class="mb-4">Unduh Data Anda</h5>
-                            <p class="text-muted">Anda dapat mengunduh salinan data pribadi Anda yang disimpan dalam sistem kami.</p>
-                            <button type="button" class="btn btn-outline-primary">
-                                <i class="fas fa-download me-2"></i> Unduh Data Saya
-                            </button>
-                        </div>
+                        {{-- Hapus atau komentari Tab Notifikasi dan Privasi jika tidak digunakan saat ini --}}
+                        {{-- 
+                        <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab"> ... (Konten Notifikasi) </div>
+                        <div class="tab-pane fade" id="privacy" role="tabpanel" aria-labelledby="privacy-tab"> ... (Konten Privasi) </div> 
+                        --}}
                         
                         <!-- Appearance Settings -->
                         <div class="tab-pane fade" id="appearance" role="tabpanel" aria-labelledby="appearance-tab">
+                            @if(session('success_appearance'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    {{ session('success_appearance') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
+                             @error('theme') {{-- Menampilkan error validasi tema --}}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    {{ $message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @enderror
+
                             <h5 class="mb-4">Pengaturan Tampilan</h5>
                             
-                            <!-- Appearance Settings Form -->
                             <form action="{{ route('settings.appearance') }}" method="POST">
                                 @csrf
                                 @method('PUT')
                                 
                                 <h6 class="mb-3">Tema</h6>
                                 <div class="row mb-4">
-                                    <div class="col-md-4 mb-3">
-                                        <div class="card h-100">
+                                    <div class="col-md-6 mb-3"> {{-- Diubah ke col-md-6 --}}
+                                        <div class="card h-100 card-theme-option" data-theme-value="light">
                                             <div class="card-body p-2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" checked>
+                                                    <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" {{ (Auth::user()->theme ?? config('app.default_theme', 'light')) == 'light' ? 'checked' : '' }}>
                                                     <label class="form-check-label w-100" for="themeLight">
                                                         <div class="d-flex flex-column align-items-center">
-                                                            <div class="bg-light border rounded p-3 mb-2 w-100" style="height: 100px;">
-                                                                <div class="bg-primary rounded" style="height: 20px; width: 100%;"></div>
-                                                                <div class="bg-white rounded mt-2" style="height: 60px; width: 100%;"></div>
+                                                            <div class="theme-preview bg-light border rounded p-3 mb-2 w-100" style="height: 100px;">
+                                                                <div class="theme-preview-header bg-primary rounded" style="height: 20px; width: 100%;"></div>
+                                                                <div class="theme-preview-body bg-white rounded mt-2" style="height: 60px; width: 100%;"></div>
                                                             </div>
                                                             <span>Terang</span>
                                                         </div>
@@ -466,16 +343,16 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <div class="card h-100">
+                                    <div class="col-md-6 mb-3"> {{-- Diubah ke col-md-6 --}}
+                                        <div class="card h-100 card-theme-option" data-theme-value="dark">
                                             <div class="card-body p-2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark">
+                                                    <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark" {{ (Auth::user()->theme ?? config('app.default_theme', 'light')) == 'dark' ? 'checked' : '' }}>
                                                     <label class="form-check-label w-100" for="themeDark">
                                                         <div class="d-flex flex-column align-items-center">
-                                                            <div class="bg-dark border rounded p-3 mb-2 w-100" style="height: 100px;">
-                                                                <div class="bg-primary rounded" style="height: 20px; width: 100%;"></div>
-                                                                <div class="bg-secondary rounded mt-2" style="height: 60px; width: 100%;"></div>
+                                                            <div class="theme-preview bg-dark border rounded p-3 mb-2 w-100" style="height: 100px;">
+                                                                <div class="theme-preview-header bg-primary rounded" style="height: 20px; width: 100%;"></div>
+                                                                <div class="theme-preview-body bg-secondary rounded mt-2" style="height: 60px; width: 100%;"></div>
                                                             </div>
                                                             <span>Gelap</span>
                                                         </div>
@@ -484,24 +361,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <div class="card h-100">
-                                            <div class="card-body p-2">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="theme" id="themeSystem" value="system">
-                                                    <label class="form-check-label w-100" for="themeSystem">
-                                                        <div class="d-flex flex-column align-items-center">
-                                                            <div class="bg-light border rounded p-3 mb-2 w-100" style="height: 100px; background: linear-gradient(to right, white 50%, #343a40 50%);">
-                                                                <div class="bg-primary rounded" style="height: 20px; width: 100%;"></div>
-                                                                <div style="height: 60px; width: 100%; margin-top: 0.5rem; background: linear-gradient(to right, white 50%, #6c757d 50%);" class="rounded"></div>
-                                                            </div>
-                                                            <span>Sistem</span>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    {{-- Opsi Sistem Dihapus --}}
                                 </div>
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-primary">Simpan Pengaturan</button>
@@ -517,7 +377,7 @@
 
 <!-- Delete Account Modal -->
 <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteAccountModalLabel">Konfirmasi Hapus Akun</h5>
@@ -530,8 +390,16 @@
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i> Tindakan ini tidak dapat dibatalkan. Semua data Anda akan dihapus secara permanen.
                     </div>
-                    <p>Silakan ketik <strong>HAPUS AKUN SAYA</strong> untuk mengonfirmasi:</p>
-                    <input type="text" class="form-control" id="deleteConfirmation" name="confirmation" placeholder="HAPUS AKUN SAYA">
+                    @error('confirmation') {{-- Error untuk konfirmasi hapus akun --}}
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                     @error('error') {{-- Error umum dari controller saat hapus akun --}}
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                    <p>Untuk mengonfirmasi, silakan ketik: <br><strong>HAPUS AKUN SAYA</strong></p>
+                    <input type="text" class="form-control @error('confirmation') is-invalid @enderror" 
+                           id="deleteConfirmation" name="confirmation" placeholder="HAPUS AKUN SAYA" required>
+                    
                     <div class="mt-3">
                         <label for="deleteReason" class="form-label">Alasan penghapusan (opsional):</label>
                         <textarea class="form-control" id="deleteReason" name="reason" rows="3"></textarea>
@@ -547,133 +415,283 @@
 </div>
 @endsection
 
+@section('styles')
+<style>
+    .card-theme-option {
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .card-theme-option:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .card-theme-option .form-check-input {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+    }
+    .card-theme-option label {
+        cursor: pointer;
+    }
+
+    /* Fix untuk preview tema agar tidak terpengaruh tema utama saat di dark mode */
+    [data-bs-theme="dark"] .theme-preview.bg-light {
+        background-color: #f8f9fa !important; /* Bootstrap $gray-100 */
+    }
+    [data-bs-theme="dark"] .theme-preview.bg-light .theme-preview-body.bg-white {
+        background-color: #ffffff !important; /* Bootstrap $white */
+    }
+    /* Untuk preview dark theme agar tetap konsisten */
+    .theme-preview.bg-dark {
+         background-color: #212529 !important; /* Bootstrap $dark */
+    }
+    .theme-preview.bg-dark .theme-preview-body.bg-secondary {
+        background-color: #6c757d !important; /* Bootstrap $secondary */
+    }
+
+    /* Styling Sidebar untuk Dark Mode jika diperlukan (Bootstrap 5.3+ harusnya sudah handle ini dengan baik) */
+    /* Anda bisa menambahkan override di sini jika tampilan default Bootstrap tidak sesuai keinginan */
+    /*
+    [data-bs-theme="dark"] .list-group-item {
+        background-color: var(--bs-dark-bg-subtle); 
+        color: var(--bs-body-color);
+        border-color: var(--bs-border-color-translucent);
+    }
+    [data-bs-theme="dark"] .list-group-item.active {
+        background-color: var(--bs-primary);
+        color: var(--bs-white);
+        border-color: var(--bs-primary);
+    }
+    [data-bs-theme="dark"] .list-group-item-action:hover,
+    [data-bs-theme="dark"] .list-group-item-action:focus {
+        background-color: var(--bs-tertiary-bg);
+    }
+    */
+</style>
+@endsection
+
+
 @section('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const deleteConfirmation = document.getElementById('deleteConfirmation');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        const deleteAccountForm = document.getElementById('deleteAccountForm');
-        
-        deleteConfirmation.addEventListener('input', function() {
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Delete Account Modal Logic ---
+    const deleteConfirmationInput = document.getElementById('deleteConfirmation');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const deleteAccountForm = document.getElementById('deleteAccountForm');
+
+    if (deleteConfirmationInput && confirmDeleteBtn && deleteAccountForm) {
+        deleteConfirmationInput.addEventListener('input', function() {
             confirmDeleteBtn.disabled = this.value !== 'HAPUS AKUN SAYA';
         });
-        
+
         confirmDeleteBtn.addEventListener('click', function() {
-            if (confirm('Apakah Anda yakin ingin menghapus akun ini? Tindakan ini tidak dapat dibatalkan.')) {
-                deleteAccountForm.submit();
+            // Tidak perlu confirm() JavaScript lagi karena validasi teks sudah cukup
+            // dan controller akan melakukan validasi server-side.
+            deleteAccountForm.submit();
+        });
+    }
+
+    // --- Avatar Upload Handler ---
+    const avatarInput = document.getElementById('avatarInput');
+    const avatarForm = document.getElementById('avatarForm');
+    const avatarPreview = document.getElementById('avatarPreview');
+
+    if (avatarInput && avatarForm && avatarPreview) {
+        avatarInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const formData = new FormData(avatarForm);
+                const originalSrc = avatarPreview.getAttribute('data-original');
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    avatarPreview.src = event.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+
+                // Send AJAX request
+                fetch(avatarForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json', // Penting untuk response JSON
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.avatar_url) {
+                        // Update data-original dengan URL baru dari server
+                        avatarPreview.setAttribute('data-original', data.avatar_url);
+                        // Anda bisa menggunakan notifikasi yang lebih baik (Toast, SweetAlert)
+                        alert(data.message || 'Foto profil berhasil diperbarui.');
+                    } else {
+                        throw new Error(data.message || 'Gagal mengupload foto profil.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    let errorMessage = 'Terjadi kesalahan saat mengupload foto.';
+                    if (error && error.message) {
+                        errorMessage = error.message;
+                    } else if (error && error.errors && error.errors.avatar && error.errors.avatar[0]) {
+                        errorMessage = error.errors.avatar[0]; // Ambil pesan error validasi jika ada
+                    }
+                    alert(errorMessage);
+                    avatarPreview.src = originalSrc; // Revert preview ke gambar asli
+                });
             }
         });
-    });
-    
-    // Avatar upload handler
-    document.addEventListener('DOMContentLoaded', function() {
-        const avatarInput = document.getElementById('avatarInput');
-        const avatarForm = document.getElementById('avatarForm');
-        const avatarPreview = document.getElementById('avatarPreview');
+    }
 
-        if (avatarInput && avatarForm) {
-            avatarInput.addEventListener('change', function(e) {
-                e.preventDefault();
-                if (this.files && this.files[0]) {
-                    const formData = new FormData(avatarForm);
-                    
-                    // Show preview
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        avatarPreview.src = e.target.result;
-                    };
-                    reader.readAsDataURL(this.files[0]);
-
-                    // Send AJAX request
-                    fetch(avatarForm.action, {
-                        method: 'POST',
-                        body: formData,
-                        credentials: 'same-origin',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'X-Requested-With': 'XMLHttpRequest',
-                            // Don't set Content-Type header when sending FormData
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Success notification
-                            alert('Foto profil berhasil diperbarui');
-                        } else {
-                            // Error notification
-                            alert('Gagal mengupload foto profil');
-                            // Revert preview
-                            avatarPreview.src = avatarPreview.getAttribute('data-original');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan saat mengupload foto');
-                        // Revert preview
-                        avatarPreview.src = avatarPreview.getAttribute('data-original');
-                    });
-                }
-            });
-        }
-    });
-    
+    // --- Load Login History ---
     function loadLoginHistory() {
-        fetch('{{ route("settings.login-history") }}')
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.querySelector('#loginHistoryTable tbody');
-                tbody.innerHTML = '';
-                
-                data.forEach(entry => {
-                    const row = `
-                        <tr>
-                            <td>${entry.device}</td>
-                            <td>${entry.location}</td>
-                            <td>${entry.ip_address}</td>
-                            <td>${formatLoginTime(entry.login_at)}</td>
-                            <td>
-                                <span class="badge bg-${entry.status === 'current' ? 'success' : 'secondary'}">
-                                    ${entry.status === 'current' ? 'Saat Ini' : 'Berhasil'}
-                            </span>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.insertAdjacentHTML('beforeend', row);
-                });
+        const loginHistoryTable = document.getElementById('loginHistoryTable');
+        if (!loginHistoryTable) return;
+
+        const tbody = loginHistoryTable.querySelector('tbody');
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Memuat riwayat login...</td></tr>';
+
+        fetch("{{ route('settings.login-history') }}") // Pastikan route ini benar
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
             })
-            .catch(error => console.error('Error:', error));
+            .then(data => {
+                tbody.innerHTML = ''; // Kosongkan tbody sebelum mengisi data baru
+                if (data && data.length > 0) {
+                    data.forEach(entry => {
+                        const row = `
+                            <tr>
+                                <td>${entry.device || 'N/A'}</td>
+                                <td>${entry.location || 'N/A'}</td>
+                                <td>${entry.ip_address || 'N/A'}</td>
+                                <td>${formatLoginTime(entry.login_at)}</td>
+                                <td>
+                                    <span class="badge bg-${entry.status === 'current' ? 'success' : 'secondary'}">
+                                        ${entry.status === 'current' ? 'Saat Ini' : (entry.status || 'Berhasil')}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.insertAdjacentHTML('beforeend', row);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Tidak ada riwayat login untuk ditampilkan.</td></tr>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading login history:', error);
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-4">Gagal memuat riwayat login. Silakan coba lagi nanti.</td></tr>';
+            });
     }
 
     function formatLoginTime(timestamp) {
-        if (!timestamp) return 'Never';
-        
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diff = now - date;
-        
-        // Less than 24 hours
-        if (diff < 24 * 60 * 60 * 1000) {
-            return 'Hari ini, ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        if (!timestamp) return 'N/A';
+        try {
+            const date = new Date(timestamp);
+            const now = new Date();
+
+            // Cek apakah tanggal valid
+            if (isNaN(date.getTime())) {
+                return 'Invalid Date';
+            }
+
+            const optionsDate = { day: 'numeric', month: 'long', year: 'numeric' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: false }; // Gunakan format 24 jam
+
+            const dateString = date.toLocaleDateString('id-ID', optionsDate);
+            const timeString = date.toLocaleTimeString('id-ID', optionsTime).replace(/\./g, ':'); // Ganti titik dengan : untuk waktu
+
+            // Cek apakah hari ini
+            if (date.toDateString() === now.toDateString()) {
+                return `Hari ini, ${timeString}`;
+            }
+
+            // Cek apakah kemarin
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            if (date.toDateString() === yesterday.toDateString()) {
+                return `Kemarin, ${timeString}`;
+            }
+            
+            return `${dateString}, ${timeString}`;
+
+        } catch (e) {
+            console.error("Error formatting date:", e, "Timestamp:", timestamp);
+            return 'Error Date';
         }
-        
-        // Less than 48 hours
-        if (diff < 48 * 60 * 60 * 1000) {
-            return 'Kemarin, ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-        }
-        
-        // More than 48 hours
-        return date.toLocaleDateString('id-ID', { 
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        loadLoginHistory();
+    // Panggil fungsi loadLoginHistory saat DOM siap
+    loadLoginHistory();
+
+    // --- Theme Card Click Handler ---
+    const themeOptionCards = document.querySelectorAll('.card-theme-option');
+    themeOptionCards.forEach(card => {
+        card.addEventListener('click', function(event) {
+            // Hindari trigger jika yang diklik adalah input radio itu sendiri
+            if (event.target.type === 'radio') return;
+            
+            const radioInput = this.querySelector('input[type="radio"]');
+            if (radioInput) {
+                radioInput.checked = true;
+                // Anda bisa menambahkan dispatch event change di sini jika diperlukan
+                // radioInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
     });
+
+    // --- Tab Persistence (Opsional, jika ingin tab tetap aktif setelah refresh/redirect) ---
+    // Menggunakan localStorage untuk menyimpan tab aktif
+    const settingsTabs = document.querySelectorAll('#settingsTabs .nav-link');
+    const savedTab = localStorage.getItem('activeSettingsTab');
+
+    if (savedTab) {
+        const tabToActivate = document.querySelector(`#settingsTabs .nav-link[data-bs-target="${savedTab}"]`);
+        if (tabToActivate) {
+            const tab = new bootstrap.Tab(tabToActivate);
+            tab.show();
+        }
+    }
+
+    settingsTabs.forEach(tabEl => {
+        tabEl.addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeSettingsTab', event.target.dataset.bsTarget);
+        });
+    });
+
+    // Jika ada pesan error atau sukses pada suatu tab, aktifkan tab tersebut
+    // Contoh: Jika ada error validasi di tab security, aktifkan tab security
+    @if($errors->has('current_password') || $errors->has('new_password') || session('success_security') || (session('error') && session('from_security')))
+        const securityTab = new bootstrap.Tab(document.getElementById('security-tab'));
+        securityTab.show();
+        localStorage.setItem('activeSettingsTab', '#security');
+    @elseif($errors->has('theme') || session('success_appearance'))
+        const appearanceTab = new bootstrap.Tab(document.getElementById('appearance-tab'));
+        appearanceTab.show();
+        localStorage.setItem('activeSettingsTab', '#appearance');
+    @elseif($errors->any() && !$errors->has('current_password') && !$errors->has('new_password') && !$errors->has('theme') && !$errors->has('confirmation') || (session('success') && !session('success_security') && !session('success_appearance')))
+        const accountTab = new bootstrap.Tab(document.getElementById('account-tab'));
+        accountTab.show();
+        localStorage.setItem('activeSettingsTab', '#account');
+    @endif
+
+    // Jika modal delete account memiliki error, tampilkan modalnya
+    @if($errors->has('confirmation') || ($errors->has('error') && session('from_delete_account')))
+        const deleteAccountModal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
+        deleteAccountModal.show();
+    @endif
+
+});
 </script>
 @endsection

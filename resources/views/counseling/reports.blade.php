@@ -99,7 +99,7 @@
                     <h5 class="mb-0">Menu Siswa</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action    ">
                         <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                     </a>
                     <a href="{{ route('counseling.request') }}" class="list-group-item list-group-item-action">
@@ -108,14 +108,14 @@
                     <a href="{{ route('counseling.my-requests') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-list me-2"></i> Permintaan Saya
                     </a>
-                    <a href="{{ route('counseling.schedule') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-calendar-alt me-2"></i> Jadwal Konseling
+                    <a href="{{ route('counseling.history') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-history me-2"></i> Riwayat Konseling
                     </a>
                     <a href="{{ route('counseling.messages') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-envelope me-2"></i> Pesan
+                        <i class="fas fa-comments me-2"></i> Pesan
                     </a>
                     <a href="{{ route('counseling.reports') }}" class="list-group-item list-group-item-action active">
-                        <i class="fas fa-chart-bar me-2"></i> Laporan
+                        <i class="fas fa-file-alt me-2"></i> Laporan
                     </a>
                     <a href="{{ route('profile.settings') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-cog me-2"></i> Pengaturan

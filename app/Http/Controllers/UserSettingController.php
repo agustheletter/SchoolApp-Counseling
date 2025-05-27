@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Stevebauman\Location\Facades\Location;
 use Jenssegers\Agent\Facades\Agent;
+use Illuminate\Validation\Rule;
 
 class UserSettingController extends Controller
 {
@@ -90,14 +91,14 @@ class UserSettingController extends Controller
     public function updateAppearance(Request $request)
     {
         $request->validate([
-            'theme' => 'required|in:light,dark,system'
+            'theme' => 'required|in:light,dark'
         ]);
 
         $user = Auth::user();
         $user->theme = $request->theme;
         $user->save();
 
-        return back()->with('success', 'Tema berhasil diubah');
+        return back()->with('success_appereance', 'Tema berhasil diubah.');
     }
 
     public function deleteAccount(Request $request)

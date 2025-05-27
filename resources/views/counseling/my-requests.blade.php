@@ -12,7 +12,7 @@
                     <h5 class="mb-0">Menu Siswa</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action    ">
                         <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                     </a>
                     <a href="{{ route('counseling.request') }}" class="list-group-item list-group-item-action">
@@ -24,8 +24,14 @@
                     <a href="{{ route('counseling.history') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-history me-2"></i> Riwayat Konseling
                     </a>
-                    <a href="{{ route('counseling.setting') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-user-edit me-2"></i> Edit Profil
+                    <a href="{{ route('counseling.messages') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-comments me-2"></i> Pesan
+                    </a>
+                    <a href="{{ route('counseling.reports') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i> Laporan
+                    </a>
+                    <a href="{{ route('profile.settings') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-cog me-2"></i> Pengaturan
                     </a>
                 </div>
             </div>

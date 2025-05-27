@@ -35,7 +35,6 @@ Route::get('/dashboard', [HomeController::class, 'dashboard'])
 Route::prefix('counseling')->name('counseling.')->middleware(['auth', CheckRole::class . ':user'])->group(function ()  {
     Route::get('/messages', [CounselingController::class, 'message'])->name('messages');
     Route::get('/reports', [CounselingController::class, 'reports'])->name('reports');
-    Route::get('/schedule', [CounselingController::class, 'schedule'])->name('schedule');
     Route::get('/profile', [CounselingController::class,'profile'])->name('profile');
     Route::get('/request', [CounselingController::class, 'request'])->name('request');
     Route::post('/request', [CounselingController::class, 'storeRequest'])->name('request.store');
