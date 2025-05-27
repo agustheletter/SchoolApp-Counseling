@@ -459,14 +459,14 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('admin.counselor') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Konselor</p>
                                     <span class="badge badge-success right">12</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('admin.administrator') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Administrator</p>
                                     <span class="badge badge-warning right">3</span>
@@ -486,21 +486,9 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('admin.class') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Kelas</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Mata Pelajaran</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Tahun Ajaran</p>
                                 </a>
                             </li>
                         </ul>
@@ -520,20 +508,8 @@
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Sesi Konseling</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
                                     <p>Permintaan Konseling</p>
                                     <span class="badge badge-danger right">8</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Kategori Konseling</p>
                                 </a>
                             </li>
                         </ul>
@@ -543,23 +519,16 @@
                     
                     <!-- Quick Actions -->
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('admin.student') }}" class="nav-link">
                             <i class="nav-icon fas fa-plus text-success"></i>
                             <p>Tambah Siswa</p>
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('admin.counselor') }}" class="nav-link">
                             <i class="nav-icon fas fa-user-plus text-info"></i>
                             <p>Tambah Konselor</p>
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-download text-primary"></i>
-                            <p>Backup Data</p>
                         </a>
                     </li>
                 </ul>

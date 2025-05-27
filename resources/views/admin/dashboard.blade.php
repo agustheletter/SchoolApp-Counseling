@@ -38,22 +38,9 @@
     
     <div class="col-12 col-sm-6 col-md-3">
         <div class="info-box mb-3">
-            <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-comments"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Sesi Bulan Ini</span>
-                <span class="info-box-number">
-                    186
-                    <small>sesi</small>
-                </span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box mb-3">
             <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-clock"></i></span>
             <div class="info-box-content">
-                <span class="info-box-text">Permintaan Pending</span>
+                <span class="info-box-text">Permintaan Konseling</span>
                 <span class="info-box-number">
                     8
                     <small>permintaan</small>
@@ -110,40 +97,7 @@
 <div class="row">
     <!-- Left col -->
     <section class="col-lg-7 connectedSortable">
-        <!-- Custom tabs (Charts with tabs)-->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-chart-pie mr-1"></i>
-                    Statistik Konseling
-                </h3>
-                <div class="card-tools">
-                    <ul class="nav nav-pills ml-auto">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#revenue-chart" data-toggle="tab">Area Chart</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#sales-chart" data-toggle="tab">Donut Chart</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="tab-content p-0">
-                    <div class="chart tab-pane active" id="revenue-chart">
-                        <div class="chart-container">
-                            <canvas id="revenue-chart-canvas"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart tab-pane" id="sales-chart">
-                        <div class="chart-container">
-                            <canvas id="sales-chart-canvas"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    
         <!-- Aktivitas Terbaru -->
         <div class="card">
             <div class="card-header">
@@ -202,40 +156,6 @@
                 <a href="#" class="btn btn-sm btn-outline-primary">Lihat Semua Aktivitas</a>
             </div>
         </div>
-
-        <!-- Quick Actions -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-bolt mr-1"></i>
-                    Aksi Cepat
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <button class="btn btn-primary quick-action-btn btn-block">
-                            <i class="fas fa-user-plus mr-2"></i>Tambah Siswa Baru
-                        </button>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <button class="btn btn-success quick-action-btn btn-block">
-                            <i class="fas fa-user-tie mr-2"></i>Tambah Konselor
-                        </button>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <button class="btn btn-info quick-action-btn btn-block">
-                            <i class="fas fa-download mr-2"></i>Export Data
-                        </button>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <button class="btn btn-warning quick-action-btn btn-block">
-                            <i class="fas fa-database mr-2"></i>Backup Sistem
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </section>
     
     <!-- Right col -->
@@ -253,7 +173,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h6 class="mb-0">Dr. Sarah Johnson</h6>
+                        <h6 class="mb-0">Konselor 1</h6>
                         <small class="text-muted">Konselor Akademik</small>
                     </div>
                     <div class="text-right">
@@ -267,7 +187,7 @@
                 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h6 class="mb-0">Ahmad Wijaya, M.Pd</h6>
+                        <h6 class="mb-0">Konselor 2</h6>
                         <small class="text-muted">Konselor Karir</small>
                     </div>
                     <div class="text-right">
@@ -281,7 +201,7 @@
                 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h6 class="mb-0">Siti Nurhaliza, S.Psi</h6>
+                        <h6 class="mb-0">Konselor 3</h6>
                         <small class="text-muted">Konselor Pribadi</small>
                     </div>
                     <div class="text-right">

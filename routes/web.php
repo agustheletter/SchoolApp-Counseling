@@ -61,6 +61,9 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', CheckRole::class
 Route::prefix('admin')->name('admin.')->middleware(['auth', CheckRole::class . ':admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/student', [AdminController::class, 'student'])->name('student');
+    Route::get('/counselor', [AdminController::class,'counselor'])->name('counselor');
+    Route::get('/administrator', [AdminController::class,'administrator'])->name('administrator');
+    Route::get('/class', [AdminController::class,'class'])->name('class');
     
 });
 
