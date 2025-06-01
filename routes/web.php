@@ -9,6 +9,7 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\AdminController;
 use App\Http\Middleware\CheckRole;
 use App\Http\Controllers\UserSettingController;
+use App\Http\Controllers\Admin\SiswaController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -32,7 +33,8 @@ Route::get('/dashboard', [HomeController::class, 'dashboard'])
     ->middleware('auth')
     ->name('dashboard');
 
-Route::prefix('counseling')->name('counseling.')->middleware(['auth', CheckRole::class . ':user'])->group(function ()  {
+Route::prefix('counseling')->name('counseling.')->middleware(['auth'])->group(function ()  {
+    Route::get('/reports/export', [CounselingController::class, 'exportReports'])->name('reports.export');
     Route::get('/messages', [CounselingController::class, 'message'])->name('messages');
     Route::get('/reports', [CounselingController::class, 'reports'])->name('reports');
     Route::get('/profile', [CounselingController::class,'profile'])->name('profile');
@@ -52,20 +54,25 @@ Route::prefix('profile')->name('profile.')->group(function () {
 
 Route::prefix('teacher')->name('teacher.')->middleware(['auth', CheckRole::class . ':guru'])->group(function(){
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
+    Route::get('/request/export', [TeacherController::class, 'exportRequests'])->name('request.export');
     Route::get('/request', [TeacherController::class, 'request'])->name('request');
-    Route::post('/teacher/request/{id}/approve', [TeacherController::class, 'approveRequest'])->name('teacher.request.approve');
-    Route::post('/teacher/request/{id}/reject', [TeacherController::class, 'rejectRequest'])->name('teacher.request.reject');
-    Route::post('/teacher/request/{id}/complete', [TeacherController::class, 'completeRequest'])->name('teacher.request.complete');
+    Route::post('/request/{id}/approve', [TeacherController::class, 'approveRequest'])->name('request.approve');
+    Route::post('/request/{id}/reject', [TeacherController::class, 'rejectRequest'])->name('request.reject');
+    Route::post('/request/{id}/complete', [TeacherController::class, 'completeRequest'])->name('request.complete');
 });
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', CheckRole::class . ':admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/student', [AdminController::class, 'student'])->name('student');
-    Route::get('/counselor', [AdminController::class,'counselor'])->name('counselor');
-    Route::get('/administrator', [AdminController::class,'administrator'])->name('administrator');
-    Route::get('/class', [AdminController::class,'class'])->name('class');
     
+    // Student routes - using singular form consistently
+    Route::get('/student', [SiswaController::class, 'index'])->name('student.index');
+    Route::post('/student', [SiswaController::class, 'store'])->name('student.store');
+    Route::get('/student/{id}', [SiswaController::class, 'show'])->name('student.show');
+    Route::get('/student/{id}/edit', [SiswaController::class, 'edit'])->name('student.edit');
+    Route::put('/student/{id}', [SiswaController::class, 'update'])->name('student.update');
+    Route::delete('/student/{id}', [SiswaController::class, 'destroy'])->name('student.destroy');
 });
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/settings', [UserSettingController::class, 'index'])->name('profile.settings');

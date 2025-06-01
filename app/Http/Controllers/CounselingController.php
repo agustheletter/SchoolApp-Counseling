@@ -8,14 +8,34 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+use App\Models\Counseling;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class CounselingController extends Controller
 {
     public function message(): View{
         return view("counseling.messages");
     }
-    public function reports(): View{
-        return view("counseling.reports");
+    public function reports(Request $request)
+    {
+        $query = CounselingRequest::with(['counselor', 'counselingSession'])
+            ->where('idsiswa', Auth::id());
+
+        // Apply filters
+        if ($request->kategori && $request->kategori !== 'all') {
+            $query->where('kategori', $request->kategori);
+        }
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $counselingSessions = $query->orderBy('created_at', 'desc')->get();
+
+        return view('counseling.reports', compact('counselingSessions'));
     }
     public function schedule(): View{
         return view("counseling.schedule");
@@ -34,10 +54,8 @@ class CounselingController extends Controller
     public function storeRequest(Request $request)
     {
         try {
-            // Add debug logging for user ID
             Log::info('Current user ID:', ['id' => Auth::id()]);
             
-            // Verify user exists
             $user = User::find(Auth::id());
             if (!$user) {
                 Log::error('User not found:', ['id' => Auth::id()]);
@@ -52,26 +70,39 @@ class CounselingController extends Controller
                 'terms' => 'required|accepted'
             ]);
 
-            $counselingRequest = new CounselingRequest();
-            $counselingRequest->idsiswa = $user->id; // Use verified user ID
-            $counselingRequest->idguru = $validated['counselor_id'];
-            $counselingRequest->kategori = $validated['kategori'];
-            $counselingRequest->tanggal_permintaan = $validated['tanggal_permintaan'];
-            $counselingRequest->deskripsi = $validated['deskripsi'];
-            $counselingRequest->status = 'Pending';
-            
-            // Add debug logging
-            Log::info('Attempting to save counseling request:', $counselingRequest->toArray());
+            // Start database transaction
+            \DB::beginTransaction();
+            try {
+                // Create counseling request
+                $counselingRequest = new CounselingRequest();
+                $counselingRequest->idsiswa = $user->id;
+                $counselingRequest->idguru = $validated['counselor_id'];
+                $counselingRequest->kategori = $validated['kategori'];
+                $counselingRequest->tanggal_permintaan = $validated['tanggal_permintaan'];
+                $counselingRequest->deskripsi = $validated['deskripsi'];
+                $counselingRequest->status = 'Pending';
+                $counselingRequest->save();
 
-            if (!$counselingRequest->save()) {
-                Log::error('Failed to save counseling request');
-                return back()->withInput()->with('error', 'Gagal membuat permintaan konseling. Silakan coba lagi.');
+                // Create corresponding counseling session
+                $counseling = new Counseling();
+                $counseling->idkonseling = $counselingRequest->id;
+                $counseling->idsiswa = $user->id;
+                $counseling->idguru = $validated['counselor_id'];
+                $counseling->tanggal_konseling = $validated['tanggal_permintaan'];
+                $counseling->status = 'Pending';
+                $counseling->save();
+
+                \DB::commit();
+                
+                return redirect()->route('counseling.my-requests')
+                    ->with('success', 'Permintaan konseling berhasil dikirim.');
+
+            } catch (\Exception $e) {
+                \DB::rollback();
+                Log::error('Transaction Error: ' . $e->getMessage());
+                throw $e;
             }
 
-            Log::info('Counseling request saved successfully with ID: ' . $counselingRequest->id);
-            
-            return redirect()->route('counseling.my-requests')
-                ->with('success', 'Permintaan konseling berhasil dikirim.');
         } catch (\Exception $e) {
             Log::error('Counseling Request Error: ' . $e->getMessage());
             return back()
@@ -91,7 +122,23 @@ class CounselingController extends Controller
         return view("counseling.chat");
     }
     public function history(): View{
-        return view("counseling.history");
+        $counselingSessions = CounselingRequest::with(['counselor', 'counselingSession'])
+            ->where('idsiswa', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalSessions = $counselingSessions->count();
+        $completedSessions = $counselingSessions->where('status', 'Completed')->count();
+        $pendingSessions = $counselingSessions->where('status', 'Pending')->count();
+        $canceledSessions = $counselingSessions->where('status', 'Rejected')->count();
+
+        return view('counseling.history', compact(
+            'counselingSessions',
+            'totalSessions',
+            'completedSessions',
+            'pendingSessions',
+            'canceledSessions'
+        ));
     }
     public function show($id)
     {
@@ -127,5 +174,64 @@ class CounselingController extends Controller
             'monthlySessions',
             'latestRequests'
         ));
+    }
+
+    public function exportReports()
+    {
+        $counselingSessions = CounselingRequest::with(['counselor', 'counselingSession'])
+            ->where('idsiswa', Auth::id())
+            ->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers
+        $sheet->setCellValue('A1', 'No');
+        $sheet->setCellValue('B1', 'Tanggal');
+        $sheet->setCellValue('C1', 'Kategori');
+        $sheet->setCellValue('D1', 'Status');
+        $sheet->setCellValue('E1', 'Konselor');
+        $sheet->setCellValue('F1', 'Hasil Konseling');
+
+        // Style header
+        $headerStyle = [
+            'font' => ['bold' => true],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4B0082'],
+            ],
+            'font' => [
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+        ];
+        $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
+
+        // Add data
+        $row = 2;
+        foreach ($counselingSessions as $session) {
+            $sheet->setCellValue('A' . $row, $row - 1);
+            $sheet->setCellValue('B' . $row, \Carbon\Carbon::parse($session->tanggal_permintaan)->format('d/m/Y'));
+            $sheet->setCellValue('C' . $row, $session->kategori);
+            $sheet->setCellValue('D' . $row, $session->status);
+            $sheet->setCellValue('E' . $row, $session->counselor->nama ?? 'N/A');
+            $sheet->setCellValue('F' . $row, $session->counselingSession->hasil_konseling ?? '-');
+            $row++;
+        }
+
+        // Auto-size columns
+        foreach (range('A', 'F') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Create response
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'laporan_konseling_' . date('Y-m-d') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
     }
 }

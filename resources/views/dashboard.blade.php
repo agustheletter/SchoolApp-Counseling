@@ -119,18 +119,7 @@
     }
 
     /* Tombol Outline Primary di Sidebar */
-    .btn-outline-primary {
-        --bs-btn-color: var(--db-primary-color);
-        --bs-btn-border-color: var(--db-primary-color);
-        --bs-btn-hover-color: #fff; /* Teks putih saat hover */
-        --bs-btn-hover-bg: var(--db-primary-color);
-        --bs-btn-hover-border-color: var(--db-primary-color);
-        --bs-btn-active-color: #fff;
-        --bs-btn-active-bg: var(--db-primary-color);
-        --bs-btn-active-border-color: var(--db-primary-color);
-        --bs-btn-disabled-color: var(--db-primary-color);
-        --bs-btn-disabled-bg: transparent;
-    }
+
 
     /* Tombol Primary (jika tidak dihandle global) */
     .btn-primary {

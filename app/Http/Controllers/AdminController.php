@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Models\Jurusan;
+use App\Models\Agama;
+
 
 class AdminController extends Controller
 {
@@ -14,7 +17,10 @@ class AdminController extends Controller
 
     public function student(): View
     {
-       return view('admin.student.v_student');
+       $jurusans = Jurusan::orderBy('namajurusan')->get(['idjurusan', 'namajurusan']);
+       $agamas = Agama::orderBy('agama')->get(['idagama', 'agama']);
+       $tahunMasukOptions = range(date('Y') - 10, date('Y') + 1); 
+       return view('admin.student.v_student', compact('jurusans', 'agamas', 'tahunMasukOptions'));
     }
 
     public function counselor(): View

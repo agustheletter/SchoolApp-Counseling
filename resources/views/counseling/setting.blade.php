@@ -12,7 +12,7 @@
                     <h5 class="mb-0">Menu Siswa</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action    ">
                         <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                     </a>
                     <a href="{{ route('counseling.request') }}" class="list-group-item list-group-item-action">

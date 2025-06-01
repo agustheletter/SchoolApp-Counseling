@@ -11,9 +11,10 @@
     }
     
     .request-card {
-        border-left: 4px solid #6c5ce7;
-        transition: all 0.3s ease;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         margin-bottom: 1rem;
+        transition: all 0.3s ease;
     }
     
     .request-card:hover {
@@ -21,114 +22,28 @@
         transform: translateY(-2px);
     }
     
-    .priority-high {
-        border-left-color: #dc3545;
-    }
-    
-    .priority-medium {
-        border-left-color: #ffc107;
-    }
-    
-    .priority-low {
-        border-left-color: #28a745;
-    }
-    
-    .status-pending {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    
-    .status-approved {
-        background-color: #d1edff;
-        color: #0c5460;
-    }
-    
-    .status-rejected {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    
-    .status-completed {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    
-    .filter-btn {
-        border-radius: 20px;
-        padding: 0.5rem 1rem;
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
-        border: 1px solid #dee2e6;
-        background-color: white;
-        color: #495057;
-        transition: all 0.3s ease;
-    }
-    
-    .filter-btn.active {
-        background-color: #6c5ce7;
-        color: white;
-        border-color: #6c5ce7;
-    }
-    
-    .filter-btn:hover {
-        background-color: #f8f9fa;
-        border-color: #6c5ce7;
-    }
-    
-    .filter-btn.active:hover {
-        background-color: #5b4ecc;
+    .student-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
     }
     
     .student-avatar {
-        width: 50px;
-        height: 50px;
-        object-fit: cover;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
-    }
-    
-    .urgency-indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 0.5rem;
-    }
-    
-    .urgency-high {
-        background-color: #dc3545;
-        animation: pulse 2s infinite;
-    }
-    
-    .urgency-medium {
-        background-color: #ffc107;
-    }
-    
-    .urgency-low {
-        background-color: #28a745;
-    }
-    
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.5; }
-        100% { opacity: 1; }
+        margin-right: 1rem;
     }
     
     .action-buttons {
         display: flex;
         gap: 0.5rem;
-        flex-wrap: wrap;
     }
     
-    .bulk-actions {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        display: none;
-    }
-    
-    .bulk-actions.show {
-        display: block;
+    .status-badge {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
     }
 </style>
 @endsection
@@ -144,10 +59,10 @@
                     <p class="text-muted mb-0">Kelola semua permintaan konseling dari siswa</p>
                 </div>
                 <div>
-                    <button class="btn btn-outline-primary me-2" onclick="exportRequests()">
-                        <i class="fas fa-download me-2"></i>Export
+                    <button class="btn btn-success me-2" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel me-2"></i>Export Excel
                     </button>
-                    <button class="btn btn-primary" onclick="refreshRequests()">
+                    <button class="btn btn-primary" onclick="refreshPage()">
                         <i class="fas fa-sync-alt me-2"></i>Refresh
                     </button>
                 </div>
@@ -164,25 +79,75 @@
                 </div>
                 <div class="card-body">
                     @forelse ($requests as $request)
-                    <div class="request-card {{ $request->priorityClass }}">
+                    <div class="request-card p-3 {{ $request->priorityClass }}">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">{{ $request->student->nama }}</h6>
-                                <p class="mb-1"><strong>Kategori:</strong> {{ $request->kategori }}</p>
-                                <p class="mb-1"><strong>Deskripsi:</strong> {{ $request->deskripsi }}</p>
-                                <p class="mb-1"><strong>Tanggal:</strong> {{ $request->tanggal_permintaan }}</p>
+                            <div class="student-info">
+                                <img src="{{ asset('storage/avatars/' . ($request->student->avatar ?? 'default.png')) }}" 
+                                     alt="Avatar" 
+                                     class="student-avatar">
+                                <div>
+                                    <h6 class="mb-1">{{ $request->student->nama }}</h6>
+                                    <p class="text-muted mb-0">{{ $request->kategori }}</p>
+                                </div>
                             </div>
-                            <span class="badge bg-{{ $request->priorityBadge }}">{{ $request->priorityLabel }}</span>
+                            <span class="badge bg-{{ $request->priorityBadge }} status-badge">
+                                {{ $request->priorityLabel }}
+                            </span>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <p class="mb-1"><strong>Tanggal Permintaan:</strong> 
+                                {{ \Carbon\Carbon::parse($request->tanggal_permintaan)->format('d M Y H:i') }}
+                            </p>
+                            <p class="mb-2"><strong>Deskripsi:</strong> {{ $request->deskripsi }}</p>
+                        </div>
+
+                        <div class="action-buttons mt-3">
+                            @if($request->status === 'Pending')
+                            <button class="btn btn-success btn-sm" onclick="handleAction('approve', {{ $request->id }})">
+                                <i class="fas fa-check me-1"></i> Terima
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="handleAction('reject', {{ $request->id }})">
+                                <i class="fas fa-times me-1"></i> Tolak
+                            </button>
+                            @endif
+                            
+                            @if($request->status === 'Approved')
+                            <button class="btn btn-primary btn-sm" onclick="handleAction('complete', {{ $request->id }})">
+                                <i class="fas fa-check-circle me-1"></i> Selesaikan
+                            </button>
+                            @endif
                         </div>
                     </div>
                     @empty
-                    <p class="text-muted">Belum ada permintaan konseling.</p>
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">Belum ada permintaan konseling.</p>
+                    </div>
                     @endforelse
 
-                    <div class="mt-3">
+                    <div class="mt-4">
                         {{ $requests->links() }}
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Konfirmasi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                Apakah Anda yakin ingin melakukan tindakan ini?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="confirmAction">Ya, Lanjutkan</button>
             </div>
         </div>
     </div>
@@ -191,95 +156,77 @@
 
 @section('scripts')
 <script>
-    // Filter functionality
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Remove active class from all buttons in the same group
-            const group = this.closest('div');
-            group.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            // Apply filter
-            applyFilters();
-        });
-    });
+let currentAction = '';
+let currentRequestId = null;
+const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+
+function handleAction(action, requestId) {
+    currentAction = action;
+    currentRequestId = requestId;
     
-    // Checkbox functionality
-    document.getElementById('selectAll').addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('.request-checkbox');
-        checkboxes.forEach(cb => {
-            cb.checked = this.checked;
-        });
-        updateBulkActions();
-    });
+    // Configure modal based on action
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const confirmBtn = document.getElementById('confirmAction');
     
-    document.querySelectorAll('.request-checkbox').forEach(cb => {
-        cb.addEventListener('change', updateBulkActions);
-    });
-    
-    function updateBulkActions() {
-        const selectedCheckboxes = document.querySelectorAll('.request-checkbox:checked');
-        const bulkActions = document.getElementById('bulkActions');
-        const selectedCount = document.getElementById('selectedCount');
-        
-        if (selectedCheckboxes.length > 0) {
-            bulkActions.classList.add('show');
-            selectedCount.textContent = selectedCheckboxes.length;
-        } else {
-            bulkActions.classList.remove('show');
-        }
+    switch(action) {
+        case 'approve':
+            modalTitle.textContent = 'Terima Permintaan';
+            modalBody.textContent = 'Apakah Anda yakin ingin menerima permintaan konseling ini?';
+            confirmBtn.className = 'btn btn-success';
+            break;
+        case 'reject':
+            modalTitle.textContent = 'Tolak Permintaan';
+            modalBody.textContent = 'Apakah Anda yakin ingin menolak permintaan konseling ini?';
+            confirmBtn.className = 'btn btn-danger';
+            break;
+        case 'complete':
+            modalTitle.textContent = 'Selesaikan Permintaan';
+            modalBody.textContent = 'Apakah Anda yakin ingin menyelesaikan permintaan konseling ini?';
+            confirmBtn.className = 'btn btn-primary';
+            break;
     }
     
-    function applyFilters() {
-        // Implementation for filtering requests
-        console.log('Applying filters...');
-    }
+    modal.show();
+}
+
+document.getElementById('confirmAction').addEventListener('click', function() {
+    if (!currentRequestId || !currentAction) return;
     
-    function approveRequest(id) {
-        // Implementation sama seperti di dashboard
-        console.log('Approving request:', id);
-    }
+    const url = `/teacher/request/${currentRequestId}/${currentAction}`;
+    const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     
-    function rejectRequest(id) {
-        // Implementation sama seperti di dashboard
-        console.log('Rejecting request:', id);
-    }
-    
-    function viewDetails(id) {
-        console.log('Viewing details for request:', id);
-    }
-    
-    function contactStudent(id) {
-        console.log('Contacting student for request:', id);
-    }
-    
-    function bulkApprove() {
-        const selected = document.querySelectorAll('.request-checkbox:checked');
-        console.log('Bulk approving:', selected.length, 'requests');
-    }
-    
-    function bulkReject() {
-        const selected = document.querySelectorAll('.request-checkbox:checked');
-        console.log('Bulk rejecting:', selected.length, 'requests');
-    }
-    
-    function clearSelection() {
-        document.querySelectorAll('.request-checkbox').forEach(cb => {
-            cb.checked = false;
-        });
-        document.getElementById('selectAll').checked = false;
-        updateBulkActions();
-    }
-    
-    function exportRequests() {
-        console.log('Exporting requests...');
-    }
-    
-    function refreshRequests() {
-        console.log('Refreshing requests...');
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrf,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        modal.hide();
+        // Show success message
+        alert(data.message || 'Tindakan berhasil dilakukan');
+        // Refresh the page to show updated data
         location.reload();
-    }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan. Silakan coba lagi.');
+    });
+});
+
+function refreshPage() {
+    location.reload();
+}
+
+function exportToExcel() {
+    window.location.href = "{{ route('teacher.request.export') }}";
+}
 </script>
 @endsection

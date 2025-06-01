@@ -289,7 +289,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Apakah Anda yakin ingin menyelesaikan permintaan konseling ini?
+                <form id="completeForm">
+                    <div class="mb-3">
+                        <label for="hasil_konseling" class="form-label">Hasil Konseling</label>
+                        <textarea class="form-control" id="hasil_konseling" name="hasil_konseling" rows="4" required></textarea>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -304,80 +309,108 @@
 <script>
     let currentRequestId = null;
 
-    function setRequestId(requestId) {
-        currentRequestId = requestId;
-    }
+function setRequestId(requestId) {
+    currentRequestId = requestId;
+}
 
-    function approveRequest() {
-        if (currentRequestId) {
-            fetch(`/request/${currentRequestId}/approve`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Permintaan konseling berhasil diterima!');
-                    location.reload();
-                } else {
-                    alert('Gagal menerima permintaan konseling.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan. Silakan coba lagi.');
-            });
+function approveRequest() {
+    if (currentRequestId) {
+        fetch(`/teacher/request/${currentRequestId}/approve`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response OK:', response.ok);
+            
+            if (response.ok) {
+                alert('Permintaan konseling berhasil diterima!');
+                location.reload();
+            } else {
+                // Log the response text to see the actual error
+                return response.text().then(text => {
+                    console.error('Error response:', text);
+                    alert('Gagal menerima permintaan konseling. Status: ' + response.status);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert('Terjadi kesalahan. Silakan coba lagi.');
+        });
+    }
+}
+
+function rejectRequest() {
+    if (currentRequestId) {
+        fetch(`/teacher/request/${currentRequestId}/reject`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response OK:', response.ok);
+            
+            if (response.ok) {
+                alert('Permintaan konseling berhasil ditolak.');
+                location.reload();
+            } else {
+                return response.text().then(text => {
+                    console.error('Error response:', text);
+                    alert('Gagal menolak permintaan konseling. Status: ' + response.status);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert('Terjadi kesalahan. Silakan coba lagi.');
+        });
+    }
+}
+
+function completeRequest() {
+    if (currentRequestId) {
+        const hasil_konseling = document.getElementById('hasil_konseling').value;
+        
+        if (!hasil_konseling.trim()) {
+            alert('Hasil konseling tidak boleh kosong!');
+            return;
         }
-    }
 
-    function rejectRequest() {
-        if (currentRequestId) {
-            fetch(`/request/${currentRequestId}/reject`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json',
-                },
+        fetch(`/teacher/request/${currentRequestId}/complete`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                hasil_konseling: hasil_konseling
             })
-            .then(response => {
-                if (response.ok) {
-                    alert('Permintaan konseling berhasil ditolak.');
-                    location.reload();
-                } else {
-                    alert('Gagal menolak permintaan konseling.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan. Silakan coba lagi.');
-            });
-        }
-    }
-
-    function completeRequest() {
-        if (currentRequestId) {
-            fetch(`/request/${currentRequestId}/complete`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(response => {
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json().then(data => {
                 if (response.ok) {
                     alert('Permintaan konseling berhasil diselesaikan.');
                     location.reload();
                 } else {
-                    alert('Gagal menyelesaikan permintaan konseling.');
+                    console.error('Error response:', data);
+                    alert(data.message || 'Gagal menyelesaikan permintaan konseling.');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan. Silakan coba lagi.');
             });
-        }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert('Terjadi kesalahan. Silakan coba lagi.');
+        });
     }
+}
 </script>
 @endsection
