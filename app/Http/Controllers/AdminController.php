@@ -12,7 +12,18 @@ class AdminController extends Controller
 {
     public function dashboard(): View
     {
-        return view('admin.dashboard');
+        $data = [
+            'totalStudents' => \App\Models\Siswa::count(),
+            'totalCounselors' => \App\Models\User::where('role', 'guru')->count(),
+            'pendingRequests' => \App\Models\CounselingRequest::where('status', 'Pending')->count(),
+            // Add requests data
+            'requests' => \App\Models\CounselingRequest::with(['student', 'counselor'])
+                ->orderBy('created_at', 'desc')
+                ->take(10)  // Limit to last 10 requests
+                ->get(),
+        ];
+
+        return view('admin.dashboard', $data);
     }
 
     public function student(): View

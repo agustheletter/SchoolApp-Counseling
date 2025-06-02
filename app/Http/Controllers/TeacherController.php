@@ -109,7 +109,9 @@ class TeacherController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Permintaan konseling berhasil diselesaikan.'
+                'message' => 'Permintaan konseling berhasil diselesaikan.',
+                'success' => true,
+                'message' => 'Permintaan konseling berhasil diselesaikan',
             ]);
 
         } catch (\Exception $e) {
@@ -117,7 +119,9 @@ class TeacherController extends Controller
             \Log::error('CompleteRequest Error: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'success' => false,
+                'message' => 'Gagal menyelesaikan permintaan konseling'
             ], 500);
         }
     }

@@ -9,9 +9,9 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
-{
-    Schema::create('tbl_counselor', function (Blueprint $table) {
+    public function up(): void
+    {
+       Schema::create('tbl_counselor', function (Blueprint $table) {
         $table->id();
         $table->string('nip')->unique();
         $table->string('nama_konselor');
@@ -34,12 +34,13 @@ return new class extends Migration
         $table->timestamps();
         $table->softDeletes();
     });
-}
+    }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_counselor');
+        Schema::dropIfExists('counselors');
     }
 };

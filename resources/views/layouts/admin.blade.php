@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.min.css">
 
     @stack('css') {{-- GANTI DARI @yield('styles') --}}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
 
     <style>
         /* ... (CSS custom Anda yang sudah ada) ... */
@@ -187,7 +188,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="{{ route('admin.student') }}" class="nav-link {{ request()->routeIs('admin.student') || request()->is('admin/students*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.student') }}" class="nav-link {{ request()->routeIs('admin.student') || request()->is('admin/student*') ? 'active' : '' }}">
                                     <i class="far fa-id-card nav-icon"></i>
                                     <p>Siswa</p>
                                 </a>
@@ -340,7 +341,7 @@
 <!-- Bootstrap DateRangePicker (jika dibutuhkan) -->
 {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.js"></script> --}}
 
-@yield('scripts')
+@stack('scripts')
 
 <script>
 $(document).ready(function() {
@@ -391,7 +392,7 @@ $(document).ajaxError(function(event, xhr, settings, thrownError) {
         Swal.fire({
             icon: 'error',
             title: 'Oops... Terjadi Kesalahan Server!',
-            text: 'Ada masalah di server kami. Tim kami sudah diberitahu. Silakan coba lagi nanti.',
+            text: 'Bentar dibenerin dulu ya',
         });
     }
     // Anda bisa menambahkan penanganan error AJAX global lainnya di sini

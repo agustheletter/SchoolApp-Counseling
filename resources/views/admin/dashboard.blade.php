@@ -16,7 +16,7 @@
             <div class="info-box-content">
                 <span class="info-box-text">Total Siswa</span>
                 <span class="info-box-number">
-                    1,410
+                    {{ $totalStudents ?? 0 }}
                     <small>siswa</small>
                 </span>
             </div>
@@ -29,7 +29,7 @@
             <div class="info-box-content">
                 <span class="info-box-text">Total Konselor</span>
                 <span class="info-box-number">
-                    24
+                    {{ $totalCounselors ?? 0 }}
                     <small>konselor</small>
                 </span>
             </div>
@@ -42,7 +42,7 @@
             <div class="info-box-content">
                 <span class="info-box-text">Permintaan Konseling</span>
                 <span class="info-box-number">
-                    8
+                    {{ $pendingRequests ?? 0 }}
                     <small>permintaan</small>
                 </span>
             </div>
@@ -215,6 +215,59 @@
             </div>
         </div>
     </section>
+</div>
+    
+<!-- Request Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Permintaan Konseling Terbaru</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Siswa</th>
+                            <th>Konselor</th>
+                            <th>Waktu Permintaan</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($requests as $request)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $request->student->name }}</td>
+                            <td>{{ $request->counselor->name }}</td>
+                            <td>{{ $request->created_at->diffForHumans() }}</td>
+                            <td>
+                                @if($request->status == 'pending')
+                                    <span class="badge badge-warning">Menunggu</span>
+                                @elseif($request->status == 'approved')
+                                    <span class="badge badge-success">Disetujui</span>
+                                @else
+                                    <span class="badge badge-danger">Ditolak</span>
+                                @endif
+                            </td>
+                            <td>
+                                <button onclick="approveRequest({{ $request->id }})" class="btn btn-success btn-sm">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+
+                                <button onclick="rejectRequest({{ $request->id }})" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -559,76 +612,126 @@ window.dashboardUtils = {
 };
 
 // Approve, reject, complete request functions
-function approveRequest() {
-    if (currentRequestId) {
-        fetch(`/request/${currentRequestId}/approve`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('Permintaan konseling berhasil diterima!');
-                location.reload();
-            } else {
-                alert('Gagal menerima permintaan konseling.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan. Silakan coba lagi.');
-        });
+function approveRequest(id) {
+    if (!id) {
+        console.error('No request ID provided');
+        return;
     }
+
+    fetch(`{{ url('teacher/request') }}/${id}/approve`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Permintaan konseling berhasil diterima!',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            throw new Error('Gagal menerima permintaan konseling.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: error.message
+        });
+    });
 }
 
-function rejectRequest() {
-    if (currentRequestId) {
-        fetch(`/request/${currentRequestId}/reject`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('Permintaan konseling berhasil ditolak.');
-                location.reload();
-            } else {
-                alert('Gagal menolak permintaan konseling.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan. Silakan coba lagi.');
-        });
+function rejectRequest(id) {
+    if (!id) {
+        console.error('No request ID provided');
+        return;
     }
+
+    fetch(`{{ url('teacher/request') }}/${id}/reject`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Permintaan konseling berhasil ditolak.',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            throw new Error('Gagal menolak permintaan konseling.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: error.message
+        });
+    });
 }
 
-function completeRequest() {
-    if (currentRequestId) {
-        fetch(`/request/${currentRequestId}/complete`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('Permintaan konseling berhasil diselesaikan.');
-                location.reload();
-            } else {
-                alert('Gagal menyelesaikan permintaan konseling.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan. Silakan coba lagi.');
-        });
+function completeRequest(id) {
+    if (!id) {
+        console.error('No request ID provided');
+        return;
     }
+
+    fetch(`{{ url('teacher/request') }}/${id}/complete`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Permintaan konseling berhasil diselesaikan.',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            throw new Error('Gagal menyelesaikan permintaan konseling.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: error.message
+        });
+    });
 }
+
+// Add at the start of your script section
+let currentRequestId = null;
 </script>
+@endsection
+
+@section('styles')
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @endsection

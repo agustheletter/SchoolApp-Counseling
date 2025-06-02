@@ -1,73 +1,88 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Siswa;
-use App\Models\Jurusan;
-use App\Models\ProgramKeahlian; // Dipertahankan untuk relasi di model
-use App\Models\Agama;
 use Illuminate\Http\Request;
-use App\Http\Requests\StoreSiswaRequest;
-use App\Http\Requests\UpdateSiswaRequest;
-use Illuminate\Support\Facades\Storage;
-use DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Yajra\DataTables\Facades\DataTables;  // Add this import
 
 class SiswaController extends Controller
 {
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $siswa = Siswa::with(['jurusan', 'agama']);
+            try {
+                $users = DB::table('tbl_users')
+                    ->where('role', 'user')
+                    ->select([
+                        'id',
+                        'nis',
+                        'nama',
+                        'email',
+                        'gender',
+                        'nohp',
+                        'tgllahir',
+                        'avatar'
+                    ]);
 
-            // Apply filters
-            if ($request->filled('jurusan')) {
-                $siswa->where('idjurusan', $request->jurusan);
-            }
-            if ($request->filled('tahun_masuk')) {
-                $siswa->where('idthnmasuk', $request->tahun_masuk);
-            }
-            if ($request->filled('jenkel')) {
-                $siswa->where('jenkel', $request->jenkel);
-            }
-
-            return DataTables::of($siswa)
-                ->addIndexColumn()
-                ->addColumn('ttl', function ($row) {
-                    return $row->tempatlahir . ', ' . \Carbon\Carbon::parse($row->tgllahir)->format('d-m-Y');
-                })
-                ->addColumn('jurusan', function ($row) {
-                    return $row->jurusan ? $row->jurusan->namajurusan : '-';
-                })
-                ->addColumn('photo', function ($row) {
-                    $photoUrl = $row->photosiswa ? asset('storage/' . $row->photosiswa) : asset('images/default-avatar.png');
-                    return '<img src="' . $photoUrl . '" alt="Photo" class="img-thumbnail">';
-                })
-                ->addColumn('action', function ($row) {
-                    return '
-                        <div class="btn-group">
-                            <button onclick="viewSiswa('.$row->idsiswa.')" class="btn btn-info btn-sm">
+                return DataTables::of($users)
+                    ->addIndexColumn()
+                    ->addColumn('ttl', function($row) {
+                        try {
+                            return $row->tgllahir ? date('d-m-Y', strtotime($row->tgllahir)) : '-';
+                        } catch (\Exception $e) {
+                            return '-';
+                        }
+                    })
+                    ->addColumn('gender', function($row) {
+                        try {
+                            return $row->gender === 'male' ? 'Laki-laki' : 'Perempuan';
+                        } catch (\Exception $e) {
+                            return '-';
+                        }
+                    })
+                    ->addColumn('avatar', function($row) {
+                        try {
+                            $avatarUrl = $row->avatar 
+                                ? asset('storage/avatars/' . $row->avatar)
+                                : asset('images/' . ($row->gender === 'male' ? 'default-male.png' : 'default-female.png'));
+                            return '<img src="'.$avatarUrl.'" class="img-thumbnail" width="50">';
+                        } catch (\Exception $e) {
+                            return '<img src="' . asset('images/default-male.png') . '" class="img-thumbnail" width="50">';
+                        }
+                    })
+                    ->addColumn('action', function($row) {
+                        return '<div class="btn-group">
+                            <button onclick="viewUser('.$row->id.')" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button onclick="editSiswa('.$row->idsiswa.')" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteSiswa('.$row->idsiswa.')" class="btn btn-danger btn-sm">
+                            <button onclick="deleteUser('.$row->id.')" class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>';
-                })
-                ->rawColumns(['photo', 'action'])
-                ->make(true);
+                    })
+                    ->rawColumns(['avatar', 'action'])
+                    ->toJson();
+
+            } catch (\Exception $e) {
+                \Log::error('DataTables Error:', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
+                
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Error: ' . $e->getMessage()
+                ], 500);
+            }
         }
 
-        $jurusans = Jurusan::all();
-        $agamas = Agama::all();
-        $tahunMasukOptions = range(date('Y'), date('Y')-10);
-
-        return view('admin.student.v_student', compact('jurusans', 'agamas', 'tahunMasukOptions'));
+        return view('admin.student.v_student');
     }
 
     public function store(StoreSiswaRequest $request)
@@ -210,5 +225,27 @@ class SiswaController extends Controller
         }
         Log::warning('File template import siswa tidak ditemukan di: ' . $filePath);
         return response()->json(['message' => 'Template tidak ditemukan.'], 404);
+    }
+
+    public function checkTable()
+    {
+        try {
+            $tables = DB::select('SHOW TABLES');
+            $columns = [];
+            
+            if (Schema::hasTable('tbl_users')) {  // Changed from 'users' to 'tbl_users'
+                $columns = Schema::getColumnListing('tbl_users');
+            }
+            
+            return response()->json([
+                'tables' => $tables,
+                'users_exists' => Schema::hasTable('tbl_users'),
+                'columns' => $columns
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

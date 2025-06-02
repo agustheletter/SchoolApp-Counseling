@@ -22,12 +22,12 @@ class CounselingRequest extends Model
 
     public function student()
     {
-        return $this->belongsTo(User::class, 'idsiswa', 'id');
+        return $this->belongsTo(Siswa::class, 'idsiswa');
     }
-
+    
     public function counselor()
     {
-        return $this->belongsTo(User::class, 'idguru', 'id');
+        return $this->belongsTo(User::class, 'idguru');
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Middleware\CheckRole;
 use App\Http\Controllers\UserSettingController;
 use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\Admin\CounselorController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -62,15 +63,19 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', CheckRole::class
 });
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', CheckRole::class . ':admin'])->group(function () {
+    // Dashboard route
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     
-    // Student routes - using singular form consistently
-    Route::get('/student', [SiswaController::class, 'index'])->name('student.index');
-    Route::post('/student', [SiswaController::class, 'store'])->name('student.store');
+    // Student management routes
+    Route::get('/student', [SiswaController::class, 'index'])->name('student');
     Route::get('/student/{id}', [SiswaController::class, 'show'])->name('student.show');
-    Route::get('/student/{id}/edit', [SiswaController::class, 'edit'])->name('student.edit');
-    Route::put('/student/{id}', [SiswaController::class, 'update'])->name('student.update');
     Route::delete('/student/{id}', [SiswaController::class, 'destroy'])->name('student.destroy');
+    Route::get('/check-table', [SiswaController::class, 'checkTable'])->name('check-table');
+    
+    // Additional admin routes...
+    Route::resource('counselor', CounselorController::class);
+    Route::get('/administrator', [AdminController::class, 'administrator'])->name('administrator');
+    Route::get('/class', [AdminController::class, 'class'])->name('class');
 });
 
 
