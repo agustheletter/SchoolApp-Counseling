@@ -26,9 +26,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap4-theme@1.0.0/dist/select2-bootstrap4.min.css"> {{-- Tambahkan tema bootstrap 4 untuk select2 --}}
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
 
     @stack('css') {{-- GANTI DARI @yield('styles') --}}
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
 
     <style>
         /* ... (CSS custom Anda yang sudah ada) ... */
@@ -194,15 +196,9 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('admin.counselor') }}" class="nav-link {{ request()->routeIs('admin.counselor') ? 'active' : '' }}">
+                                <a href="{{ route('admin.counselor.index') }}" class="nav-link {{ request()->routeIs('admin.counselor') ? 'active' : '' }}">
                                     <i class="fas fa-user-tie nav-icon"></i>
                                     <p>Konselor</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('admin.administrator') }}" class="nav-link {{ request()->routeIs('admin.administrator') ? 'active' : '' }}">
-                                    <i class="fas fa-user-shield nav-icon"></i>
-                                    <p>Administrator</p>
                                 </a>
                             </li>
                         </ul>
@@ -331,8 +327,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> {{-- Tambahkan ini --}}
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script> {{-- Tambahkan ini --}}
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
 <!-- Select2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <!-- SweetAlert2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.min.js"></script>
 <!-- Moment.js (jika dibutuhkan oleh daterangepicker atau lainnya) -->

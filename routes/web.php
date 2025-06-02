@@ -62,7 +62,7 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', CheckRole::class
     Route::post('/request/{id}/complete', [TeacherController::class, 'completeRequest'])->name('request.complete');
 });
 
-Route::prefix('admin')->name('admin.')->middleware(['auth', CheckRole::class . ':admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     // Dashboard route
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     
@@ -76,8 +76,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', CheckRole::class . '
     Route::resource('counselor', CounselorController::class);
     Route::get('/administrator', [AdminController::class, 'administrator'])->name('administrator');
     Route::get('/class', [AdminController::class, 'class'])->name('class');
+    
+    Route::get('/counselor', [CounselorController::class, 'index'])->name('counselor.index');
+    Route::post('/counselor', [CounselorController::class, 'store'])->name('counselor.store');
+    Route::get('/counselor/{id}', [CounselorController::class, 'show'])->name('counselor.show');
+    Route::put('/counselor/{id}', [CounselorController::class, 'update'])->name('counselor.update');
+    Route::delete('/counselor/{id}', [CounselorController::class, 'destroy'])->name('counselor.destroy');
+    
+    // Add this debug route temporarily
+    Route::get('/debug-counselors', function() {
+        $counselors = \App\Models\Counselor::all();
+        dd($counselors); // Debug output
+    });
 });
-
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/settings', [UserSettingController::class, 'index'])->name('profile.settings');
@@ -87,4 +98,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/settings/delete-account', [UserSettingController::class, 'deleteAccount'])->name('settings.delete-account');
     Route::put('/settings/appearance', [UserSettingController::class, 'updateAppearance'])->name('settings.appearance');
     Route::get('/settings/login-history', [UserSettingController::class, 'getLoginHistory'])->name('settings.login-history');
+});
+
+// Add this route temporarily for debugging
+Route::get('/debug-counselors', function() {
+    $counselors = \App\Models\Counselor::all();
+    return response()->json($counselors);
 });

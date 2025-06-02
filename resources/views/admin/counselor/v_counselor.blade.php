@@ -8,80 +8,36 @@
 <li class="breadcrumb-item active">Data Konselor</li>
 @endsection
 
+@section('styles')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+@endsection
+
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-user-tie mr-2"></i>
-                    Daftar Konselor
-                </h3>
-                <div class="card-tools">
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addKonselorModal">
-                        <i class="fas fa-plus"></i> Tambah Konselor
-                    </button>
-                    <button type="button" class="btn btn-success btn-sm" onclick="exportData()">
-                        <i class="fas fa-download"></i> Export Excel
-                    </button>
-                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#importModal">
-                        <i class="fas fa-upload"></i> Import Excel
-                    </button>
-                </div>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#addKonselorModal">
+                    <i class="fas fa-plus"></i> Tambah Konselor
+                </button>
             </div>
-            <!-- /.card-header -->
             <div class="card-body">
-                <!-- Filter Section -->
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <select class="form-control" id="filterStatus">
-                            <option value="">Semua Status</option>
-                            <option value="aktif">Aktif</option>
-                            <option value="nonaktif">Non Aktif</option>
-                            <option value="cuti">Cuti</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-control" id="filterSpesialisasi">
-                            <option value="">Semua Spesialisasi</option>
-                            <option value="akademik">Konseling Akademik</option>
-                            <option value="karir">Konseling Karir</option>
-                            <option value="pribadi">Konseling Pribadi</option>
-                            <option value="sosial">Konseling Sosial</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-control" id="filterPendidikan">
-                            <option value="">Semua Pendidikan</option>
-                            <option value="S1">S1</option>
-                            <option value="S2">S2</option>
-                            <option value="S3">S3</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <button type="button" class="btn btn-secondary btn-block" onclick="resetFilter()">
-                            <i class="fas fa-undo"></i> Reset Filter
-                        </button>
-                    </div>
-                </div>
-
                 <table id="konselorTable" class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th width="5%">No</th>
-                            <th width="8%">NIP</th>
-                            <th width="15%">Nama Konselor</th>
-                            <th width="8%">Jenis Kelamin</th>
-                            <th width="12%">Email</th>
-                            <th width="10%">No. HP</th>
-                            <th width="12%">Spesialisasi</th>
-                            <th width="8%">Status</th>
-                            <th width="8%">Photo</th>
-                            <th width="14%">Aksi</th>
+                            <th>No</th>
+                            <th>NIP</th>
+                            <th>Nama Konselor</th>
+                            <th>Jenis Kelamin</th>
+                            <th>Email</th>
+                            <th>No. HP</th>
+                            <th>Spesialisasi</th>
+                            <th>Status</th>
+                            <th>Photo</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Data akan dimuat via DataTables AJAX -->
                     </tbody>
                 </table>
             </div>
@@ -105,7 +61,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="addKonselorForm" enctype="multipart/form-data">
+            <form id="addKonselorForm" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
@@ -666,297 +622,44 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
-    // Initialize Select2
-    $('.select2').select2({
-        theme: 'bootstrap4',
-        width: '100%'
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
     });
 
-    // Initialize DataTable
-    var table = $('#konselorTable').DataTable({
+    $('#konselorTable').DataTable({
         processing: true,
         serverSide: true,
         ajax: {
-            url: "#",
+            url: "{{ route('admin.counselor.index') }}",
             type: 'GET',
-            data: function(d) {
-                d.status = $('#filterStatus').val();
-                d.spesialisasi = $('#filterSpesialisasi').val();
-                d.pendidikan = $('#filterPendidikan').val();
+            error: function(xhr, error, thrown) {
+                console.log('Ajax error:', error);
             }
         },
         columns: [
-            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-            { data: 'nip', name: 'nip' },
-            { data: 'nama_lengkap', name: 'nama_lengkap' },
-            { data: 'jenis_kelamin', name: 'jenis_kelamin' },
-            { data: 'email', name: 'email' },
-            { data: 'no_hp', name: 'no_hp' },
-            { data: 'spesialisasi', name: 'spesialisasi', orderable: false },
-            { data: 'status', name: 'status' },
-            { data: 'photo', name: 'photo', orderable: false, searchable: false },
-            { data: 'action', name: 'action', orderable: false, searchable: false }
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+            {data: 'nip', name: 'nip'},
+            {data: 'nama_konselor', name: 'nama_konselor'},
+            {data: 'jenis_kelamin', name: 'jenis_kelamin'},
+            {data: 'email', name: 'email'},
+            {data: 'no_hp', name: 'no_hp'},
+            {data: 'spesialisasi', name: 'spesialisasi'},
+            {data: 'status', name: 'status'},
+            {data: 'photo', name: 'photo', orderable: false, searchable: false},
+            {data: 'action', name: 'action', orderable: false, searchable: false}
         ],
-        responsive: true,
-        autoWidth: false,
+        order: [[1, 'asc']],
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Indonesian.json'
+            processing: "Loading...",
+            zeroRecords: "No data available"
         }
-    });
-
-    // Filter events
-    $('#filterStatus, #filterSpesialisasi, #filterPendidikan').change(function() {
-        table.ajax.reload();
-    });
-
-    // Custom file input labels
-    $('.custom-file-input').on('change', function() {
-        let fileName = $(this).val().split('\\').pop();
-        $(this).next('.custom-file-label').addClass("selected").html(fileName);
-    });
-
-    // Photo preview
-    $('#photo_konselor').change(function() {
-        previewImage(this, '#previewImg', '#photoPreview');
-    });
-
-    $('#edit_photo_konselor').change(function() {
-        previewImage(this, '#editPreviewImg', '#editPhotoPreview');
-    });
-
-    // Form submissions
-    $('#addKonselorForm').on('submit', function(e) {
-        e.preventDefault();
-        submitForm(this, "#", 'POST', '#addKonselorModal');
-    });
-
-    $('#editKonselorForm').on('submit', function(e) {
-        e.preventDefault();
-        var id = $('#edit_id_konselor').val();
-        submitForm(this, "#" + id, 'POST', '#editKonselorModal');
-    });
-
-    $('#importForm').on('submit', function(e) {
-        e.preventDefault();
-        submitForm(this, "#", 'POST', '#importModal');
     });
 });
-
-// Functions
-function previewImage(input, imgSelector, containerSelector) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            $(imgSelector).attr('src', e.target.result);
-            $(containerSelector).show();
-        }
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function submitForm(form, url, method, modalSelector) {
-    var formData = new FormData(form);
-    
-    $.ajax({
-        url: url,
-        type: method,
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(response) {
-            if (response.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: response.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                $(modalSelector).modal('hide');
-                $(form)[0].reset();
-                $('.select2').val(null).trigger('change');
-                $('#konselorTable').DataTable().ajax.reload();
-            }
-        },
-        error: function(xhr) {
-            var errors = xhr.responseJSON.errors;
-            var errorMessage = '';
-            
-            if (errors) {
-                $.each(errors, function(key, value) {
-                    errorMessage += value[0] + '\n';
-                });
-            } else {
-                errorMessage = xhr.responseJSON.message || 'Terjadi kesalahan';
-            }
-            
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: errorMessage
-            });
-        }
-    });
-}
-
-function editKonselor(id) {
-    $.ajax({
-        url: "#" + id,
-        type: 'GET',
-        success: function(data) {
-            $('#edit_id_konselor').val(data.id_konselor);
-            $('#edit_nip').val(data.nip);
-            $('#edit_nama_konselor').val(data.nama_konselor);
-            $('#edit_gelar_depan').val(data.gelar_depan);
-            $('#edit_gelar_belakang').val(data.gelar_belakang);
-            $('#edit_jenis_kelamin').val(data.jenis_kelamin);
-            $('#edit_tempat_lahir').val(data.tempat_lahir);
-            $('#edit_tanggal_lahir').val(data.tanggal_lahir);
-            $('#edit_alamat').val(data.alamat);
-            $('#edit_email').val(data.email);
-            $('#edit_no_hp').val(data.no_hp);
-            $('#edit_pendidikan_terakhir').val(data.pendidikan_terakhir);
-            $('#edit_jurusan_pendidikan').val(data.jurusan_pendidikan);
-            $('#edit_pengalaman_kerja').val(data.pengalaman_kerja);
-            $('#edit_sertifikasi').val(data.sertifikasi);
-            $('#edit_status').val(data.status);
-            $('#edit_tanggal_bergabung').val(data.tanggal_bergabung);
-            
-            // Set spesialisasi (multiple select)
-            if (data.spesialisasi) {
-                var spesialisasi = data.spesialisasi.split(',');
-                $('#edit_spesialisasi').val(spesialisasi).trigger('change');
-            }
-            
-            if (data.photo_konselor) {
-                $('#editPreviewImg').attr('src', data.photo_konselor).show();
-            }
-            
-            $('#editKonselorModal').modal('show');
-        }
-    });
-}
-
-function deleteKonselor(id) {
-    Swal.fire({
-        title: 'Apakah Anda yakin?',
-        text: "Data konselor akan dihapus permanen!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: "#" + id,
-                type: 'DELETE',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: response.message,
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                        $('#konselorTable').DataTable().ajax.reload();
-                    }
-                },
-                error: function(xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan saat menghapus data'
-                    });
-                }
-            });
-        }
-    });
-}
-
-function viewKonselor(id) {
-    $.ajax({
-        url: "#" + id,
-        type: 'GET',
-        success: function(data) {
-            // Basic info
-            $('#detailNip').text(data.nip);
-            $('#detailNamaLengkap').text(data.nama_lengkap);
-            $('#detailJenisKelamin').text(data.jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan');
-            $('#detailTtl').text(data.tempat_lahir + ', ' + data.tanggal_lahir);
-            $('#detailAlamat').text(data.alamat || '-');
-            $('#detailEmail').text(data.email);
-            $('#detailNoHp').text(data.no_hp);
-            $('#detailPendidikan').text(data.pendidikan_terakhir);
-            $('#detailJurusan').text(data.jurusan_pendidikan || '-');
-            $('#detailSpesialisasi').text(data.spesialisasi || '-');
-            $('#detailPengalaman').text(data.pengalaman_kerja ? data.pengalaman_kerja + ' tahun' : '-');
-            $('#detailTanggalBergabung').text(data.tanggal_bergabung || '-');
-            
-            // Status badge
-            var statusClass = data.status == 'aktif' ? 'badge-success' : (data.status == 'cuti' ? 'badge-warning' : 'badge-danger');
-            $('#detailStatus').removeClass().addClass('badge ' + statusClass).text(data.status.charAt(0).toUpperCase() + data.status.slice(1));
-            
-            // Photo
-            if (data.photo_konselor) {
-                $('#detailPhoto').attr('src', data.photo_konselor);
-            } else {
-                $('#detailPhoto').attr('src', '/images/default-avatar.png');
-            }
-            
-            // Statistics (you can load this from another endpoint)
-            $('#detailTotalSiswa').text(data.total_siswa || 0);
-            $('#detailSesiSelesai').text(data.sesi_selesai || 0);
-            $('#detailRating').text(data.rating || '0.0');
-            
-            // Jadwal (if available)
-            if (data.jadwal) {
-                var jadwalHtml = '<table class="table table-sm table-bordered">';
-                jadwalHtml += '<thead><tr><th>Hari</th><th>Jam</th><th>Keterangan</th></tr></thead><tbody>';
-                
-                $.each(data.jadwal, function(hari, jadwal) {
-                    if (jadwal.tersedia) {
-                        jadwalHtml += '<tr>';
-                        jadwalHtml += '<td>' + hari.charAt(0).toUpperCase() + hari.slice(1) + '</td>';
-                        jadwalHtml += '<td>' + jadwal.jam_mulai + ' - ' + jadwal.jam_selesai + '</td>';
-                        jadwalHtml += '<td>' + (jadwal.keterangan || '-') + '</td>';
-                        jadwalHtml += '</tr>';
-                    }
-                });
-                
-                jadwalHtml += '</tbody></table>';
-                $('#detailJadwal').html(jadwalHtml);
-            } else {
-                $('#detailJadwal').html('<p class="text-muted">Jadwal belum diatur</p>');
-            }
-            
-            $('#detailKonselorModal').modal('show');
-        }
-    });
-}
-
-function resetFilter() {
-    $('#filterStatus, #filterSpesialisasi, #filterPendidikan').val('');
-    $('#konselorTable').DataTable().ajax.reload();
-}
-
-function exportData() {
-    window.location.href = "#";
-}
-
-function downloadTemplate() {
-    window.location.href = "#";
-}
-
-function printDetail() {
-    window.print();
-}
 </script>
 @endsection
