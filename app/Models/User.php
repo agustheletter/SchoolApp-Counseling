@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, SoftDeletes;
 
     /**
      * The table associated with the model.
@@ -30,6 +31,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'nis',
         'nama',
         'email',
         'password',
@@ -129,5 +131,15 @@ class User extends Authenticatable
         $this->last_login_ip = $request->ip();
         $this->last_login_at = now();
         $this->save();
+    }
+
+    /**
+     * Get the counselor associated with the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function counselor()
+    {
+        return $this->hasOne(Counselor::class, 'idkonselor');
     }
 }

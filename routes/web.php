@@ -34,15 +34,23 @@ Route::get('/dashboard', [HomeController::class, 'dashboard'])
     ->middleware('auth')
     ->name('dashboard');
 
+Route::get('/construction', function () {
+    return view('under_construction.construct');
+})->name('construction');
+
 Route::prefix('counseling')->name('counseling.')->middleware(['auth'])->group(function ()  {
     Route::get('/reports/export', [CounselingController::class, 'exportReports'])->name('reports.export');
-    Route::get('/messages', [CounselingController::class, 'message'])->name('messages');
+    Route::get('/messages', function() {
+        return redirect()->route('construction');
+    })->name('messages');
     Route::get('/reports', [CounselingController::class, 'reports'])->name('reports');
     Route::get('/profile', [CounselingController::class,'profile'])->name('profile');
     Route::get('/request', [CounselingController::class, 'request'])->name('request');
     Route::post('/request', [CounselingController::class, 'storeRequest'])->name('request.store');
     Route::get('/my-requests', [CounselingController::class, 'myRequests'])->name('my-requests');
-    Route::get('/chat', [CounselingController::class, 'chat'])->name('chat');
+    Route::get('/chat', function() {
+        return redirect()->route('construction');
+    })->name('chat');
     Route::get('/setting', [CounselingController::class, 'setting'])->name('setting');
     Route::get('/history', [CounselingController::class, 'history'])->name('history');
     Route::get('/request/{id}', [CounselingController::class, 'show'])->name('request.show');
@@ -62,32 +70,25 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', CheckRole::class
     Route::post('/request/{id}/complete', [TeacherController::class, 'completeRequest'])->name('request.complete');
 });
 
-Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', CheckRole::class . ':admin'])->group(function () {
     // Dashboard route
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     
     // Student management routes
-    Route::get('/student', [SiswaController::class, 'index'])->name('student');
+    Route::get('/student', [SiswaController::class, 'index'])->name('student'); // Changed from 'student' to 'student.index'
     Route::get('/student/{id}', [SiswaController::class, 'show'])->name('student.show');
     Route::delete('/student/{id}', [SiswaController::class, 'destroy'])->name('student.destroy');
     Route::get('/check-table', [SiswaController::class, 'checkTable'])->name('check-table');
+    Route::post('/student/{id}/restore', [SiswaController::class, 'restore'])->name('student.restore');
     
-    // Additional admin routes...
+    // Counselor management routes
+    Route::get('/counselor/get-users', [CounselorController::class, 'getUsers'])->name('counselor.getUsers');
+    Route::post('/counselor/convert/{id}', [CounselorController::class, 'convertToCounselor'])->name('counselor.convert');
+    Route::post('/counselor/{id}/restore', [CounselorController::class, 'restore'])->name('counselor.restore');
     Route::resource('counselor', CounselorController::class);
+    
     Route::get('/administrator', [AdminController::class, 'administrator'])->name('administrator');
     Route::get('/class', [AdminController::class, 'class'])->name('class');
-    
-    Route::get('/counselor', [CounselorController::class, 'index'])->name('counselor.index');
-    Route::post('/counselor', [CounselorController::class, 'store'])->name('counselor.store');
-    Route::get('/counselor/{id}', [CounselorController::class, 'show'])->name('counselor.show');
-    Route::put('/counselor/{id}', [CounselorController::class, 'update'])->name('counselor.update');
-    Route::delete('/counselor/{id}', [CounselorController::class, 'destroy'])->name('counselor.destroy');
-    
-    // Add this debug route temporarily
-    Route::get('/debug-counselors', function() {
-        $counselors = \App\Models\Counselor::all();
-        dd($counselors); // Debug output
-    });
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -98,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/settings/delete-account', [UserSettingController::class, 'deleteAccount'])->name('settings.delete-account');
     Route::put('/settings/appearance', [UserSettingController::class, 'updateAppearance'])->name('settings.appearance');
     Route::get('/settings/login-history', [UserSettingController::class, 'getLoginHistory'])->name('settings.login-history');
+    Route::put('/settings/counselor', [UserSettingController::class, 'updateCounselor'])->name('settings.counselor');
 });
 
 // Add this route temporarily for debugging

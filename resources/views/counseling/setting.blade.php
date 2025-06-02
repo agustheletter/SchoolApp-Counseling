@@ -12,6 +12,7 @@
                     <h5 class="mb-0">Menu Siswa</h5>
                 </div>
                 <div class="list-group list-group-flush">
+                    @if (Auth::user()->role === 'user')
                     <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action    ">
                         <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                     </a>
@@ -30,6 +31,7 @@
                     <a href="{{ route('counseling.reports') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-file-alt me-2"></i> Laporan
                     </a>
+                    @endif
                     <a href="{{ route('profile.settings') }}" class="list-group-item list-group-item-action active">
                         <i class="fas fa-cog me-2"></i> Pengaturan
                     </a>
@@ -58,6 +60,12 @@
                                 <i class="fas fa-palette me-2"></i> Tampilan
                             </button>
                         </li>
+
+                        @if (Auth::user()->role === 'guru')
+                            <button class="nav-link" id="counselor-tab" data-bs-toggle="tab" data-bs-target="#counselor" type="button" role="tab" aria-controls="counselor" aria-selected="false">
+                                <i class="fas fa-user-tie me-2"></i> Counselor
+                            </button>
+                        @endif
                     </ul>
                 </div>
                 <div class="card-body">
@@ -160,34 +168,80 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="phone" class="form-label">Nomor Telepon</label>
-                                        <input type="tel" class="form-control @error('phone') is-invalid @enderror" 
-                                               id="phone" name="phone" value="{{ old('phone', Auth::user()->phone) }}">
-                                        @error('phone')
+                                        <label for="nohp" class="form-label">Nomor Telepon</label>
+                                        <input type="tel" class="form-control @error('nohp') is-invalid @enderror" 
+                                               id="nohp" name="nohp" value="{{ old('nohp', Auth::user()->nohp) }}">
+                                        @error('nohp')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
                                 
-                                @if(Auth::user()->role === 'guru')
                                 <div class="row mb-3">
+                                    <div class="col-md-6 mb-3 mb-md-0">
+                                        <label for="tempatlahir" class="form-label">Tempat Lahir</label>
+                                        <input type="text" class="form-control @error('tempatlahir') is-invalid @enderror" 
+                                               id="tempatlahir" name="tempatlahir" value="{{ old('tempatlahir', Auth::user()->tempatlahir) }}" required>
+                                        @error('tempatlahir')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                     <div class="col-md-6">
-                                        <label for="nip" class="form-label">Nomor Induk Kepegawaian (NIP)</label>
-                                        <input type="text" 
-                                               class="form-control @error('nip') is-invalid @enderror" 
-                                               id="nip" 
-                                               name="nip" 
-                                               value="{{ old('nip', Auth::user()->nip) }}" 
-                                               pattern="[0-9]{18}" 
-                                               maxlength="18"
-                                               placeholder="Masukkan 18 digit NIP">
-                                        <div class="form-text">Format: 18 digit angka</div>
-                                        @error('nip')
+                                        <label for="tgllahir" class="form-label">Tanggal Lahir</label>
+                                        <input type="date" class="form-control @error('tgllahir') is-invalid @enderror" 
+                                               id="tgllahir" name="tgllahir" value="{{ old('tgllahir', Auth::user()->tgllahir) }}">
+                                        @error('nohp')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
-                                @endif
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6 mb-3 mb-md-0">
+                                        <label for="alamat" class="form-label">Alamat</label>
+                                        <input type="text" 
+                                            class="form-control @error('alamat') is-invalid @enderror" 
+                                            id="alamat" 
+                                            name="alamat" 
+                                            value="{{ old('alamat', Auth::user()->alamat) }}" required>
+                                        @error('alamat')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    @if(Auth::user()->role === 'guru')
+                                        <div class="col-md-6">
+                                            <label for="nip" class="form-label">Nomor Induk Kepegawaian (NIP)</label>
+                                            <input type="text" 
+                                                class="form-control @error('nip') is-invalid @enderror" 
+                                                id="nip" 
+                                                name="nip" 
+                                                value="{{ old('nip', Auth::user()->nip) }}" 
+                                                pattern="[0-9]{18}" 
+                                                maxlength="18"
+                                                placeholder="Masukkan 18 digit NIP">
+                                            <div class="form-text">Format: 18 digit angka</div>
+                                            @error('nip')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    @elseif(Auth::user()->role === 'user')
+                                        <div class="col-md-6">
+                                            <label for="nis" class="form-label">Nomor Induk Siswa (NIS)</label>
+                                            <input type="text" 
+                                                class="form-control @error('nis') is-invalid @enderror" 
+                                                id="nis" 
+                                                name="nis" 
+                                                value="{{ old('nis', Auth::user()->nis) }}" 
+                                                pattern="[0-9]{10,12}" 
+                                                maxlength="12"
+                                                placeholder="Masukkan 10-12 digit NIS">
+                                            <div class="form-text">Format: 10-12 digit angka</div>
+                                            @error('nis')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    @endif
+                                </div>
                                 
                                 <div class="mb-3">
                                     <label for="bio" class="form-label">Bio</label>
@@ -346,12 +400,133 @@
                                 </div>
                             </form>
                         </div>
+                        
+                        <!-- Counselor Settings -->
+                        @if (Auth::user()->role === 'guru')
+                        <div class="tab-pane fade" id="counselor" role="tabpanel" aria-labelledby="counselor-tab">
+                            @if(session('success_counselor'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    {{ session('success_counselor') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
+
+                            <h5 class="mb-4">Data Konselor</h5>
+                                
+                                <form action="{{ route('settings.counselor') }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="pendidikan_terakhir" class="form-label">Pendidikan Terakhir</label>
+                                            <select class="form-select @error('pendidikan_terakhir') is-invalid @enderror" 
+                                                    id="pendidikan_terakhir" 
+                                                    name="pendidikan_terakhir" 
+                                                    required>
+                                                <option value="">Pilih Pendidikan</option>
+                                                <option value="D3" {{ old('pendidikan_terakhir', $user->counselor->pendidikan_terakhir ?? '') == 'D3' ? 'selected' : '' }}>D3</option>
+                                                <option value="D4" {{ old('pendidikan_terakhir', $user->counselor->pendidikan_terakhir ?? '') == 'D4' ? 'selected' : '' }}>D4</option>
+                                                <option value="S1" {{ old('pendidikan_terakhir', $user->counselor->pendidikan_terakhir ?? '') == 'S1' ? 'selected' : '' }}>S1</option>
+                                                <option value="S2" {{ old('pendidikan_terakhir', $user->counselor->pendidikan_terakhir ?? '') == 'S2' ? 'selected' : '' }}>S2</option>
+                                                <option value="S3" {{ old('pendidikan_terakhir', $user->counselor->pendidikan_terakhir ?? '') == 'S3' ? 'selected' : '' }}>S3</option>
+                                            </select>
+                                            @error('pendidikan_terakhir')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <label for="jurusan_pendidikan" class="form-label">Jurusan Pendidikan</label>
+                                            <input type="text" 
+                                                class="form-control @error('jurusan_pendidikan') is-invalid @enderror" 
+                                                id="jurusan_pendidikan" 
+                                                name="jurusan_pendidikan" 
+                                                value="{{ old('jurusan_pendidikan', $user->counselor->jurusan_pendidikan ?? '') }}">
+                                            @error('jurusan_pendidikan')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="spesialisasi" class="form-label">Spesialisasi</label>
+                                        <textarea class="form-control @error('spesialisasi') is-invalid @enderror" 
+                                                id="spesialisasi" 
+                                                name="spesialisasi" 
+                                                rows="3" 
+                                                required>{{ old('spesialisasi', $user->counselor->spesialisasi ?? '') }}</textarea>
+                                        @error('spesialisasi')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="pengalaman_kerja" class="form-label">Pengalaman Kerja (Tahun)</label>
+                                            <input type="number" 
+                                                class="form-control @error('pengalaman_kerja') is-invalid @enderror" 
+                                                id="pengalaman_kerja" 
+                                                name="pengalaman_kerja" 
+                                                value="{{ old('pengalaman_kerja', $user->counselor->pengalaman_kerja ?? '') }}"
+                                                min="0">
+                                            @error('pengalaman_kerja')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <label for="tanggal_bergabung" class="form-label">Tanggal Bergabung</label>
+                                            <input type="date" 
+                                                class="form-control @error('tanggal_bergabung') is-invalid @enderror" 
+                                                id="tanggal_bergabung" 
+                                                name="tanggal_bergabung" 
+                                                value="{{ old('tanggal_bergabung', $user->counselor->tanggal_bergabung ?? '') }}"
+                                                required>
+                                            @error('tanggal_bergabung')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="sertifikasi" class="form-label">Sertifikasi</label>
+                                        <textarea class="form-control @error('sertifikasi') is-invalid @enderror" 
+                                                id="sertifikasi" 
+                                                name="sertifikasi" 
+                                                rows="3">{{ old('sertifikasi', $user->counselor->sertifikasi ?? '') }}</textarea>
+                                        @error('sertifikasi')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="status" class="form-label">Status</label>
+                                        <select class="form-select @error('status') is-invalid @enderror" 
+                                                id="status" 
+                                                name="status" 
+                                                required>
+                                            <option value="aktif" {{ old('status', $user->counselor->status ?? '') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                            <option value="nonaktif" {{ old('status', $user->counselor->status ?? '') == 'nonaktif' ? 'selected' : '' }}>Non-Aktif</option>
+                                            <option value="cuti" {{ old('status', $user->counselor->status ?? '') == 'cuti' ? 'selected' : '' }}>Cuti</option>
+                                        </select>
+                                        @error('status')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Simpan Data Konselor</button>
+                                </form>
+                            </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Delete Account Modal -->
 <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">

@@ -2,12 +2,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User; // Add this import
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
-use Yajra\DataTables\Facades\DataTables;  // Add this import
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Database\Eloquent\ModelNotFoundException; // Add this import
 
 class SiswaController extends Controller
 {
@@ -15,46 +17,41 @@ class SiswaController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $users = DB::table('tbl_users')
-                    ->where('role', 'user')
-                    ->select([
-                        'id',
-                        'nis',
-                        'nama',
-                        'email',
-                        'gender',
-                        'nohp',
-                        'tgllahir',
-                        'avatar'
-                    ]);
+                $query = User::query()
+                    ->where('role', 'user');
+
+                if ($request->show_deleted == 'true') {
+                    $query->onlyTrashed();
+                }
+
+                $users = $query->select([
+                    'id',
+                    'nis',
+                    'nama',
+                    'email',
+                    'gender',
+                    'nohp',
+                    'tgllahir',
+                    'alamat',
+                    'avatar'
+                ]);
 
                 return DataTables::of($users)
                     ->addIndexColumn()
                     ->addColumn('ttl', function($row) {
-                        try {
-                            return $row->tgllahir ? date('d-m-Y', strtotime($row->tgllahir)) : '-';
-                        } catch (\Exception $e) {
-                            return '-';
-                        }
-                    })
-                    ->addColumn('gender', function($row) {
-                        try {
-                            return $row->gender === 'male' ? 'Laki-laki' : 'Perempuan';
-                        } catch (\Exception $e) {
-                            return '-';
-                        }
+                        return $row->tgllahir ? date('d-m-Y', strtotime($row->tgllahir)) : '-';
                     })
                     ->addColumn('avatar', function($row) {
-                        try {
-                            $avatarUrl = $row->avatar 
-                                ? asset('storage/avatars/' . $row->avatar)
-                                : asset('images/' . ($row->gender === 'male' ? 'default-male.png' : 'default-female.png'));
-                            return '<img src="'.$avatarUrl.'" class="img-thumbnail" width="50">';
-                        } catch (\Exception $e) {
-                            return '<img src="' . asset('images/default-male.png') . '" class="img-thumbnail" width="50">';
-                        }
+                        $avatarUrl = $row->avatar ? asset('storage/avatars/'.$row->avatar) 
+                            : asset('images/'.($row->gender == 'L' ? 'default-male.png' : 'default-female.png'));
+                        return '<img src="'.$avatarUrl.'" class="img-thumbnail">';
                     })
-                    ->addColumn('action', function($row) {
+                    ->addColumn('action', function($row) use ($request) {
+                        if ($request->show_deleted == 'true') {
+                            return '<button onclick="restoreUser('.$row->id.')" class="btn btn-success btn-sm">
+                                <i class="fas fa-undo"></i> Restore
+                            </button>';
+                        }
                         return '<div class="btn-group">
                             <button onclick="viewUser('.$row->id.')" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i>
@@ -65,7 +62,7 @@ class SiswaController extends Controller
                         </div>';
                     })
                     ->rawColumns(['avatar', 'action'])
-                    ->toJson();
+                    ->make(true);
 
             } catch (\Exception $e) {
                 \Log::error('DataTables Error:', [
@@ -81,7 +78,7 @@ class SiswaController extends Controller
                 ], 500);
             }
         }
-
+        
         return view('admin.student.v_student');
     }
 
@@ -120,22 +117,39 @@ class SiswaController extends Controller
         }
     }
 
-    public function show(Siswa $student)
+    public function show($id)
     {
-        $student->load([
-            'jurusan.programKeahlian', // Eager load ProgramKeahlian dari Jurusan
-            'agama'
-        ]);
-        
-        $data = $student->toArray();
-        $data['jurusan_nama'] = $student->jurusan ? $student->jurusan->namajurusan : '-';
-        // Program nama diambil dari ProgramKeahlian yang berelasi dengan Jurusan
-        $data['program_nama'] = $student->jurusan && $student->jurusan->programKeahlian ? $student->jurusan->programKeahlian->namaprogramkeahlian : '-';
-        $data['agama_nama'] = $student->agama ? $student->agama->agama : '-';
-        $data['photosiswa_url'] = $student->photo_url;
-        $data['tgllahir'] = $student->tgllahir ? $student->tgllahir->format('Y-m-d') : null;
+        try {
+            $user = DB::table('tbl_users')
+                ->where('id', $id)
+                ->where('role', 'user')
+                ->select([
+                    'id',
+                    'nis',
+                    'nama',
+                    'email',
+                    'gender',
+                    'nohp',
+                    'tgllahir',
+                    'alamat',
+                    'avatar'
+                ])
+                ->first();
 
-        return response()->json($data);
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            return response()->json($user);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching user details'
+            ], 500);
+        }
     }
     
     public function edit(Siswa $student)
@@ -184,20 +198,38 @@ class SiswaController extends Controller
         }
     }
 
-    public function destroy(Siswa $student)
+    public function destroy($id)
     {
         DB::beginTransaction();
         try {
-            if ($student->photosiswa && Storage::disk('public')->exists($student->photosiswa)) {
-                Storage::disk('public')->delete($student->photosiswa);
-            }
-            $student->delete();
+            $user = User::where('id', $id)
+                ->where('role', 'user')
+                ->firstOrFail();
+
+            // Soft delete the user
+            $user->delete();
+
             DB::commit();
-            return response()->json(['success' => true, 'message' => 'Data siswa berhasil dihapus.']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User berhasil dihapus'
+            ]);
+
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak ditemukan'
+            ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error deleting siswa: ' . $e->getMessage() . ' Stack: ' . $e->getTraceAsString());
-            return response()->json(['success' => false, 'message' => 'Gagal menghapus data siswa.'], 500);
+            Log::error('Error deleting user: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus user'
+            ], 500);
         }
     }
 
@@ -245,6 +277,31 @@ class SiswaController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $user = User::onlyTrashed()
+                ->where('id', $id)
+                ->where('role', 'user')
+                ->firstOrFail();
+
+            $user->restore();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User berhasil diaktifkan kembali'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error restoring user: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengaktifkan kembali user'
             ], 500);
         }
     }

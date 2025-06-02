@@ -29,10 +29,20 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-users mr-2"></i>
-                    Daftar User
-                </h3>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">
+                        <i class="fas fa-users mr-2"></i>
+                        Daftar User
+                    </h3>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-primary active" id="showActive">
+                            <i class="fas fa-user"></i> User Aktif
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" id="showDeleted">
+                            <i class="fas fa-user-slash"></i> User Nonaktif
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -121,33 +131,26 @@
 
 @push('scripts')
 <script>
+let table;
 $(document).ready(function() {
-    $('#userTable').DataTable({
+    table = $('#userTable').DataTable({
         processing: true,
         serverSide: true,
         ajax: {
-            url: "{{ route('admin.student') }}",
+            url: "{{ route('admin.student') }}", // Changed from 'admin.student.index' to 'admin.student'
             type: 'GET',
-            error: function(xhr, error, thrown) {
-                console.error('DataTables error:', error);
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    console.error('Server message:', xhr.responseJSON.message);
-                }
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error Loading Data',
-                    text: xhr.responseJSON?.message || 'An error occurred while loading the data'
-                });
+            data: function(d) {
+                d.show_deleted = $('#showDeleted').hasClass('active');
             }
         },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false},
-            {data: 'nis', name: 'nis', defaultContent: '-'},
-            {data: 'nama', name: 'nama', defaultContent: '-'},
-            {data: 'email', name: 'email', defaultContent: '-'},
-            {data: 'gender', name: 'gender', defaultContent: '-'},
-            {data: 'nohp', name: 'nohp', defaultContent: '-'},
-            {data: 'ttl', name: 'ttl', defaultContent: '-'},
+            {data: 'nis', name: 'nis'},
+            {data: 'nama', name: 'nama'},
+            {data: 'email', name: 'email'},
+            {data: 'gender', name: 'gender'},
+            {data: 'nohp', name: 'nohp'},
+            {data: 'ttl', name: 'ttl'},
             {data: 'avatar', name: 'avatar', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ],
@@ -166,31 +169,47 @@ $(document).ready(function() {
             }
         }
     });
+
+    // Toggle between active and deleted users
+    $('#showActive, #showDeleted').click(function() {
+        $(this).addClass('active').siblings().removeClass('active');
+        table.ajax.reload();
+    });
 });
 
 // View User Function
 function viewUser(id) {
     $.ajax({
-        url: `/admin/student/${id}`,
+        url: "{{ route('admin.student.show', ':id') }}".replace(':id', id),
         method: 'GET',
         success: function(response) {
+            // Clear previous data
+            $('#detailNis, #detailNama, #detailEmail, #detailGender, #detailNohp, #detailTglLahir, #detailAlamat').text('-');
+            
+            // Update modal with new data
             $('#detailNis').text(response.nis || '-');
-            $('#detailNama').text(response.nama);
-            $('#detailEmail').text(response.email);
-            $('#detailGender').text(response.gender === 'male' ? 'Laki-laki' : 'Perempuan');
+            $('#detailNama').text(response.nama || '-');
+            $('#detailEmail').text(response.email || '-');
+            $('#detailGender').text(response.gender === 'L' ? 'Laki-laki' : 'Perempuan');
             $('#detailNohp').text(response.nohp || '-');
-            $('#detailTglLahir').text(response.tgllahir ? moment(response.tgllahir).format('DD-MM-YYYY') : '-');
+            $('#detailTglLahir').text(response.tgllahir ? moment(response.tgllahir).format('DD MMMM YYYY') : '-');
             $('#detailAlamat').text(response.alamat || '-');
             
+            // Handle avatar
             const avatarUrl = response.avatar 
-                ? `/storage/avatars/${response.avatar}`
-                : `/images/${response.gender === 'male' ? 'default-male.png' : 'default-female.png'}`;
+                ? `{{ asset('storage/avatars') }}/${response.avatar}`
+                : `{{ asset('images') }}/${response.gender === 'L' ? 'default-male.png' : 'default-female.png'}`;
             $('#detailAvatar').attr('src', avatarUrl);
             
+            // Show modal
             $('#detailUserModal').modal('show');
         },
         error: function(xhr) {
-            Swal.fire('Error!', 'Gagal memuat data user', 'error');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: xhr.responseJSON?.message || 'Gagal memuat data user'
+            });
             console.error('Ajax error:', xhr);
         }
     });
@@ -200,34 +219,90 @@ function viewUser(id) {
 function deleteUser(id) {
     Swal.fire({
         title: 'Anda yakin?',
-        text: "Data user akan dihapus permanen!",
+        text: "Data user akan dinonaktifkan!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, hapus!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
+        confirmButtonText: 'Ya, nonaktifkan!',
+        cancelButtonText: 'Batal',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            return $.ajax({
                 url: `/admin/student/${id}`,
                 type: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire('Sukses!', response.message, 'success');
-                        $('#userTable').DataTable().ajax.reload();
-                    } else {
-                        Swal.fire('Error!', response.message, 'error');
-                    }
-                },
-                error: function(xhr) {
-                    Swal.fire('Error!', 'Gagal menghapus data user', 'error');
-                    console.error('Ajax error:', xhr);
                 }
-            });
+            }).catch(error => {
+                Swal.showValidationMessage(
+                    `Request failed: ${error.responseJSON?.message || 'Gagal menghapus data user'}`
+                )
+            })
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (result.value.success) {
+                Swal.fire(
+                    'Berhasil!',
+                    'User telah dinonaktifkan.',
+                    'success'
+                );
+                $('#userTable').DataTable().ajax.reload();
+            } else {
+                Swal.fire(
+                    'Error!',
+                    result.value.message || 'Gagal menonaktifkan user',
+                    'error'
+                );
+            }
+        }
+    });
+}
+
+// Add restore function
+function restoreUser(id) {
+    Swal.fire({
+        title: 'Aktifkan Kembali?',
+        text: "User akan diaktifkan kembali!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, aktifkan!',
+        cancelButtonText: 'Batal',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            return $.ajax({
+                url: `/admin/student/${id}/restore`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            }).catch(error => {
+                Swal.showValidationMessage(
+                    `Request failed: ${error.responseJSON?.message || 'Gagal mengaktifkan user'}`
+                )
+            })
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (result.value.success) {
+                Swal.fire(
+                    'Berhasil!',
+                    'User telah diaktifkan kembali.',
+                    'success'
+                );
+                table.ajax.reload();
+            } else {
+                Swal.fire(
+                    'Error!',
+                    result.value.message || 'Gagal mengaktifkan user',
+                    'error'
+                );
+            }
         }
     });
 }

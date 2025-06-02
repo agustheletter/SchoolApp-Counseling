@@ -335,8 +335,10 @@
 <!-- SweetAlert2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.min.js"></script>
 <!-- Moment.js (jika dibutuhkan oleh daterangepicker atau lainnya) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/id.min.js"></script> {{-- Locale Indonesia untuk moment.js --}}
+@push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/id.min.js"></script>
+@endpush
 <!-- Bootstrap DateRangePicker (jika dibutuhkan) -->
 {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.js"></script> --}}
 
