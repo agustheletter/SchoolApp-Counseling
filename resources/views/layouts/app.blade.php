@@ -10,11 +10,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- AOS (Animate On Scroll) CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
    
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <style>
-        
+        /* Base Variables */
         :root {
             --primary-light: #6c5ce7;
             --secondary-light: #ffc107;
@@ -42,7 +45,7 @@
             --app-card-bg: var(--white-text);
             --app-card-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             --app-navbar-bg: var(--white-text);
-            --app-navbar-color: var(--dark-text); /* Warna link navbar */
+            --app-navbar-color: var(--dark-text);
             --app-footer-bg: var(--dark-text);
             --app-footer-color: var(--white-text);
             --app-btn-primary-bg: var(--primary-light);
@@ -58,14 +61,15 @@
 
         [data-bs-theme="dark"] body {
             --app-primary: var(--primary-dark);
+            --prmimary-light: var(--primary-dark);
             --app-secondary: var(--secondary-dark);
             --app-body-bg: var(--dark-bg);
             --app-body-color: var(--light-text-dark-theme);
             --app-card-bg: var(--dark-surface-bg);
-            --app-card-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Shadow lebih gelap */
+            --app-card-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             --app-navbar-bg: var(--dark-surface-bg);
-            --app-navbar-color: var(--light-text-dark-theme); /* Warna link navbar di dark mode */
-            --app-footer-bg: var(--dark-surface-bg); /* Footer di dark mode */
+            --app-navbar-color: var(--light-text-dark-theme);
+            --app-footer-bg: var(--dark-surface-bg);
             --app-footer-color: var(--light-text-dark-theme);
             --app-btn-primary-bg: var(--primary-dark);
             --app-btn-primary-border: var(--primary-dark);
@@ -73,46 +77,211 @@
             --app-btn-primary-hover-border: var(--primary-hover-dark);
             --app-btn-secondary-bg: var(--secondary-dark);
             --app-btn-secondary-border: var(--secondary-dark);
-            --app-btn-secondary-color: var(--dark-text); /* Tetap gelap untuk kontras */
+            --app-btn-secondary-color: var(--dark-text);
             --app-btn-secondary-hover-bg: var(--secondary-hover-dark);
             --app-btn-secondary-hover-border: var(--secondary-hover-dark);
         }
         
+        /* Base Styles */
         body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--app-body-bg);
             color: var(--app-body-color);
             transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
         }
         
-        /* Navbar styling */
-        .navbar {
-            background-color: var(--app-navbar-bg) !important; /* !important untuk override Bootstrap jika perlu */
-            transition: background-color 0.3s ease;
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
         }
+        
+        /* Custom animations for elements without AOS */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Navbar styling with animation */
+        .navbar {
+            background-color: var(--app-navbar-bg) !important;
+            transition: all 0.3s ease;
+            padding: 0.75rem 1rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        .navbar.scrolled {
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
         .navbar-brand {
             font-weight: 700;
             color: var(--app-primary) !important;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
         }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+        
         .navbar .nav-link {
             color: var(--app-navbar-color) !important;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+            position: relative;
         }
+        
+        .navbar .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: var(--app-primary);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .navbar .nav-link:hover::after,
+        .navbar .nav-link.active::after {
+            width: 80%;
+        }
+        
         .navbar .nav-link:hover {
             color: var(--app-primary) !important;
+            transform: translateY(-2px);
         }
-         .navbar-toggler-icon { /* Pastikan ikon toggler terlihat di dark mode */
+        
+        .navbar-toggler {
+            border: none;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: none;
+            outline: none;
+        }
+        
+        .navbar-toggler:hover {
+            transform: scale(1.1);
+        }
+        
+        .navbar-toggler-icon {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28var%28--app-navbar-color-rgb-tuple, 0, 0, 0%29, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
         }
+        
         [data-bs-theme="dark"] .navbar-toggler-icon {
-             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28248, 249, 250, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28248, 249, 250, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
         }
 
-        /* Button styling */
+        /* Button styling with animations */
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
         .btn-primary {
             background-color: var(--app-btn-primary-bg);
             border-color: var(--app-btn-primary-border);
-            color: var(--white-text); /* Warna teks tombol primary */
+            color: var(--white-text);
         }
+        
         .btn-primary:hover {
             background-color: var(--app-btn-primary-hover-bg);
             border-color: var(--app-btn-primary-hover-border);
@@ -123,58 +292,173 @@
             border-color: var(--app-btn-secondary-border);
             color: var(--app-btn-secondary-color);
         }
+        
         .btn-secondary:hover {
             background-color: var(--app-btn-secondary-hover-bg);
             border-color: var(--app-btn-secondary-hover-border);
             color: var(--app-btn-secondary-color);
         }
         
-        /* Hero section styling */
+        /* Hero section styling with animations */
         .hero-section {
             background-color: var(--app-primary);
-            color: var(--white-text); /* Teks di hero section selalu putih */
-            padding: 80px 0;
+            color: var(--white-text);
+            padding: 60px 0;
             border-radius: 0 0 50px 50px;
             position: relative;
             overflow: hidden;
         }
-        .hero-section::before, .hero-section::after {
-            background-color: rgba(255, 255, 255, 0.1); /* Tetap sama */
+        
+        .hero-section::before, 
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            z-index: 0;
+            animation: float 6s ease-in-out infinite;
         }
         
-        /* Feature card styling */
+        .hero-section::before {
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+        
+        .hero-section::after {
+            bottom: -100px;
+            left: -100px;
+            animation-delay: 3s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Feature card styling with hover animations */
         .feature-card {
             background-color: var(--app-card-bg);
             border-radius: 15px;
             padding: 25px;
             box-shadow: var(--app-card-shadow);
-            transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
             height: 100%;
-            color: var(--app-body-color); /* Warna teks dalam card */
-        }
-        .feature-card:hover {
-            transform: translateY(-10px);
-        }
-        .feature-icon {
-            background-color: var(--app-primary); /* Ikon tetap primary */
-            color: var(--white-text);
-            /* ... sisa style feature-icon ... */
+            color: var(--app-body-color);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
         }
         
-        /* Team member styling - avatar border */
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(108, 92, 231, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .feature-card:hover::before {
+            left: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            background-color: var(--app-primary);
+            color: var(--white-text);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: rotateY(360deg);
+            background-color: var(--app-secondary);
+            color: var(--dark-text);
+        }
+        
+        /* Team member styling with animations */
+        .team-member {
+            text-align: center;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+        
         .team-member img {
             border: 5px solid var(--app-primary);
-            /* ... sisa style team-member img ... */
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
         }
         
-        /* Blog card styling */
+        .team-member:hover img {
+            border-color: var(--app-secondary);
+            transform: scale(1.05);
+        }
+        
+        /* Blog card styling with animations */
         .blog-card {
             background-color: var(--app-card-bg);
-            color: var(--app-body-color); /* Warna teks dalam card */
-            /* ... sisa style blog-card ... */
+            color: var(--app-body-color);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--app-card-shadow);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
         }
         
-        /* Auth form styling - DIPERBAIKI */
+        .blog-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .blog-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .blog-card:hover img {
+            transform: scale(1.1);
+        }
+        
+        .blog-content {
+            padding: 20px;
+        }
+        
+        /* Auth form styling */
         .auth-container {
             min-height: 100vh;
             display: flex;
@@ -195,6 +479,7 @@
             margin: 0 auto;
             border: none;
             transition: all 0.3s ease;
+            animation: scaleIn 0.5s ease-out;
         }
         
         [data-bs-theme="dark"] .auth-form {
@@ -233,6 +518,7 @@
             border-color: var(--app-primary);
             box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.15);
             background-color: var(--app-card-bg);
+            transform: translateY(-2px);
         }
         
         [data-bs-theme="dark"] .auth-form .form-control {
@@ -258,11 +544,13 @@
             color: var(--app-primary);
             text-decoration: none;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
         
         .auth-form .text-center a:hover {
             color: var(--app-secondary);
             text-decoration: underline;
+            transform: translateY(-1px);
         }
         
         .auth-back-btn {
@@ -270,6 +558,7 @@
             top: 20px;
             left: 20px;
             z-index: 1000;
+            animation: fadeInLeft 0.8s ease-out;
         }
         
         .auth-back-btn a {
@@ -295,8 +584,311 @@
             margin-right: 8px;
         }
         
-        /* Responsive untuk auth form */
-        @media (max-width: 576px) {
+        /* Footer styling with animations */
+        .footer {
+            background-color: var(--app-footer-bg);
+            color: var(--app-footer-color);
+            padding: 50px 0 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .footer a, 
+        .footer a:hover {
+            color: var(--app-footer-color) !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer a:hover {
+            transform: translateX(5px);
+        }
+        
+        .footer .social-icons a {
+            color: var(--app-footer-color) !important;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-right: 15px;
+        }
+        
+        .footer .social-icons a:hover {
+            transform: translateY(-3px) scale(1.2);
+            color: var(--app-secondary) !important;
+        }
+        
+        .footer hr {
+            background-color: rgba(255, 255, 255, 0.2);
+            opacity: 0.2;
+            margin: 2rem 0;
+        }
+        
+        [data-bs-theme="dark"] .footer hr {
+            background-color: rgba(248, 249, 250, 0.2);
+        }
+        
+        /* Highlight and section title */
+        .highlight {
+            color: var(--app-secondary);
+            font-weight: 600;
+        }
+        
+        .section-title {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--app-primary);
+            transition: width 0.3s ease;
+        }
+        
+        .section-title:hover::after {
+            width: 100px;
+        }
+        
+        /* Dropdown menu styling */
+        .dropdown-menu {
+            --bs-dropdown-bg: var(--app-card-bg);
+            --bs-dropdown-link-color: var(--app-body-color);
+            --bs-dropdown-link-hover-bg: var(--app-primary);
+            --bs-dropdown-link-hover-color: var(--white-text);
+            --bs-dropdown-border-color: rgba(0,0,0,0.10);
+            padding: 0.5rem;
+            border-radius: 10px;
+            margin-top: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            animation: fadeInDown 0.3s ease-out;
+        }
+        
+        [data-bs-theme="dark"] .dropdown-menu {
+            --bs-dropdown-border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .nav-item.dropdown img {
+            border: 2px solid var(--app-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.dropdown:hover img {
+            border-color: var(--app-secondary);
+            transform: scale(1.1);
+        }
+        
+        /* Scroll to top button */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--app-primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .scroll-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .scroll-to-top:hover {
+            background-color: var(--app-secondary);
+            color: var(--dark-text);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        /* Loading animation for page transitions */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--app-body-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            visibility: visible;
+            transition: all 0.5s ease;
+        }
+        
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--app-primary);
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 1199.98px) {
+            .navbar-brand {
+                font-size: 1.4rem;
+            }
+            
+            .hero-section {
+                padding: 50px 0;
+            }
+        }
+        
+        @media (max-width: 991.98px) {
+            .navbar .nav-link {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .navbar-collapse {
+                padding: 1rem 0;
+                animation: fadeInDown 0.3s ease-out;
+            }
+            
+            .navbar-nav.mx-auto {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                margin-bottom: 1rem;
+            }
+            
+            .navbar .btn {
+                margin-top: 0.5rem;
+                margin-left: 0 !important;
+                display: inline-block;
+            }
+            
+            .hero-section {
+                padding: 40px 0;
+                border-radius: 0 0 30px 30px;
+            }
+            
+            .feature-card {
+                margin-bottom: 25px;
+            }
+            
+            .scroll-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+        }
+        
+        @media (max-width: 767.98px) {
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+            
+            .hero-section {
+                padding: 30px 0;
+                border-radius: 0 0 25px 25px;
+            }
+            
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
+            .hero-section p {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .footer {
+                padding: 40px 0 20px;
+                text-align: center;
+            }
+            
+            .footer .social-icons {
+                margin-bottom: 20px;
+            }
+            
+            .footer h5 {
+                margin-top: 10px;
+            }
+        }
+        
+        @media (max-width: 575.98px) {
+            .navbar {
+                padding: 0.5rem 1rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            
+            .hero-section {
+                padding: 25px 0;
+                border-radius: 0 0 20px 20px;
+            }
+            
+            .hero-section h1 {
+                font-size: 1.75rem;
+            }
+            
+            .hero-section p {
+                font-size: 0.9rem;
+            }
+            
+            .btn {
+                padding: 0.4rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .feature-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .feature-card {
+                padding: 20px;
+            }
+            
+            .team-member img {
+                width: 120px;
+                height: 120px;
+            }
+            
             .auth-form {
                 padding: 30px 25px;
                 margin: 15px;
@@ -314,94 +906,81 @@
                 margin-bottom: 20px;
                 text-align: center;
             }
+            
+            .footer {
+                padding: 30px 0 15px;
+            }
+            
+            .scroll-to-top {
+                bottom: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
         }
         
-        /* Footer styling */
-        .footer {
-            background-color: var(--app-footer-bg);
-            color: var(--app-footer-color);
-            padding: 50px 0 20px;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .footer a, .footer a:hover { /* Pastikan link di footer juga berubah warna */
-             color: var(--app-footer-color) !important;
-             text-decoration: none;
-        }
-        .footer .social-icons a {
-            color: var(--app-footer-color) !important;
-        }
-        .footer hr {
-            background-color: rgba(255, 255, 255, 0.2); /* Garis pemisah di footer */
-        }
-        [data-bs-theme="dark"] .footer hr {
-            background-color: rgba(248, 249, 250, 0.2);
-        }
-        
-        /* Highlight dan section title */
-        .highlight {
-            color: var(--app-secondary);
-            font-weight: 600;
-        }
-        .section-title::after {
-            background-color: var(--app-primary);
-        }
-        
-        /* Dropdown menu styling */
-        .dropdown-menu { /* Pastikan dropdown menu mengikuti tema */
-            --bs-dropdown-bg: var(--app-card-bg);
-            --bs-dropdown-link-color: var(--app-body-color);
-            --bs-dropdown-link-hover-bg: var(--app-primary);
-            --bs-dropdown-link-hover-color: var(--white-text);
-            --bs-dropdown-border-color: rgba(0,0,0,0.10); /* Sedikit lebih soft */
-        }
-        [data-bs-theme="dark"] .dropdown-menu {
-            --bs-dropdown-border-color: rgba(255,255,255,0.15);
-        }
-        .nav-item.dropdown img {
-            border: 2px solid var(--app-primary);
-            transition: border-color 0.3s ease;
-        }
-        .nav-item.dropdown:hover img {
-            border-color: var(--app-secondary);
+        /* Reduce motion for users who prefer it */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            
+            html {
+                scroll-behavior: auto;
+            }
         }
     </style>
     
-    @yield('styles') {{-- Tempat untuk CSS spesifik per halaman --}}
+    @yield('styles')
 </head>
 <body>
+    <!-- Page Loader -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <!-- Navbar -->
-    {{-- bg-white akan di-override oleh var(--app-navbar-bg) atau oleh Bootstrap di dark mode --}}
-    <nav class="navbar navbar-expand-lg py-3 shadow-sm"> 
+    <nav class="navbar navbar-expand-lg py-3 shadow-sm sticky-top" id="mainNavbar"> 
         <div class="container">
-            <a class="navbar-brand" href="{{ route('home') }}">STMCounseling</a>
+            <a class="navbar-brand" href="{{ route('home') }}" data-aos="fade-right" data-aos-duration="800">STMCounseling</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
+                    <li class="nav-item" data-aos="fade-down" data-aos-delay="100">
                         <a class="nav-link {{ request()->routeIs('home') ? 'active fw-bold' : '' }}" href="{{ route('home') }}">Beranda</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" data-aos="fade-down" data-aos-delay="200">
                         <a class="nav-link {{ request()->routeIs('services') ? 'active fw-bold' : '' }}" href="{{ route('services') }}">Layanan</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" data-aos="fade-down" data-aos-delay="300">
                         <a class="nav-link {{ request()->routeIs('about') ? 'active fw-bold' : '' }}" href="{{ route('about') }}">Tentang Kami</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" data-aos="fade-down" data-aos-delay="400">
                         <a class="nav-link {{ request()->routeIs('contact') ? 'active fw-bold' : '' }}" href="{{ route('contact') }}">Kontak</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
                     @guest
-                        <li class="nav-item">
+                        <li class="nav-item d-flex align-items-center" data-aos="fade-left" data-aos-delay="500">
                             <a class="nav-link" href="{{ route('login') }}">Masuk</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="btn btn-primary ms-2" href="{{ route('register') }}">Daftar</a>
+                        <li class="nav-item d-flex align-items-center" data-aos="fade-left" data-aos-delay="600">
+                            <a class="btn btn-primary" href="{{ route('register') }}">Daftar</a>
                         </li>
                     @else
-                        <li class="nav-item dropdown d-flex align-items-center">
+                        <li class="nav-item dropdown d-flex align-items-center" data-aos="fade-left" data-aos-delay="500">
                             <img src="{{ Auth::user()->avatar_url }}" 
                                  alt="Profile {{ Auth::user()->nama }}" 
                                  class="rounded-circle me-2" 
@@ -419,7 +998,6 @@
                                 @elseif(Auth::check())
                                     <li><a class="dropdown-item" href="{{ route('dashboard') }}">Layanan Konseling</a></li>
                                 @endif
-                                {{-- Tambahkan link ke halaman pengaturan di sini --}}
                                 <li><a class="dropdown-item" href="{{ route('profile.settings') }}">Pengaturan</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
@@ -442,20 +1020,20 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer mt-auto py-3"> {{-- Hapus mt-5, biarkan mt-auto jika konten pendek --}}
+    <footer class="footer mt-auto py-3">
         <div class="container">
             <div class="row">
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
                     <h5>Konseling Sekolah</h5>
                     <p>Membantu siswa menemukan potensi terbaik mereka melalui layanan konseling yang profesional dan terpercaya.</p>
                     <div class="social-icons mt-3">
-                        <a href="#" class="me-3"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class=""><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" data-aos="zoom-in" data-aos-delay="200"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" data-aos="zoom-in" data-aos-delay="300"><i class="fab fa-twitter"></i></a>
+                        <a href="#" data-aos="zoom-in" data-aos-delay="400"><i class="fab fa-instagram"></i></a>
+                        <a href="#" data-aos="zoom-in" data-aos-delay="500"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
-                <div class="col-md-3 mb-4">
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="200">
                     <h5>Tautan Cepat</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="{{ route('home') }}">Beranda</a></li>
@@ -465,7 +1043,7 @@
                         <li class="mb-2"><a href="{{ route('aboutdev') }}">About Developer</a></li>
                     </ul>
                 </div>
-                <div class="col-md-5 mb-4">
+                <div class="col-md-5 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <h5>Hubungi Kami</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Jl. Mahar Martanegara No.48 Leuwigajah, Utama 40533 Cimahi West Java</li>
@@ -474,8 +1052,8 @@
                     </ul>
                 </div>
             </div>
-            <hr class="mt-4 mb-4"> {{-- Dihapus bg-light karena akan dihandle CSS --}}
-            <div class="text-center">
+            <hr class="mt-4 mb-4">
+            <div class="text-center" data-aos="fade-up" data-aos-delay="400">
                 <p class="mb-0">© {{ date('Y') }} STMCounseling. All rights reserved.</p>
             </div>
         </div>
@@ -484,6 +1062,226 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     
-    @yield('scripts') {{-- Tempat untuk JS spesifik per halaman --}}
+    <!-- AOS (Animate On Scroll) JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Custom JavaScript for animations and interactions -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize AOS
+            AOS.init({
+                duration: 800,
+                easing: 'ease-out-cubic',
+                once: true,
+                offset: 100,
+                delay: 100
+            });
+            
+            // Hide page loader
+            setTimeout(function() {
+                const pageLoader = document.getElementById('pageLoader');
+                if (pageLoader) {
+                    pageLoader.classList.add('hidden');
+                    setTimeout(() => {
+                        pageLoader.style.display = 'none';
+                    }, 500);
+                }
+            }, 1000);
+            
+            // Navbar scroll effect
+            const navbar = document.getElementById('mainNavbar');
+            let lastScrollTop = 0;
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // Add scrolled class for backdrop effect
+                if (scrollTop > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+                
+                // Show/hide scroll to top button
+                const scrollToTopBtn = document.getElementById('scrollToTop');
+                if (scrollTop > 300) {
+                    scrollToTopBtn.classList.add('show');
+                } else {
+                    scrollToTopBtn.classList.remove('show');
+                }
+                
+                lastScrollTop = scrollTop;
+            });
+            
+            // Close navbar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const navbarCollapse = document.getElementById('navbarNav');
+                const navbarToggler = document.querySelector('.navbar-toggler');
+                
+                if (window.innerWidth < 992) {
+                    if (navbarCollapse && navbarCollapse.classList.contains('show') && 
+                        !navbarCollapse.contains(event.target) && 
+                        !navbarToggler.contains(event.target)) {
+                        new bootstrap.Collapse(navbarCollapse).hide();
+                    }
+                }
+            });
+            
+            // Close navbar when clicking on a nav link on mobile
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            const navbarCollapse = document.getElementById('navbarNav');
+            
+            navLinks.forEach(function(navLink) {
+                navLink.addEventListener('click', function() {
+                    if (window.innerWidth < 992 && navbarCollapse.classList.contains('show')) {
+                        new bootstrap.Collapse(navbarCollapse).hide();
+                    }
+                });
+            });
+            
+            // Add stagger animation to cards when they come into view
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        const cards = entry.target.querySelectorAll('.feature-card, .team-member, .blog-card');
+                        cards.forEach(function(card, index) {
+                            setTimeout(function() {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, index * 100);
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe sections with cards
+            const cardSections = document.querySelectorAll('.row');
+            cardSections.forEach(function(section) {
+                if (section.querySelector('.feature-card, .team-member, .blog-card')) {
+                    observer.observe(section);
+                }
+            });
+            
+            // Add parallax effect to hero section
+            const heroSection = document.querySelector('.hero-section');
+            if (heroSection) {
+                window.addEventListener('scroll', function() {
+                    const scrolled = window.pageYOffset;
+                    const rate = scrolled * -0.5;
+                    heroSection.style.transform = `translateY(${rate}px)`;
+                });
+            }
+            
+            // Add typing effect to hero title (if exists)
+            const heroTitle = document.querySelector('.hero-section h1');
+            if (heroTitle) {
+                const text = heroTitle.textContent;
+                heroTitle.textContent = '';
+                heroTitle.style.borderRight = '2px solid';
+                
+                let i = 0;
+                const typeWriter = function() {
+                    if (i < text.length) {
+                        heroTitle.textContent += text.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 100);
+                    } else {
+                        heroTitle.style.borderRight = 'none';
+                    }
+                };
+                
+                setTimeout(typeWriter, 1500);
+            }
+            
+            // Add hover effect to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(function(button) {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px) scale(1.05)';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+            
+            buttons.forEach(function(button) {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+        
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Add smooth scrolling to anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Add CSS for ripple effect
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.6);
+                transform: scale(0);
+                animation: ripple-animation 0.6s linear;
+                pointer-events: none;
+            }
+            
+            @keyframes ripple-animation {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    
+    @yield('scripts')
 </body>
 </html>
