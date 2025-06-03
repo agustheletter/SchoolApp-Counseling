@@ -12,25 +12,24 @@ class Counselor extends Model
     protected $table = 'tbl_counselor';
 
     protected $fillable = [
-        'nip',
-        'nama_konselor',
-        'jenis_kelamin',
-        'tempat_lahir',
-        'tanggal_lahir',
-        'email',
-        'no_hp',
+        'idkonselor',
         'pendidikan_terakhir',
+        'jurusan_pendidikan',
         'spesialisasi',
+        'pengalaman_kerja',
+        'sertifikasi',
         'status',
-        'tanggal_bergabung',
-        'photo_konselor'
+        'tanggal_bergabung'
     ];
 
-    protected $casts = [
-        'spesialisasi' => 'array',
-        'tanggal_lahir' => 'date',
-        'tanggal_bergabung' => 'date'
+    protected $attributes = [
+        'pendidikan_terakhir' => '-',
+        'jurusan_pendidikan' => '-',
+        'spesialisasi' => null,
+        'pengalaman_kerja' => 0,
+        'sertifikasi' => null,
+        'status' => 'pending'
     ];
 
-    protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at', 'tanggal_bergabung'];
 }

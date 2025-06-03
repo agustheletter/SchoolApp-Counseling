@@ -74,18 +74,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', CheckRole::class . '
     // Dashboard route
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     
+    // Counselor management routes
+    Route::get('/counselor/get-users', [CounselorController::class, 'getUsers'])->name('counselor.getUsers');
+    Route::post('/counselor/convert/{id}', [CounselorController::class, 'convertToCounselor'])->name('counselor.convert');
+    Route::post('/counselor/{id}/restore', [CounselorController::class, 'restore'])->name('counselor.restore');
+    Route::resource('counselor', CounselorController::class);
+
     // Student management routes
     Route::get('/student', [SiswaController::class, 'index'])->name('student'); // Changed from 'student' to 'student.index'
     Route::get('/student/{id}', [SiswaController::class, 'show'])->name('student.show');
     Route::delete('/student/{id}', [SiswaController::class, 'destroy'])->name('student.destroy');
     Route::get('/check-table', [SiswaController::class, 'checkTable'])->name('check-table');
     Route::post('/student/{id}/restore', [SiswaController::class, 'restore'])->name('student.restore');
-    
-    // Counselor management routes
-    Route::get('/counselor/get-users', [CounselorController::class, 'getUsers'])->name('counselor.getUsers');
-    Route::post('/counselor/convert/{id}', [CounselorController::class, 'convertToCounselor'])->name('counselor.convert');
-    Route::post('/counselor/{id}/restore', [CounselorController::class, 'restore'])->name('counselor.restore');
-    Route::resource('counselor', CounselorController::class);
     
     Route::get('/administrator', [AdminController::class, 'administrator'])->name('administrator');
     Route::get('/class', [AdminController::class, 'class'])->name('class');

@@ -216,15 +216,26 @@ class CounselorController extends Controller
 
             $user = User::findOrFail($id);
             
+            // Check if user already exists as counselor
+            $existingCounselor = Counselor::where('idkonselor', $id)->exists();
+            if ($existingCounselor) {
+                throw new \Exception('User sudah terdaftar sebagai konselor');
+            }
+
             // Update user role and clear NIS
             $user->update([
                 'role' => 'guru',
-                'nis' => null // Clear the NIS field
+                'nis' => null
             ]);
 
             // Create initial counselor record
             Counselor::create([
                 'idkonselor' => $user->id,
+                'pendidikan_terakhir' => '-',
+                'jurusan_pendidikan' => '-',
+                'spesialisasi' => null,
+                'pengalaman_kerja' => 0,
+                'sertifikasi' => null,
                 'status' => 'pending',
                 'tanggal_bergabung' => now()
             ]);

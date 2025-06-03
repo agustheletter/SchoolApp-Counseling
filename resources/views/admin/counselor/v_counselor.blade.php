@@ -216,21 +216,32 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `/admin/counselor/convert/${userId}`,
+                    url: "{{ route('admin.counselor.convert', ':id') }}".replace(':id', userId),
                     type: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Loading...',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                     },
                     success: function(response) {
                         if (response.success) {
                             Swal.fire('Berhasil!', response.message, 'success');
                             $('#addCounselorModal').modal('hide');
-                            table.ajax.reload();
+                            $('#konselorTable').DataTable().ajax.reload();
                         } else {
                             Swal.fire('Error!', response.message, 'error');
                         }
                     },
                     error: function(xhr) {
+                        console.error('Ajax error:', xhr);
                         Swal.fire('Error!', 
                             xhr.responseJSON?.message || 'Terjadi kesalahan saat memproses permintaan', 
                             'error'
@@ -268,7 +279,7 @@ $('#saveCounselor').click(function() {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/admin/counselor/convert/${userId}`,
+                url: "{{ route('admin.counselor.convert', ':id') }}".replace(':id', userId),
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -293,11 +304,11 @@ $('#saveCounselor').click(function() {
                     }
                 },
                 error: function(xhr) {
+                    console.error('Ajax error:', xhr);
                     Swal.fire('Error!', 
                         xhr.responseJSON?.message || 'Terjadi kesalahan saat memproses permintaan', 
                         'error'
                     );
-                    console.error('Ajax error:', xhr);
                 }
             });
         }
