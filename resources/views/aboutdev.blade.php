@@ -95,7 +95,7 @@
         <div class="col-lg-6 mb-4">
             <div class="card shadow-sm h-100 developer-profile">
                 <div class="card-body p-4 text-center">
-                    <img src="https://via.placeholder.com/300x300" alt="Frontend Developer" class="developer-image">
+                    <img src="{{ asset('img/devpict_two.jpg') }}" alt="Frontend Developer" class="developer-image">
                     <h3 class="card-title mb-1">Arkan Ardiansyah</h3>
                     <p class="text-primary mb-3">Frontend Developer</p>
                     
@@ -121,10 +121,10 @@
                         <p class="mb-3">Phone: +62 821 3088 6438</p>
                         
                         <div class="social-links">
-                            <a href="#" target="_blank"><i class="fab fa-github"></i></a>
-                            <a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
-                            <a href="#" target="_blank"><i class="fab fa-dribbble"></i></a>
+                            <a href="https://github.com/trevtana" target="_blank"><i class="fab fa-github"></i></a>
+                            <a href="https://www.linkedin.com/in/arkan-ardiansyah-300508369?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="https://x.com/arkannnn0?t=KTBXMjvPLJ_bj4-TRWuoEA&s=09" target="_blank"><i class="fab fa-twitter"></i></a>
+                            <a href="https://www.instagram.com/arkannn.ar?igsh=ZnBjeXJ4NWNxOGY1" target="_blank"><i class="fab fa-instagram"></i></a>
                         </div>
                     </div>
                 </div>
@@ -135,13 +135,15 @@
         <div class="col-lg-6 mb-4">
             <div class="card shadow-sm h-100 developer-profile">
                 <div class="card-body p-4 text-center">
-                    <img src="https://via.placeholder.com/300x300" alt="Backend Developer" class="developer-image">
-                    <h3 class="card-title mb-1"></h3>
+                    <img src="{{ asset('img/devpict_one.jpg') }}" alt="Backend Developer" class="developer-image">
+                    <h3 class="card-title mb-1">Firaas Raihansyah Rizqullah</h3>
                     <p class="text-primary mb-3">Backend Developer</p>  
                     
                     <div class="mb-4">
                         <h5 class="mb-3">Keahlian</h5>
                         <div>
+                            <span class="skill-badge bg-primary">HTML5</span>
+                            <span class="skill-badge bg-primary">JavaScript</span>
                             <span class="skill-badge bg-primary">PHP</span>
                             <span class="skill-badge bg-primary">Laravel</span>
                             <span class="skill-badge bg-primary">MySQL</span>
@@ -160,10 +162,10 @@
                         <p class="mb-3">Phone: +62 821 3030 4142</p>
                         
                         <div class="social-links">
-                            <a href="#" target="_blank"><i class="fab fa-github"></i></a>
-                            <a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
-                            <a href="#" target="_blank"><i class="fab fa-stack-overflow"></i></a>
+                            <a href="https://github.com/castreld" target="_blank"><i class="fab fa-github"></i></a>
+                            <a href="https://www.linkedin.com/in/firaas-raihansyah-r-909aa1331/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="https://x.com/@Kuastradle" target="_blank"><i class="fab fa-twitter"></i></a>
+                            <a href="https://instagram.com/castreld" target="_blank"><i class="fab fa-instagram"></i></a>
                         </div>
                     </div>
                 </div>
