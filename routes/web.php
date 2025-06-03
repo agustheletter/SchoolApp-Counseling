@@ -65,9 +65,13 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', CheckRole::class
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
     Route::get('/request/export', [TeacherController::class, 'exportRequests'])->name('request.export');
     Route::get('/request', [TeacherController::class, 'request'])->name('request');
-    Route::post('/request/{id}/approve', [TeacherController::class, 'approveRequest'])->name('request.approve');
-    Route::post('/request/{id}/reject', [TeacherController::class, 'rejectRequest'])->name('request.reject');
-    Route::post('/request/{id}/complete', [TeacherController::class, 'completeRequest'])->name('request.complete');
+    
+    // Add ownership middleware to these routes
+    Route::middleware(['check.counselor.ownership'])->group(function() {
+        Route::post('/request/{id}/approve', [TeacherController::class, 'approveRequest'])->name('request.approve');
+        Route::post('/request/{id}/reject', [TeacherController::class, 'rejectRequest'])->name('request.reject');
+        Route::post('/request/{id}/complete', [TeacherController::class, 'completeRequest'])->name('request.complete');
+    });
 });
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', CheckRole::class . ':admin'])->group(function () {

@@ -56,4 +56,12 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\CheckRole::class,
     ];
 
+    /**
+     * The application's route middleware.
+     *
+     * @var array<string, class-string|string>
+     */
+    protected $routeMiddleware = [
+        'check.counselor.ownership' => \App\Http\Middleware\CheckCounselorOwnership::class,
+    ];
 }

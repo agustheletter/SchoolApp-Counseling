@@ -17,14 +17,36 @@ class TeacherController extends Controller
 {
     public function dashboard()
     {
-        $pendingRequests = CounselingRequest::where('status', 'Pending')->count();
-        $todaySessions = CounselingRequest::whereDate('tanggal_permintaan', now())->where('status', 'Approved')->count();
-        $activeStudents = CounselingRequest::distinct('idsiswa')->count();
-        $monthlySessions = CounselingRequest::whereMonth('tanggal_permintaan', now()->month)->count();
-        $latestRequests = CounselingRequest::with('student')->latest()->take(5)->get();
+        $teacherId = auth()->id();
+        
+        // Only count requests assigned to current teacher
+        $pendingRequests = CounselingRequest::where('idguru', $teacherId)
+            ->where('status', 'Pending')
+            ->count();
+            
+        $todaySessions = CounselingRequest::where('idguru', $teacherId)
+            ->whereDate('tanggal_permintaan', now())
+            ->where('status', 'Approved')
+            ->count();
+            
+        $activeStudents = CounselingRequest::where('idguru', $teacherId)
+            ->distinct('idsiswa')
+            ->count();
+            
+        $monthlySessions = CounselingRequest::where('idguru', $teacherId)
+            ->whereMonth('tanggal_permintaan', now()->month)
+            ->count();
 
-        // Fetch today's schedule (only approved requests for today)
-        $todaySchedule = CounselingRequest::with('student')
+        // Get only current teacher's latest requests
+        $latestRequests = CounselingRequest::with(['student'])
+            ->where('idguru', $teacherId)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Get only current teacher's today schedule
+        $todaySchedule = CounselingRequest::with(['student'])
+            ->where('idguru', $teacherId)
             ->whereDate('tanggal_permintaan', now())
             ->where('status', 'Approved')
             ->get();
@@ -41,14 +63,24 @@ class TeacherController extends Controller
 
     public function request()
     {
-        $requests = CounselingRequest::with(['student', 'counselor'])->paginate(10);
+        $teacherId = auth()->id();
         
+        $requests = CounselingRequest::with(['student'])
+            ->where('idguru', $teacherId)
+            ->when(request('status'), function($query, $status) {
+                return $query->where('status', $status);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
         return view('teacher.request', compact('requests'));
     }
 
+    // Protect action methods
     public function approveRequest($id)
     {
-        $request = CounselingRequest::findOrFail($id);
+        $request = CounselingRequest::where('idguru', auth()->id())
+            ->findOrFail($id);
         $request->status = 'Approved';
         $request->save();
 
@@ -57,33 +89,34 @@ class TeacherController extends Controller
 
     public function rejectRequest($id)
     {
-        $request = CounselingRequest::findOrFail($id);
+        $request = CounselingRequest::where('idguru', auth()->id())
+            ->findOrFail($id);
         $request->status = 'Rejected';
         $request->save();
 
         return redirect()->back()->with('success', 'Permintaan konseling berhasil ditolak.');
     }
 
-    public function completeRequest($id)
+    public function completeRequest(Request $request, $id)
     {
+        $counselingRequest = CounselingRequest::where('idguru', auth()->id())
+            ->findOrFail($id);
+        
         try {
             \DB::beginTransaction();
 
-            // Find the counseling request
-            $request = CounselingRequest::findOrFail($id);
-            
             // Validate the request
-            $validated = request()->validate([
+            $validated = $request->validate([
                 'hasil_konseling' => 'required|string'
             ]);
 
             // Update counseling request status
-            $request->status = 'Completed';
-            $request->save();
+            $counselingRequest->status = 'Completed';
+            $counselingRequest->save();
 
             // Find the counseling session using the correct relationship
             // The Counseling table uses idkonseling to reference the CounselingRequest id
-            $counseling = Counseling::where('idkonseling', $request->id)->first();
+            $counseling = Counseling::where('idkonseling', $counselingRequest->id)->first();
             
             if ($counseling) {
                 // Update existing counseling session
@@ -93,15 +126,15 @@ class TeacherController extends Controller
             } else {
                 // Create new counseling session if it doesn't exist
                 $counseling = new Counseling();
-                $counseling->idsiswa = $request->idsiswa;
-                $counseling->idguru = $request->idguru;
-                $counseling->tanggal_konseling = $request->tanggal_permintaan;
+                $counseling->idsiswa = $counselingRequest->idsiswa;
+                $counseling->idguru = $counselingRequest->idguru;
+                $counseling->tanggal_konseling = $counselingRequest->tanggal_permintaan;
                 $counseling->status = 'Completed';
                 $counseling->hasil_konseling = $validated['hasil_konseling'];
                 $counseling->save();
                 
                 // Now update the idkonseling to reference the request
-                $counseling->idkonseling = $request->id;
+                $counseling->idkonseling = $counselingRequest->id;
                 $counseling->save();
             }
 
