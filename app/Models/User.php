@@ -142,4 +142,35 @@ class User extends Authenticatable
     {
         return $this->hasOne(Counselor::class, 'idkonselor');
     }
+
+    /**
+     * Get the conversations for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class, 'sender_id')
+            ->orWhere('receiver_id', $this->id);
+    }
+
+        public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function sentConversations()
+    {
+        return $this->hasMany(Conversation::class, 'sender_id');
+    }
+
+    public function receivedConversations()
+    {
+        return $this->hasMany(Conversation::class, 'receiver_id');
+    }
 }

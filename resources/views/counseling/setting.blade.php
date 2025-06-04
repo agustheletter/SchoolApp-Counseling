@@ -25,13 +25,13 @@
                     <a href="{{ route('counseling.history') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-history me-2"></i> Riwayat Konseling
                     </a>
-                    <a href="{{ route('counseling.messages') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-comments me-2"></i> Pesan
-                    </a>
                     <a href="{{ route('counseling.reports') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-file-alt me-2"></i> Laporan
                     </a>
                     @endif
+                    <a href="{{ route('counseling.messages') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-comments me-2"></i> Pesan
+                    </a>
                     <a href="{{ route('profile.settings') }}" class="list-group-item list-group-item-action active">
                         <i class="fas fa-cog me-2"></i> Pengaturan
                     </a>

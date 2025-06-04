@@ -13,14 +13,11 @@ class HomeController extends Controller
 
     public function dashboard()
     {
-        $user = auth()->user();
-
-        if ($user->role === 'guru') {
-            return redirect()->route('teacher.dashboard');
-        }else if($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
+        if (auth()->user()->role !== 'user') {
+            return redirect()->route(auth()->user()->role === 'guru' ? 'teacher.dashboard' : 'admin.dashboard');
         }
 
+        // Changed to return the existing dashboard view
         return view('dashboard');
     }
     public function contact()

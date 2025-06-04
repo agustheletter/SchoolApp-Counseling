@@ -22,7 +22,7 @@ class CounselingRequest extends Model
 
     public function student()
     {
-        return $this->belongsTo(Siswa::class, 'idsiswa');
+        return $this->belongsTo(User::class, 'idsiswa');
     }
     
     public function counselor()

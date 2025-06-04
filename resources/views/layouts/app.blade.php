@@ -937,6 +937,80 @@
     </style>
     
     @yield('styles')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Debug CSS to ensure dropdown visibility -->
+    <style>
+        .dropdown-menu {
+            z-index: 9999 !important;
+            position: absolute !important;
+        }
+        
+        .dropdown-menu.show {
+            display: block !important;
+        }
+        
+        /* Debug styles */
+        .dropdown-toggle {
+            cursor: pointer !important;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
+            
+            const dropdownElement = document.getElementById('userDropdown');
+            console.log('Dropdown element found:', dropdownElement !== null);
+            
+            if (dropdownElement) {
+                // Remove any existing Bootstrap initialization first
+                const existingDropdown = bootstrap.Dropdown.getInstance(dropdownElement);
+                if (existingDropdown) {
+                    existingDropdown.dispose();
+                }
+                
+                // Manual click handler for debugging
+                dropdownElement.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Dropdown clicked');
+                    
+                    const dropdownMenu = this.nextElementSibling;
+                    console.log('Dropdown menu found:', dropdownMenu !== null);
+                    
+                    if (dropdownMenu) {
+                        // Toggle show class manually
+                        if (dropdownMenu.classList.contains('show')) {
+                            dropdownMenu.classList.remove('show');
+                            this.setAttribute('aria-expanded', 'false');
+                            console.log('Dropdown hidden');
+                        } else {
+                            dropdownMenu.classList.add('show');
+                            this.setAttribute('aria-expanded', 'true');
+                            console.log('Dropdown shown');
+                        }
+                    }
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdownElement.contains(e.target)) {
+                        const dropdownMenu = document.querySelector('#userDropdown + .dropdown-menu');
+                        if (dropdownMenu && dropdownMenu.classList.contains('show')) {
+                            dropdownMenu.classList.remove('show');
+                            dropdownElement.setAttribute('aria-expanded', 'false');
+                            console.log('Dropdown closed by outside click');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+@yield('scripts')
 </head>
 <body>
     <!-- Page Loader -->
@@ -980,28 +1054,38 @@
                             <a class="btn btn-primary" href="{{ route('register') }}">Daftar</a>
                         </li>
                     @else
-                        <li class="nav-item dropdown d-flex align-items-center" data-aos="fade-left" data-aos-delay="500">
-                            <img src="{{ Auth::user()->avatar_url }}" 
-                                 alt="Profile {{ Auth::user()->nama }}" 
-                                 class="rounded-circle me-2" 
-                                 width="32" 
-                                 height="32"
-                                 style="object-fit: cover;">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <li class="nav-item dropdown">
+                            <button class="nav-link dropdown-toggle d-flex align-items-center border-0 bg-transparent" 
+                                    type="button" 
+                                    id="userDropdown" 
+                                    data-bs-toggle="dropdown" 
+                                    aria-expanded="false">
+                                @if(Auth::user()->avatar_url)
+                                    <img src="{{ Auth::user()->avatar_url }}" 
+                                         alt="Profile" 
+                                         class="rounded-circle me-2" 
+                                         width="32" 
+                                         height="32"
+                                         style="object-fit: cover;">
+                                @else
+                                    <i class="fas fa-user-circle fa-lg me-2"></i>
+                                @endif
                                 {{ Auth::user()->nama }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                @if(Auth::check() && Auth::user()->role === 'guru')
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                                @if(Auth::user()->role === 'guru')
                                     <li><a class="dropdown-item" href="{{ route('teacher.dashboard') }}">Dashboard Guru</a></li>
-                                @elseif(Auth::check() && Auth::user()->role === 'admin')
+                                    <li><a class="dropdown-item" href="{{ route('counseling.messages') }}">Pesan</a></li>
+                                @elseif(Auth::user()->role === 'admin')
                                     <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">Dashboard Admin</a></li>
-                                @elseif(Auth::check())
+                                    <li><a class="dropdown-item" href="{{ route('counseling.messages') }}">Pesan</a></li>
+                                @else
                                     <li><a class="dropdown-item" href="{{ route('dashboard') }}">Layanan Konseling</a></li>
                                 @endif
                                 <li><a class="dropdown-item" href="{{ route('profile.settings') }}">Pengaturan</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <form action="{{ route('logout') }}" method="POST" id="logout-form">
+                                    <form action="{{ route('logout') }}" method="POST">
                                         @csrf
                                         <button type="submit" class="dropdown-item">Keluar</button>
                                     </form>

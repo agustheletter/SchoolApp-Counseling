@@ -1,0 +1,23 @@
+const mix = require('laravel-mix');
+
+// Process JavaScript
+mix.js('resources/js/app.js', 'public/js');
+
+// Process CSS without PostCSS plugins in Mix
+mix.css('resources/css/app.css', 'public/css');
+
+// Enable versioning
+mix.version();
+
+// Webpack configuration
+mix.webpackConfig({
+    stats: {
+        children: true
+    }
+});
+
+// Options
+mix.options({
+    processCssUrls: false,
+    postCss: []
+});

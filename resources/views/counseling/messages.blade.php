@@ -2,179 +2,18 @@
 
 @section('title', 'Pesan')
 
-@section('styles')
-<style>
-    .messages-container {
-        height: 650px;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .contacts-list {
-        height: 100%;
-        overflow-y: auto;
-    }
-    
-    .contact-item {
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-    
-    .contact-item:hover {
-        background-color: rgba(0, 0, 0, 0.03);
-    }
-    
-    .contact-item.active {
-        background-color: rgba(0, 0, 0, 0.05);
-    }
-    
-    .contact-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-    }
-    
-    .contact-status {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        border: 2px solid white;
-    }
-    
-    .status-online {
-        background-color: #28a745;
-    }
-    
-    .status-offline {
-        background-color: #6c757d;
-    }
-    
-    .chat-container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-    
-    .chat-header {
-        padding: 15px;
-        border-bottom: 1px solid #dee2e6;
-    }
-    
-    .chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 15px;
-        background-color: #f8f9fa;
-    }
-    
-    .chat-input {
-        padding: 15px;
-        border-top: 1px solid #dee2e6;
-        background-color: white;
-    }
-    
-    .message {
-        margin-bottom: 15px;
-        max-width: 80%;
-    }
-    
-    .message-content {
-        padding: 10px 15px;
-        border-radius: 18px;
-        display: inline-block;
-        word-break: break-word;
-    }
-    
-    .message-time {
-        font-size: 0.75rem;
-        color: #6c757d;
-        margin-top: 5px;
-    }
-    
-    .message-outgoing {
-        margin-left: auto;
-    }
-    
-    .message-outgoing .message-content {
-        background-color: #6c5ce7;
-        color: white;
-        border-bottom-right-radius: 5px;
-    }
-    
-    .message-incoming {
-        margin-right: auto;
-    }
-    
-    .message-incoming .message-content {
-        background-color: white;
-        color: #212529;
-        border-bottom-left-radius: 5px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-    
-    .chat-date-divider {
-        text-align: center;
-        margin: 20px 0;
-        position: relative;
-    }
-    
-    .chat-date-divider span {
-        background-color: #f8f9fa;
-        padding: 0 10px;
-        position: relative;
-        z-index: 1;
-        color: #6c757d;
-        font-size: 0.875rem;
-    }
-    
-    .chat-date-divider:before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background-color: #dee2e6;
-        z-index: 0;
-    }
-    
-    .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        color: #6c757d;
-        text-align: center;
-        padding: 20px;
-    }
-    
-    .empty-state i {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        color: #dee2e6;
-    }
-    
-    .unread-badge {
-        background-color: #6c5ce7;
-    }
-</style>
-@endsection
-
 @section('content')
-<div class="container py-5">
+<div class="container-fluid py-4">
     <div class="row">
-        <div class="col-lg-3 mb-4">
-            <!-- Sidebar Menu -->
-            <div class="card shadow-sm">
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Menu Siswa</h5>
+                    <h5 class="mb-0">Menu</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action    ">
+                    @if (Auth::user()->role === 'user')
+                    <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                     </a>
                     <a href="{{ route('counseling.request') }}" class="list-group-item list-group-item-action">
@@ -186,11 +25,14 @@
                     <a href="{{ route('counseling.history') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-history me-2"></i> Riwayat Konseling
                     </a>
-                    <a href="{{ route('counseling.messages') }}" class="list-group-item list-group-item-action active">
-                        <i class="fas fa-comments me-2"></i> Pesan
-                    </a>
                     <a href="{{ route('counseling.reports') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-file-alt me-2"></i> Laporan
+                    </a>
+                    @endif
+                    <!-- Update the messages link in the sidebar -->
+                    <a href="{{ route('counseling.messages') }}" class="list-group-item list-group-item-action active d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-comments me-2"></i> Pesan</span>
+                        <span class="badge bg-danger rounded-pill unread-count" style="display: none;">0</span>
                     </a>
                     <a href="{{ route('profile.settings') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-cog me-2"></i> Pengaturan
@@ -198,332 +40,556 @@
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-9">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Pesan</h5>
+
+        <!-- Main Content -->
+        <div class="col-lg-9 col-md-8">
+            <div class="row">
+                <!-- Contacts List Column -->
+                <div class="col-md-4 border-end">
+                    <div class="contacts-header p-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Kontak</h5>
+                        <button class="btn btn-primary btn-sm" id="addContactBtn" data-bs-toggle="modal" data-bs-target="#addContactModal">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <div class="contacts-list">
+                        @forelse($conversations as $conversation)
+                            @php
+                                $otherUser = $conversation->sender_id === Auth::id() ? $conversation->receiver : $conversation->sender;
+                            @endphp
+                            <!-- Update the contact-item div in the contacts list -->
+                            <div class="contact-item p-3 border-bottom contact-clickable" 
+                                 data-conversation-id="{{ $conversation->id }}"
+                                 style="cursor: pointer;">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">{{ $otherUser->nama }}</h6>
+                                        <small class="text-muted message-preview">
+                                            {{ $conversation->messages->last()?->content ?? 'Mulai percakapan' }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <span class="badge bg-primary unread-badge" style="display: none;">Baru</span>
+                            </div>
+                        @empty
+                            <div class="text-center p-3">
+                                <p class="text-muted">Belum ada percakapan</p>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="messages-container">
-                        <div class="row g-0 h-100">
-                            <!-- Contacts List -->
-                            <div class="col-md-4 border-end">
-                                <div class="p-3 border-bottom">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Cari kontak..." aria-label="Cari kontak">
-                                        <button class="btn btn-outline-secondary" type="button">
-                                            <i class="fas fa-search"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="contacts-list">
-                                    <!-- Contact Item -->
-                                    <div class="contact-item active p-3 border-bottom" data-contact-id="1">
-                                        <div class="d-flex align-items-center">
-                                            <div class="position-relative me-3">
-                                                <img src="https://via.placeholder.com/100" alt="Dr. Andi Wijaya" class="contact-avatar">
-                                                <span class="contact-status status-online"></span>
-                                            </div>
-                                            <div class="flex-grow-1 min-width-0">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <h6 class="mb-0 text-truncate">Dr. Andi Wijaya</h6>
-                                                    <small class="text-muted ms-2">10:05</small>
-                                                </div>
-                                                <p class="mb-0 text-truncate text-muted small">Baik, kita akan bahas konsep dasar integral terlebih dahulu.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Contact Item with Unread Messages -->
-                                    <div class="contact-item p-3 border-bottom" data-contact-id="2">
-                                        <div class="d-flex align-items-center">
-                                            <div class="position-relative me-3">
-                                                <img src="https://via.placeholder.com/100" alt="Siti Rahayu, M.Psi" class="contact-avatar">
-                                                <span class="contact-status status-offline"></span>
-                                            </div>
-                                            <div class="flex-grow-1 min-width-0">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <h6 class="mb-0 text-truncate fw-bold">Siti Rahayu, M.Psi</h6>
-                                                    <small class="text-muted ms-2">Kemarin</small>
-                                                </div>
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <p class="mb-0 text-truncate text-muted small fw-bold">Halo, saya sudah menyetujui permintaan konseling Anda.</p>
-                                                    <span class="badge rounded-pill unread-badge ms-2">2</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- More Contact Items -->
-                                    <div class="contact-item p-3 border-bottom" data-contact-id="3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="position-relative me-3">
-                                                <img src="https://via.placeholder.com/100" alt="Budi Santoso, S.Pd" class="contact-avatar">
-                                                <span class="contact-status status-online"></span>
-                                            </div>
-                                            <div class="flex-grow-1 min-width-0">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <h6 class="mb-0 text-truncate">Budi Santoso, S.Pd</h6>
-                                                    <small class="text-muted ms-2">3 hari lalu</small>
-                                                </div>
-                                                <p class="mb-0 text-truncate text-muted small">Jangan lupa untuk membawa hasil tes minat bakat pada sesi konseling nanti.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="contact-item p-3 border-bottom" data-contact-id="4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="position-relative me-3">
-                                                <img src="https://via.placeholder.com/100" alt="Dewi Lestari, M.Pd" class="contact-avatar">
-                                                <span class="contact-status status-offline"></span>
-                                            </div>
-                                            <div class="flex-grow-1 min-width-0">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <h6 class="mb-0 text-truncate">Dewi Lestari, M.Pd</h6>
-                                                    <small class="text-muted ms-2">1 minggu lalu</small>
-                                                </div>
-                                                <p class="mb-0 text-truncate text-muted small">Terima kasih atas partisipasi aktif Anda dalam sesi konseling kemarin.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Chat Area -->
-                            <div class="col-md-8">
-                                <div class="chat-container">
-                                    <!-- Chat Header -->
-                                    <div class="chat-header">
-                                        <div class="d-flex align-items-center">
-                                            <div class="position-relative me-3">
-                                                <img src="https://via.placeholder.com/100" alt="Dr. Andi Wijaya" class="contact-avatar">
-                                                <span class="contact-status status-online"></span>
-                                            </div>
-                                            <div>
-                                                <h5 class="mb-0">Dr. Andi Wijaya</h5>
-                                                <small class="text-success">Online</small>
-                                            </div>
-                                            <div class="ms-auto">
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-outline-secondary" type="button" id="chatOptionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-v"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chatOptionsDropdown">
-                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-video me-2"></i> Mulai Video Call</a></li>
-                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Lihat Profil</a></li>
-                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-search me-2"></i> Cari Pesan</a></li>
-                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i> Unduh Percakapan</a></li>
-                                                        <li><hr class="dropdown-divider"></li>
-                                                        <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-flag me-2"></i> Laporkan</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Chat Messages -->
-                                    <div class="chat-messages" id="chatMessages">
-                                        <div class="chat-date-divider">
-                                            <span>Hari ini</span>
-                                        </div>
-                                        
-                                        <div class="message message-incoming">
-                                            <div class="message-content">
-                                                Halo Ahmad, bagaimana kabarmu hari ini?
-                                            </div>
-                                            <div class="message-time">09:30</div>
-                                        </div>
-                                        
-                                        <div class="message message-outgoing">
-                                            <div class="message-content">
-                                                Halo Pak Andi, kabar saya baik. Terima kasih sudah bertanya.
-                                            </div>
-                                            <div class="message-time">09:32</div>
-                                        </div>
-                                        
-                                        <div class="message message-incoming">
-                                            <div class="message-content">
-                                                Saya ingin mengingatkan tentang sesi konseling kita besok pukul 10:00. Apakah jadwal tersebut masih sesuai untuk Anda?
-                                            </div>
-                                            <div class="message-time">09:35</div>
-                                        </div>
-                                        
-                                        <div class="message message-outgoing">
-                                            <div class="message-content">
-                                                Iya Pak, jadwal tersebut masih sesuai. Saya akan hadir tepat waktu.
-                                            </div>
-                                            <div class="message-time">09:40</div>
-                                        </div>
-                                        
-                                        <div class="message message-incoming">
-                                            <div class="message-content">
-                                                Bagus. Untuk persiapan, apakah Anda sudah mencoba mengerjakan soal-soal latihan yang saya berikan sebelumnya?
-                                            </div>
-                                            <div class="message-time">09:42</div>
-                                        </div>
-                                        
-                                        <div class="message message-outgoing">
-                                            <div class="message-content">
-                                                Sudah Pak, tapi saya masih kesulitan dengan beberapa soal, terutama nomor 3 dan 5. Saya akan membawa catatan kesulitan saya besok.
-                                            </div>
-                                            <div class="message-time">09:45</div>
-                                        </div>
-                                        
-                                        <div class="message message-incoming">
-                                            <div class="message-content">
-                                                Baik, kita akan bahas konsep dasar integral terlebih dahulu, kemudian masuk ke soal-soal yang Anda kesulitan. Jangan lupa bawa buku catatan dan kalkulator.
-                                            </div>
-                                            <div class="message-time">10:05</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Chat Input -->
-                                    <div class="chat-input">
-                                        <form id="chatForm">
-                                            <div class="input-group">
-                                                <button class="btn btn-outline-secondary" type="button">
-                                                    <i class="far fa-smile"></i>
-                                                </button>
-                                                <button class="btn btn-outline-secondary" type="button">
-                                                    <i class="fas fa-paperclip"></i>
-                                                </button>
-                                                <input type="text" class="form-control" placeholder="Ketik pesan..." id="messageInput">
-                                                <button class="btn btn-primary" type="submit">
-                                                    <i class="fas fa-paper-plane"></i>
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
+                <!-- Chat Area Column -->
+                <div class="col-md-8">
+                    <div id="emptyChatState" class="text-center p-5">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h5>Pilih percakapan untuk memulai</h5>
+                    </div>
+                    
+                    <div id="chatArea" style="display: none;">
+                        <!-- Chat content will be loaded here -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Add Contact Modal -->
+<div class="modal fade" id="addContactModal" tabindex="-1" aria-labelledby="addContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addContactModalLabel">Tambah Kontak</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="contactSelect" class="form-label">Pilih Kontak</label>
+                    <select class="form-select" id="contactSelect">
+                        <option value="">Pilih kontak...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="startConversation">Mulai Percakapan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .contact-clickable:hover {
+        background-color: #f8f9fa;
+    }
+    .contact-clickable.active {
+        background-color: #e9ecef;
+    }
+    .message {
+        max-width: 75%;
+    }
+    .message.sent {
+        margin-left: auto;
+    }
+    .message.sent .message-content {
+        background-color: #007bff;
+        color: white;
+    }
+    .message.received .message-content {
+        background-color: #e9ecef;
+    }
+    .chat-messages {
+        height: 400px;
+        overflow-y: auto;
+    }
+</style>
 @endsection
 
 @section('scripts')
+@parent
+<script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
+<script src="{{ mix('js/app.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
+    var pusher = new Pusher('12c72e9a9c9cab0a82e9', {
+      cluster: 'ap1'
+    });
+
+    var channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', function(data) {
+      alert(JSON.stringify(data));
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
-        const chatMessages = document.getElementById('chatMessages');
-        const chatForm = document.getElementById('chatForm');
-        const messageInput = document.getElementById('messageInput');
-        const contactItems = document.querySelectorAll('.contact-item');
-        
-        // Auto scroll to bottom of chat
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        // Handle form submission
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+    console.log('DOM loaded');
+
+    // Setup real-time message listener
+    const userId = {{ auth()->id() }};
+    let currentConversationId = null;
+    
+    if (window.Echo) {
+        window.Echo.private(`messages.${userId}`)
+            .listen('.NewMessageReceived', (data) => {
+                console.log('Message received:', data);
+                handleNewMessage(data);
+            });
             
-            const message = messageInput.value.trim();
-            if (message) {
-                // Create new message element
-                const now = new Date();
-                const hours = now.getHours().toString().padStart(2, '0');
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const timeString = `${hours}:${minutes}`;
-                
-                const messageElement = document.createElement('div');
-                messageElement.className = 'message message-outgoing';
-                messageElement.innerHTML = `
-                    <div class="message-content">
-                        ${message}
-                    </div>
-                    <div class="message-time">${timeString}</div>
-                `;
-                
-                // Add message to chat
-                chatMessages.appendChild(messageElement);
-                
-                // Clear input
-                messageInput.value = '';
-                
-                // Scroll to bottom
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-                
-                // Simulate response (in a real app, this would be handled by the server)
-                setTimeout(() => {
-                    const responseElement = document.createElement('div');
-                    responseElement.className = 'message message-incoming';
-                    responseElement.innerHTML = `
-                        <div class="message-content">
-                            Terima kasih atas informasinya. Sampai bertemu besok di sesi konseling.
-                        </div>
-                        <div class="message-time">${hours}:${(parseInt(minutes) + 1).toString().padStart(2, '0')}</div>
-                    `;
-                    
-                    chatMessages.appendChild(responseElement);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }, 2000);
-            }
-        });
+        // Also listen for message read events
+        window.Echo.private(`user.${userId}`)
+            .listen('.message.read', (data) => {
+                console.log('Messages marked as read:', data);
+                handleMessageRead(data);
+            });
+    } else {
+        console.error('Echo not initialized');
+    }
+
+    // Initialize contacts click handlers
+    setupContactClickHandlers();
+    setupAddContactHandlers();
+    requestNotificationPermission();
+    initializeMessagePolling();
+
+    // Event handler functions
+    function handleNewMessage(data) {
+        console.log('Handling new message:', data);
         
-        // Handle contact selection
-        contactItems.forEach(item => {
-            item.addEventListener('click', function() {
-                // Remove active class from all contacts
-                contactItems.forEach(contact => {
-                    contact.classList.remove('active');
-                });
+        // Update conversation preview regardless
+        updateConversationPreview(data);
+        
+        // If this message is for the currently active conversation
+        if (currentConversationId && currentConversationId == data.conversation_id) {
+            // Only append if the message is not from the current user
+            if (data.sender_id !== userId) {
+                appendNewMessage(data);
+                // Mark messages as read since user is viewing the conversation
+                markConversationAsRead(data.conversation_id);
+            }
+        } else {
+            // Show notification for messages not in current conversation
+            if (data.sender_id !== userId) {
+                showNotification(data);
+            }
+        }
+    }
+    
+    function handleMessageRead(data) {
+        // Update UI to show messages as read if needed
+        console.log('Messages read:', data);
+    }
+
+    function setupContactClickHandlers() {
+        document.querySelectorAll('.contact-clickable').forEach(contact => {
+            contact.addEventListener('click', function() {
+                const conversationId = this.getAttribute('data-conversation-id');
+                console.log('Clicked conversation:', conversationId);
                 
-                // Add active class to clicked contact
+                // Update current conversation ID
+                currentConversationId = conversationId;
+                
+                document.querySelectorAll('.contact-clickable').forEach(el => {
+                    el.classList.remove('active');
+                });
                 this.classList.add('active');
                 
-                // In a real app, this would load the conversation with the selected contact
-                // For demo purposes, we'll just show a loading indicator
-                chatMessages.innerHTML = '<div class="d-flex justify-content-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+                loadConversation(conversationId);
                 
-                // Simulate loading conversation
-                setTimeout(() => {
-                    // This would be replaced with actual conversation data
-                    if (this.dataset.contactId === '2') {
-                        // Show conversation with Siti Rahayu
-                        chatMessages.innerHTML = `
-                            <div class="chat-date-divider">
-                                <span>Kemarin</span>
-                            </div>
-                            
-                            <div class="message message-incoming">
-                                <div class="message-content">
-                                    Halo, saya sudah menyetujui permintaan konseling Anda untuk tanggal 22 Mei 2023.
-                                </div>
-                                <div class="message-time">14:30</div>
-                            </div>
-                            
-                            <div class="message message-incoming">
-                                <div class="message-content">
-                                    Untuk persiapan, saya sarankan Anda mulai mencatat situasi yang membuat Anda cemas saat menghadapi ujian. Kita akan membahasnya dalam sesi nanti.
-                                </div>
-                                <div class="message-time">14:32</div>
-                            </div>
-                        `;
-                        
-                        // Update header
-                        document.querySelector('.chat-header h5').textContent = 'Siti Rahayu, M.Psi';
-                        document.querySelector('.chat-header small').textContent = 'Terakhir dilihat: Kemarin 15:45';
-                        document.querySelector('.chat-header small').className = 'text-muted';
-                        document.querySelector('.chat-header .contact-status').className = 'contact-status status-offline';
-                        
-                        // Remove unread badge
-                        this.querySelector('.badge')?.remove();
-                        this.querySelector('p').classList.remove('fw-bold');
-                        this.querySelector('h6').classList.remove('fw-bold');
-                    } else {
-                        // Restore original conversation
-                        location.reload();
-                    }
-                    
-                    // Scroll to bottom
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }, 1000);
+                // Mark messages as read when opening conversation
+                markConversationAsRead(conversationId);
             });
         });
-    });
+    }
+
+    function setupAddContactHandlers() {
+        const addContactBtn = document.getElementById('addContactBtn');
+        const startConversationBtn = document.getElementById('startConversation');
+
+        if (addContactBtn) {
+            addContactBtn.addEventListener('click', fetchContacts);
+        }
+
+        if (startConversationBtn) {
+            startConversationBtn.addEventListener('click', startNewConversation);
+        }
+    }
+
+    function fetchContacts() {
+        fetch('{{ route("messages.contacts") }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const contactSelect = document.getElementById('contactSelect');
+                    contactSelect.innerHTML = '<option value="">Pilih kontak...</option>';
+                    
+                    data.contacts.forEach(user => {
+                        contactSelect.innerHTML += `
+                            <option value="${user.id}">${user.nama} (${user.role})</option>
+                        `;
+                    });
+                } else {
+                    console.error('API returned error:', data);
+                    alert('Gagal memuat daftar kontak');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Gagal memuat daftar kontak');
+            });
+    }
+
+    function startNewConversation() {
+        const selectedContactId = document.getElementById('contactSelect').value;
+        if (!selectedContactId) {
+            alert('Silakan pilih kontak terlebih dahulu');
+            return;
+        }
+
+        fetch('{{ route("messages.start") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ receiver_id: selectedContactId })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addContactModal'));
+                modal.hide();
+                window.location.reload();
+            } else {
+                throw new Error(data.message || 'Gagal memulai percakapan');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Gagal memulai percakapan: ' + error.message);
+        });
+    }
+
+    function loadConversation(conversationId) {
+        console.log('Loading conversation:', conversationId);
+        
+        fetch(`/messages/${conversationId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load conversation');
+                }
+                
+                // Hide empty state and show chat area
+                document.getElementById('emptyChatState').style.display = 'none';
+                const chatArea = document.getElementById('chatArea');
+                chatArea.style.display = 'block';
+                chatArea.dataset.conversationId = conversationId;
+
+                // Get other user's name
+                const otherUser = data.conversation.sender_id === {{ Auth::id() }} 
+                    ? data.conversation.receiver 
+                    : data.conversation.sender;
+
+                // Update chat area HTML
+                chatArea.innerHTML = `
+                    <div class="chat-header p-3 border-bottom">
+                        <h6 class="mb-0">${otherUser.nama}</h6>
+                    </div>
+                    <div class="chat-messages p-3" id="messageContainer">
+                        ${data.messages.map(message => `
+                            <div class="message ${message.sender_id === {{ Auth::id() }} ? 'sent' : 'received'} mb-2">
+                                <div class="message-content p-2 rounded">
+                                    ${message.content}
+                                </div>
+                                <small class="text-muted">${moment(message.created_at).format('HH:mm')}</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="chat-input p-3 border-top">
+                        <form id="messageForm">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="messageInput" placeholder="Ketik pesan...">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+
+                // Setup message form handler
+                const messageForm = document.getElementById('messageForm');
+                messageForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const input = document.getElementById('messageInput');
+                    const content = input.value.trim();
+                    
+                    if (!content) return;
+
+                    // Disable form while sending
+                    const submitBtn = messageForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+
+                    fetch(`/messages/${conversationId}/send`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ content })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            input.value = '';
+                            // Append the sent message immediately
+                            appendSentMessage(data.message);
+                        } else {
+                            throw new Error(data.error || 'Failed to send message');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Gagal mengirim pesan: ' + error.message);
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                    });
+                });
+
+                // Scroll to bottom of messages
+                scrollToBottom();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load conversation: ' + error.message
+                });
+            });
+    }
+
+    function appendNewMessage(message) {
+        const messageContainer = document.getElementById('messageContainer');
+        if (!messageContainer) return;
+
+        const messageHtml = `
+            <div class="message received mb-2">
+                <div class="message-content p-2 rounded">
+                    ${message.content}
+                </div>
+                <small class="text-muted">${moment(message.created_at).format('HH:mm')}</small>
+            </div>
+        `;
+        messageContainer.insertAdjacentHTML('beforeend', messageHtml);
+        scrollToBottom();
+    }
+    
+    function appendSentMessage(message) {
+        const messageContainer = document.getElementById('messageContainer');
+        if (!messageContainer) return;
+
+        const messageHtml = `
+            <div class="message sent mb-2">
+                <div class="message-content p-2 rounded">
+                    ${message.content}
+                </div>
+                <small class="text-muted">${moment(message.created_at).format('HH:mm')}</small>
+            </div>
+        `;
+        messageContainer.insertAdjacentHTML('beforeend', messageHtml);
+        scrollToBottom();
+    }
+    
+    function scrollToBottom() {
+        const messageContainer = document.getElementById('messageContainer');
+        if (messageContainer) {
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+    }
+
+    function updateConversationPreview(message) {
+        const conversationElement = document.querySelector(`[data-conversation-id="${message.conversation_id}"]`);
+        if (!conversationElement) return;
+
+        const previewElement = conversationElement.querySelector('.message-preview');
+        const badgeElement = conversationElement.querySelector('.unread-badge');
+        
+        if (previewElement) {
+            previewElement.textContent = message.content;
+        }
+        
+        // Only show unread badge if message is not from current user and not in current conversation
+        if (badgeElement && message.sender_id !== userId && currentConversationId != message.conversation_id) {
+            badgeElement.style.display = 'block';
+        }
+    }
+    
+    function markConversationAsRead(conversationId) {
+        fetch(`/messages/${conversationId}/mark-read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Messages marked as read:', data.marked_count);
+                // Hide unread badge for this conversation
+                const conversationElement = document.querySelector(`[data-conversation-id="${conversationId}"]`);
+                if (conversationElement) {
+                    const badgeElement = conversationElement.querySelector('.unread-badge');
+                    if (badgeElement) {
+                        badgeElement.style.display = 'none';
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error marking as read:', error);
+        });
+    }
+
+    function showNotification(message) {
+        if (Notification.permission === 'granted') {
+            const notification = new Notification('Pesan Baru', {
+                body: `${message.sender_name}: ${message.content}`,
+                icon: '/path/to/your/icon.png'
+            });
+
+            notification.onclick = function() {
+                window.focus();
+                // Find and click the conversation to load it
+                const conversationElement = document.querySelector(`[data-conversation-id="${message.conversation_id}"]`);
+                if (conversationElement) {
+                    conversationElement.click();
+                }
+            };
+        }
+    }
+
+    function requestNotificationPermission() {
+        if ('Notification' in window) {
+            if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                Swal.fire({
+                    title: 'Notifikasi Pesan',
+                    text: 'Izinkan kami mengirim notifikasi ketika ada pesan baru?',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Izinkan',
+                    cancelButtonText: 'Nanti saja'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Notification.requestPermission();
+                    }
+                });
+            }
+        }
+    }
+
+    function initializeMessagePolling() {
+        // Reduced polling interval since we have real-time updates
+        setInterval(checkNewMessages, 30000);
+    }
+
+    function checkNewMessages() {
+        fetch('/messages/check-new')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to check new messages');
+                }
+                updateUnreadCount(data.unreadCount);
+                updateUnreadConversations(data.unreadConversations);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function updateUnreadCount(count) {
+        const unreadCountBadge = document.querySelector('.unread-count');
+        if (count > 0) {
+            unreadCountBadge.style.display = 'block';
+            unreadCountBadge.textContent = count;
+        } else {
+            unreadCountBadge.style.display = 'none';
+        }
+    }
+
+    function updateUnreadConversations(conversations) {
+        document.querySelectorAll('.contact-clickable').forEach(contact => {
+            const conversationId = contact.dataset.conversationId;
+            const badge = contact.querySelector('.unread-badge');
+            
+            if (conversations.includes(parseInt(conversationId))) {
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+    }
+});
 </script>
 @endsection

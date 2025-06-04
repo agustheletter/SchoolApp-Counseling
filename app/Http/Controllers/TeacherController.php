@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Carbon\Carbon;
 
 class TeacherController extends Controller
 {
@@ -35,20 +36,23 @@ class TeacherController extends Controller
             
         $monthlySessions = CounselingRequest::where('idguru', $teacherId)
             ->whereMonth('tanggal_permintaan', now()->month)
+            ->whereYear('tanggal_permintaan', now()->year)
+            ->where('status', 'Completed')
             ->count();
 
-        // Get only current teacher's latest requests
-        $latestRequests = CounselingRequest::with(['student'])
-            ->where('idguru', $teacherId)
-            ->latest()
-            ->take(5)
-            ->get();
-
-        // Get only current teacher's today schedule
-        $todaySchedule = CounselingRequest::with(['student'])
-            ->where('idguru', $teacherId)
+        // Add today's schedule query
+        $todaySchedule = CounselingRequest::where('idguru', $teacherId)
             ->whereDate('tanggal_permintaan', now())
             ->where('status', 'Approved')
+            ->with(['student'])
+            ->orderBy('tanggal_permintaan')
+            ->get();
+
+        // Get latest requests
+        $latestRequests = CounselingRequest::where('idguru', $teacherId)
+            ->with(['student'])
+            ->latest()
+            ->take(5)
             ->get();
 
         return view('teacher.dashboard', compact(
@@ -161,104 +165,119 @@ class TeacherController extends Controller
 
     public function exportRequests()
     {
-        $requests = CounselingRequest::with(['student', 'counselor'])->get();
+        $teacherId = auth()->id();
         
+        $requests = CounselingRequest::with(['student'])
+            ->where('idguru', $teacherId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set title
+        $sheet->mergeCells('A1:F1');
+        $sheet->setCellValue('A1', 'LAPORAN SESI KONSELING');
+        $sheet->getStyle('A1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 14
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER
+            ]
+        ]);
 
-        // Set column headers
-        $sheet->setTitle('Permintaan Konseling');
-        $sheet->setCellValue('A1', 'No');
-        $sheet->setCellValue('B1', 'Nama Siswa');
-        $sheet->setCellValue('C1', 'Kategori');
-        $sheet->setCellValue('D1', 'Status');
-        $sheet->setCellValue('E1', 'Tanggal Permintaan');
-        $sheet->setCellValue('F1', 'Deskripsi');
+        // Set headers
+        $headers = ['No', 'Tanggal Permintaan', 'Nama Siswa', 'Kategori', 'Deskripsi', 'Status'];
+        $row = 3;
+        foreach (array_values($headers) as $i => $header) {
+            $sheet->setCellValue(chr(65 + $i) . $row, $header);
+        }
 
-        // Style the header row
+        // Style headers
         $headerStyle = [
             'font' => [
                 'bold' => true,
-                'color' => ['rgb' => 'FFFFFF'],
+                'color' => ['rgb' => 'FFFFFF']
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['rgb' => '4B0082'], // Indigo color
+                'startColor' => ['rgb' => '4B5563']
             ],
             'borders' => [
                 'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => '000000'],
-                ],
+                    'borderStyle' => Border::BORDER_THIN
+                ]
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER,
-            ],
+                'vertical' => Alignment::VERTICAL_CENTER
+            ]
         ];
+        $sheet->getStyle('A3:F3')->applyFromArray($headerStyle);
         
-        $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
-        $sheet->getRowDimension(1)->setRowHeight(30);
-
-        // Add data
-        $row = 2;
-        foreach ($requests as $request) {
-            $sheet->setCellValue('A' . $row, $row - 1);
-            $sheet->setCellValue('B' . $row, $request->student->nama ?? 'N/A');
-            $sheet->setCellValue('C' . $row, $request->kategori);
-            $sheet->setCellValue('D' . $row, $request->priorityLabel);
-            $sheet->setCellValue('E' . $row, $request->tanggal_permintaan);
-            $sheet->setCellValue('F' . $row, $request->deskripsi);
-
-            // Style data rows
-            $dataStyle = [
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['rgb' => '000000'],
-                    ],
-                ],
-                'alignment' => [
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
+        // Populate data
+        $row = 4;
+        foreach ($requests as $index => $request) {
+            $sheet->setCellValue('A' . $row, $index + 1);
+            $sheet->setCellValue('B' . $row, $request->tanggal_permintaan->format('d/m/Y H:i'));
+            $sheet->setCellValue('C' . $row, $request->student->nama);
+            $sheet->setCellValue('D' . $row, $request->kategori);
+            $sheet->setCellValue('E' . $row, $request->deskripsi);
+            $sheet->setCellValue('F' . $row, $request->status);
+            
+            // Style status cell based on value
+            $statusColors = [
+                'Pending' => 'FFA500',   // Orange
+                'Approved' => '28A745',   // Green
+                'Rejected' => 'DC3545',   // Red
+                'Completed' => '17A2B8'   // Blue
             ];
             
-            // Add zebra striping
-            if ($row % 2 == 0) {
-                $dataStyle['fill'] = [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => 'F8F9FA'],
-                ];
+            if (isset($statusColors[$request->status])) {
+                $sheet->getStyle('F' . $row)->applyFromArray([
+                    'font' => ['color' => ['rgb' => $statusColors[$request->status]]]
+                ]);
             }
-
-            $sheet->getStyle('A' . $row . ':F' . $row)->applyFromArray($dataStyle);
-            $sheet->getRowDimension($row)->setRowHeight(25);
             
             $row++;
         }
 
+        // Style data rows
+        $dataRange = 'A4:F' . ($row - 1);
+        $sheet->getStyle($dataRange)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN
+                ]
+            ],
+            'alignment' => [
+                'vertical' => Alignment::VERTICAL_CENTER
+            ]
+        ]);
+        
         // Auto-size columns
         foreach (range('A', 'F') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        // Set specific column alignments
-        $sheet->getStyle('A2:A' . ($row-1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('D2:E' . ($row-1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-        // Create response with headers
-        $response = response()->stream(
-            function() use ($spreadsheet) {
-                $writer = new Xlsx($spreadsheet);
-                $writer->save('php://output');
-            },
-            200,
-            [
-                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'Content-Disposition' => 'attachment; filename="permintaan_konseling_'.date('Y-m-d').'.xlsx"',
-            ]
-        );
+        // Set row height
+        $sheet->getRowDimension(1)->setRowHeight(30);  // Title row
+        $sheet->getRowDimension(3)->setRowHeight(20);  // Header row
         
-        return $response;
+        // Wrap text in description column
+        $sheet->getStyle('E4:E' . ($row - 1))->getAlignment()->setWrapText(true);
+
+        // Create Excel file
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'Laporan_Konseling_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        
+        $tempFile = tempnam(sys_get_temp_dir(), 'excel');
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend();
     }
 }

@@ -167,12 +167,20 @@ class CounselingController extends Controller
         $monthlySessions = CounselingRequest::whereMonth('tanggal_permintaan', now()->month)->count();
         $latestRequests = CounselingRequest::with('student')->latest()->take(5)->get();
 
+        // Add today's schedule - this was missing!
+        $todaySchedule = CounselingRequest::whereDate('tanggal_permintaan', now())
+            ->where('status', 'Approved')
+            ->with(['student'])
+            ->orderBy('tanggal_permintaan')
+            ->get();
+
         return view('teacher.dashboard', compact(
             'pendingRequests',
             'todaySessions',
             'activeStudents',
             'monthlySessions',
-            'latestRequests'
+            'latestRequests',
+            'todaySchedule'  // Added this line
         ));
     }
 

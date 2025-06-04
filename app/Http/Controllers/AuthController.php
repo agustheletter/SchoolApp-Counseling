@@ -28,12 +28,22 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('dashboard');
+
+            // Redirect based on user role
+            $user = Auth::user();
+            switch($user->role) {
+                case 'guru':
+                    return redirect()->route('teacher.dashboard');
+                case 'admin':
+                    return redirect()->route('admin.dashboard');
+                default:
+                    return redirect()->route('student.dashboard');
+            }
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password yang Anda masukkan tidak sesuai.',
-        ]);
+            'email' => 'The provided credentials do not match our records.',
+        ])->withInput($request->only('email'));
     }
 
     public function showRegisterForm()
