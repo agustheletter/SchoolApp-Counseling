@@ -46,9 +46,8 @@ class MessageController extends Controller
                 return $conv->sender_id === $user->id ? $conv->receiver_id : $conv->sender_id;
             });
 
-            // Get contacts who are either in conversations or have different roles
+            // Get contacts who are in conversations
             $contacts = User::where('id', '!=', $user->id)
-                           ->where('role', '!=', $user->role)
                            ->whereIn('id', $contactIds) // Only users with existing conversations
                            ->select('id', 'nama', 'role')
                            ->get()
@@ -140,49 +139,42 @@ class MessageController extends Controller
     public function show(Conversation $conversation)
     {
         try {
-            // Check if user is part of conversation
-            if ($conversation->sender_id !== auth()->id() && $conversation->receiver_id !== auth()->id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 403);
-            }
-
-            // Get other user's name
-            $otherUser = $conversation->sender_id === auth()->id() 
-                ? $conversation->receiver 
-                : $conversation->sender;
+            // Authorization is now handled by the policy
+            $user = auth()->user();
+            
+            // Get the other user in the conversation
+            $otherUser = $conversation->sender_id === $user->id ? 
+                        $conversation->receiver : 
+                        $conversation->sender;
 
             // Get messages
             $messages = $conversation->messages()
-                ->with('sender:id,nama')
-                ->orderBy('created_at', 'asc')
-                ->get()
-                ->map(function($message) {
-                    return [
-                        'id' => $message->id,
-                        'content' => $message->content,
-                        'sender_id' => $message->sender_id,
-                        'sender_name' => $message->sender->nama,
-                        'created_at' => $message->created_at->format('H:i'),
-                        'is_sent' => $message->sender_id === auth()->id()
-                    ];
-                });
+                                   ->orderBy('created_at')
+                                   ->get()
+                                   ->map(function($message) {
+                                       return [
+                                           'id' => $message->id,
+                                           'content' => $message->content,
+                                           'sender_id' => $message->sender_id,
+                                           'created_at' => $message->created_at
+                                       ];
+                                   });
 
             return response()->json([
                 'success' => true,
                 'conversation' => [
                     'id' => $conversation->id,
-                    'other_user_name' => $otherUser->nama
+                    'other_user_name' => $otherUser->nama,
+                    'other_user_role' => $otherUser->role
                 ],
                 'messages' => $messages
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Show conversation error: ' . $e->getMessage());
+            \Log::error('Error showing conversation: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Error loading conversation'
+                'error' => 'Failed to load conversation'
             ], 500);
         }
     }

@@ -120,15 +120,13 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="contactSelect" class="form-label">Cari Kontak</label>
-                    <select id="contactSelect" class="form-select" style="width: 100%">
-                        <option value="">Pilih kontak...</option>
-                    </select>
+                    <label for="contactSelect" class="form-label">Pilih Kontak</label>
+                    <select id="contactSelect" class="form-select" style="width: 100%"></select>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="startConversation">Mulai Percakapan</button>
+                <button type="button" class="btn btn-primary" id="startConversationBtn">Mulai Percakapan</button>
             </div>
         </div>
     </div>
@@ -160,16 +158,21 @@
     }
 
     /* Add this to your existing style section */
+    .select2-container {
+        width: 100% !important;
+    }
+    
     .select2-results__options {
-        max-height: 250px !important;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    .select2-selection__rendered {
+        line-height: 31px !important;
     }
     
     .select2-container .select2-selection--single {
-        height: 38px !important;
-    }
-    
-    .select2-container--bootstrap-5 .select2-selection--single {
-        padding-top: 5px;
+        height: 35px !important;
     }
 </style>
 @endsection
@@ -188,18 +191,24 @@
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
     import { getDatabase, ref, onChildAdded, push, set, off } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
-    import { getAuth, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+    import { getAuth, signInWithCustomToken, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 
     // Initialize Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyBXgJzaeKW9VT42GWDUekLosTVNCNMKzCw",
-        authDomain: "schoolapp-counseling.firebaseapp.com",
+        authDomain: "schoolapp-counseling.firebaseapp.com", // Change this back to Firebase default
         databaseURL: "https://schoolapp-counseling-default-rtdb.asia-southeast1.firebasedatabase.app",
         projectId: "schoolapp-counseling",
         storageBucket: "schoolapp-counseling.appspot.com",
         messagingSenderId: "1011035829400",
         appId: "1:1011035829400:web:c31c1f201ee8dec1f8cced"
     };
+
+    // Add domain check for proper URL construction
+    const isProduction = window.location.hostname === 'counseling.firaasraihansyah.my.id';
+    const baseUrl = isProduction ? 
+        'https://counseling.firaasraihansyah.my.id' : 
+        'http://localhost:8000';
 
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
@@ -283,17 +292,24 @@
         console.log('DOM loaded');
 
         try {
-            const response = await fetch('/firebase/token');
-            const data = await response.json();
+            // Set persistence first
+            await setPersistence(auth, browserLocalPersistence);
             
+            const tokenResponse = await fetch(`${baseUrl}/firebase/token`);
+            if (!tokenResponse.ok) {
+                throw new Error(`HTTP error! status: ${tokenResponse.status}`);
+            }
+            
+            const data = await tokenResponse.json();
             if (!data.success) throw new Error(data.error || 'Failed to get token');
 
+            // Sign in with custom token
             await signInWithCustomToken(auth, data.token);
             console.log('Firebase authentication successful');
             
             // Initialize chat components
-            await loadContacts();  // Load contacts first
-            setupChatHandlers();   // Then setup handlers
+            await loadContacts();
+            setupChatHandlers();
             
         } catch (error) {
             console.error('Firebase initialization error:', error);
@@ -441,8 +457,20 @@
     // Update loadConversation function to set up listeners
     async function loadConversation(conversationId) {
         try {
-            const response = await fetch(`/messages/conversation/${conversationId}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const response = await fetch(`${baseUrl}/messages/conversation/${conversationId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+            
+            if (response.status === 403) {
+                throw new Error('You do not have permission to view this conversation');
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             
             const data = await response.json();
             if (!data.success) throw new Error('Failed to load conversation');
@@ -474,7 +502,7 @@
 
         } catch (error) {
             console.error('Error loading conversation:', error);
-            Swal.fire('Error', 'Failed to load conversation', 'error');
+            Swal.fire('Error', error.message, 'error');
         }
     }
 
@@ -518,7 +546,35 @@
         }
     });
 
-    // Add these event listeners after your existing DOMContentLoaded event
+    // Add this helper function near the top of your script
+    async function fetchWithError(url, options = {}) {
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    ...options.headers,
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.error || 'Operation failed');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
+    }
+
     // Replace the existing Select2 initialization in your messages.blade.php with this:
 
 // Replace the existing Select2 initialization in your messages.blade.php with this:
@@ -528,80 +584,39 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Select2 when modal is shown
     $('#addContactModal').on('shown.bs.modal', function() {
-        console.log('Modal shown, initializing Select2...');
-        
-        // Destroy any existing Select2 instance
-        if ($('#contactSelect').hasClass('select2-hidden-accessible')) {
-            $('#contactSelect').select2('destroy');
-        }
-        
-        // Clear existing options
-        $('#contactSelect').empty().append('<option value="">Pilih kontak...</option>');
-        
-        // Initialize Select2
-        $('#contactSelect').select2({
-            theme: 'bootstrap-5',
-            dropdownParent: $('#addContactModal'),
-            placeholder: 'Cari kontak...',
-            allowClear: true,
-            width: '100%',
-            minimumInputLength: 0,
-            ajax: {
-                url: '/messages/contacts/available',
-                dataType: 'json',
-                delay: 250,
-                data: function(params) {
-                    console.log('Select2 AJAX request params:', params);
-                    return {
-                        search: params.term || '',
-                        page: params.page || 1
-                    };
-                },
-                processResults: function(data, params) {
-                    console.log('Select2 AJAX response:', data);
-                    
-                    if (!data.success) {
-                        console.error('AJAX request failed:', data);
-                        return { 
-                            results: [],
-                            pagination: { more: false }
+        if (!$('#contactSelect').data('select2')) {
+            $('#contactSelect').select2({
+                theme: 'bootstrap-5',
+                dropdownParent: $('#addContactModal'),
+                placeholder: 'Cari kontak...',
+                allowClear: true,
+                ajax: {
+                    url: '/messages/contacts/available',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            search: params.term || '',
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data.contacts
                         };
                     }
-                    
-                    // Format results for Select2
-                    const results = data.contacts.map(contact => ({
-                        id: contact.id,
-                        text: `${contact.nama} (${contact.role})`,
-                        nama: contact.nama,
-                        role: contact.role
-                    }));
-                    
-                    console.log('Processed results:', results);
-                    
-                    return {
-                        results: results,
-                        pagination: { more: false }
-                    };
                 },
-                cache: false // Disable caching for debugging
-            },
-            templateResult: formatContact,
-            templateSelection: formatContactSelection
-        });
-        
-        // Trigger a search to load initial data
-        setTimeout(() => {
-            $('#contactSelect').select2('open');
-            $('#contactSelect').select2('close');
-        }, 100);
+                minimumInputLength: 0
+            });
+        }
     });
 
-    // Start conversation button handler
-    $('#startConversation').on('click', async function() {
-        const selectedId = $('#contactSelect').val();
+    // Handle start conversation button click
+    document.getElementById('startConversationBtn').addEventListener('click', async function() {
+        const selectedUserId = $('#contactSelect').val();
         
-        if (!selectedId) {
-            Swal.fire('Error', 'Silahkan pilih kontak', 'warning');
+        if (!selectedUserId) {
+            Swal.fire('Error', 'Please select a contact first', 'error');
             return;
         }
 
@@ -610,14 +625,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
-                body: JSON.stringify({ user_id: selectedId })
+                body: JSON.stringify({
+                    user_id: selectedUserId
+                })
             });
 
             const data = await response.json();
-            if (!data.success) throw new Error(data.message || 'Failed to start conversation');
+            
+            if (!data.success) {
+                throw new Error(data.message || 'Failed to start conversation');
+            }
 
             // Close modal
             $('#addContactModal').modal('hide');
@@ -629,35 +648,10 @@ document.addEventListener('DOMContentLoaded', function() {
             await loadContacts();
 
         } catch (error) {
-            console.error('Error starting new conversation:', error);
+            console.error('Error starting conversation:', error);
             Swal.fire('Error', 'Failed to start conversation', 'error');
         }
     });
-
-    // Clean up Select2 when modal is hidden
-    $('#addContactModal').on('hidden.bs.modal', function() {
-        if ($('#contactSelect').hasClass('select2-hidden-accessible')) {
-            $('#contactSelect').select2('destroy');
-        }
-    });
 });
-
-// Updated format functions
-function formatContact(contact) {
-    if (!contact.id) return contact.text;
-    
-    return $(`
-        <div class="d-flex align-items-center py-2">
-            <div class="flex-grow-1">
-                <div class="fw-bold">${contact.nama || contact.text}</div>
-                ${contact.role ? `<small class="text-muted text-capitalize">${contact.role}</small>` : ''}
-            </div>
-        </div>
-    `);
-}
-
-function formatContactSelection(contact) {
-    return contact.text || contact.nama || 'Select contact...';
-}
 </script>
 @endsection

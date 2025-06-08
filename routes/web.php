@@ -105,7 +105,9 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('messages')->group(function () {
             Route::get('/', [MessageController::class, 'index'])->name('counseling.messages');
             Route::get('/contacts', [MessageController::class, 'contacts'])->name('messages.contacts');
-            Route::get('/conversation/{conversation}', [MessageController::class, 'show'])->name('messages.conversation.show');
+            Route::get('/conversation/{conversation}', [MessageController::class, 'show'])
+             ->name('messages.conversation.show')
+             ->middleware('can:view,conversation'); // Add authorization middleware
             Route::post('/conversation/start', [MessageController::class, 'startConversation'])->name('messages.conversation.start');
             Route::post('/{conversation}/send', [MessageController::class, 'send'])->name('messages.send');
             Route::get('/check-new', [MessageController::class, 'checkNew'])->name('messages.check-new');
