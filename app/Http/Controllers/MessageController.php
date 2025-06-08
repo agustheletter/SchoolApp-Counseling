@@ -33,45 +33,158 @@ class MessageController extends Controller
 
     public function contacts()
     {
-        // Cache contacts for better performance
-        $cacheKey = 'contacts_' . Auth::id();
-        
-        $users = Cache::remember($cacheKey, now()->addMinutes(10), function () {
-            return User::where('id', '!=', Auth::id())
-                      ->select('id', 'nama', 'role')
-                      ->orderBy('nama')
-                      ->get();
-        });
-                    
-        return response()->json([
-            'success' => true,
-            'contacts' => $users
-        ]);
+        try {
+            $user = Auth::user();
+            
+            // Get all conversations for the current user
+            $conversations = Conversation::where('sender_id', $user->id)
+                                  ->orWhere('receiver_id', $user->id)
+                                  ->get();
+
+            // Get IDs of users who are already in conversations with the current user
+            $contactIds = $conversations->map(function($conv) use ($user) {
+                return $conv->sender_id === $user->id ? $conv->receiver_id : $conv->sender_id;
+            });
+
+            // Get contacts who are either in conversations or have different roles
+            $contacts = User::where('id', '!=', $user->id)
+                           ->where('role', '!=', $user->role)
+                           ->whereIn('id', $contactIds) // Only users with existing conversations
+                           ->select('id', 'nama', 'role')
+                           ->get()
+                           ->map(function($contact) use ($conversations) {
+                               $conversation = $conversations->first(function($conv) use ($contact) {
+                                   return $conv->sender_id === $contact->id || $conv->receiver_id === $contact->id;
+                               });
+
+                               return [
+                                   'id' => $contact->id,
+                                   'nama' => $contact->nama,
+                                   'role' => $contact->role,
+                                   'conversation_id' => $conversation ? $conversation->id : null
+                               ];
+                           });
+
+            return response()->json([
+                'success' => true,
+                'contacts' => $contacts
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching contacts: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load contacts'
+            ], 500);
+        }
+    }
+
+    public function availableContacts(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $search = $request->input('search', '');
+            
+            // Debug: Log the request details
+            \Log::info('Available contacts request', [
+                'user_id' => $user->id,
+                'user_role' => $user->role,
+                'search_term' => $search
+            ]);
+
+            // Base query - only exclude current user and soft-deleted users
+            $query = User::where('id', '!=', $user->id)  // This ensures current user is excluded
+                        ->whereNull('deleted_at');
+
+            // Add search filter if provided
+            if (!empty($search)) {
+                $query->where(function($q) use ($search) {
+                    $q->where('nama', 'LIKE', "%{$search}%")
+                      ->orWhere('username', 'LIKE', "%{$search}%")
+                      ->orWhere('email', 'LIKE', "%{$search}%");
+                });
+            }
+
+            // Get results with pagination
+            $contacts = $query->select('id', 'nama', 'role', 'username', 'email')
+                             ->orderBy('nama')
+                             ->limit(50)
+                             ->get();
+
+            // Format for Select2
+            $formattedContacts = $contacts->map(function($contact) {
+                return [
+                    'id' => $contact->id,
+                    'text' => "{$contact->nama} ({$contact->role})",
+                    'nama' => $contact->nama,
+                    'role' => ucfirst($contact->role),
+                    'username' => $contact->username
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'contacts' => $formattedContacts,
+                'total' => $formattedContacts->count()
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error fetching available contacts: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load available contacts'
+            ], 500);
+        }
     }
 
     public function show(Conversation $conversation)
     {
-        if (!$this->canAccessConversation($conversation)) {
+        try {
+            // Check if user is part of conversation
+            if ($conversation->sender_id !== auth()->id() && $conversation->receiver_id !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            // Get other user's name
+            $otherUser = $conversation->sender_id === auth()->id() 
+                ? $conversation->receiver 
+                : $conversation->sender;
+
+            // Get messages
+            $messages = $conversation->messages()
+                ->with('sender:id,nama')
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->map(function($message) {
+                    return [
+                        'id' => $message->id,
+                        'content' => $message->content,
+                        'sender_id' => $message->sender_id,
+                        'sender_name' => $message->sender->nama,
+                        'created_at' => $message->created_at->format('H:i'),
+                        'is_sent' => $message->sender_id === auth()->id()
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'conversation' => [
+                    'id' => $conversation->id,
+                    'other_user_name' => $otherUser->nama
+                ],
+                'messages' => $messages
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Show conversation error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'error' => 'Unauthorized'
-            ], 403);
+                'message' => 'Error loading conversation'
+            ], 500);
         }
-
-        // Load messages with sender info
-        $messages = $conversation->messages()
-            ->with(['sender:id,nama'])
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        // Load conversation relationships
-        $conversation->load(['sender:id,nama', 'receiver:id,nama']);
-
-        return response()->json([
-            'success' => true,
-            'conversation' => $conversation,
-            'messages' => $messages
-        ]);
     }
 
     public function startConversation(Request $request)
@@ -79,29 +192,25 @@ class MessageController extends Controller
         DB::beginTransaction();
         
         try {
-            $request->validate([
-                'receiver_id' => 'required|exists:users,id|different:' . Auth::id()
+            $validated = $request->validate([
+                'user_id' => 'required|exists:tbl_users,id'  // Changed from users to tbl_users
             ]);
 
-            $receiverId = $request->receiver_id;
-            $senderId = Auth::id();
-
             // Check for existing conversation
-            $conversation = Conversation::where(function($query) use ($senderId, $receiverId) {
+            $conversation = Conversation::where(function($query) use ($validated) {
                 $query->where([
-                    ['sender_id', $senderId],
-                    ['receiver_id', $receiverId]
+                    ['sender_id', Auth::id()],
+                    ['receiver_id', $validated['user_id']]
                 ])->orWhere([
-                    ['sender_id', $receiverId],
-                    ['receiver_id', $senderId]
+                    ['sender_id', $validated['user_id']],
+                    ['receiver_id', Auth::id()]
                 ]);
             })->first();
 
-            // If conversation doesn't exist, create it
             if (!$conversation) {
                 $conversation = Conversation::create([
-                    'sender_id' => $senderId,
-                    'receiver_id' => $receiverId,
+                    'sender_id' => Auth::id(),
+                    'receiver_id' => $validated['user_id'],
                     'last_message_at' => now()
                 ]);
             }
@@ -110,25 +219,12 @@ class MessageController extends Controller
 
             return response()->json([
                 'success' => true,
-                'conversation' => $conversation->load(['sender:id,nama', 'receiver:id,nama']),
-                'message' => 'Conversation started successfully'
+                'conversation' => $conversation->load(['sender:id,nama', 'receiver:id,nama'])
             ]);
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Start conversation error: ' . $e->getMessage(), [
-                'user_id' => Auth::id(),
-                'receiver_id' => $request->receiver_id ?? null,
-                'trace' => $e->getTraceAsString()
-            ]);
-            
+            \Log::error('Start conversation error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to start conversation'
@@ -138,41 +234,21 @@ class MessageController extends Controller
 
     public function send(Request $request, Conversation $conversation)
     {
-        DB::beginTransaction();
-        
         try {
-            if (!$this->canAccessConversation($conversation)) {
+            if ($conversation->sender_id !== auth()->id() && $conversation->receiver_id !== auth()->id()) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'Unauthorized'
+                    'message' => 'Unauthorized'
                 ], 403);
             }
 
-            $request->validate([
-                'content' => 'required|string|max:1000'
-            ]);
-
             $message = Message::create([
                 'conversation_id' => $conversation->id,
-                'sender_id' => Auth::id(),
-                'content' => trim($request->content)
+                'sender_id' => auth()->id(),
+                'content' => $request->content
             ]);
 
-            // Update conversation's last_message_at
             $conversation->update(['last_message_at' => now()]);
-
-            // Load relationships for broadcasting
-            $message->load(['sender:id,nama', 'conversation']);
-            
-            DB::commit();
-
-            // Broadcast the message after successful commit
-            try {
-                broadcast(new NewMessageReceived($message))->toOthers();
-            } catch (\Exception $e) {
-                \Log::warning('Broadcasting failed: ' . $e->getMessage());
-                // Don't fail the request if broadcasting fails
-            }
 
             return response()->json([
                 'success' => true,
@@ -180,13 +256,34 @@ class MessageController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Message send error: ' . $e->getMessage(), [
-                'user_id' => Auth::id(),
-                'conversation_id' => $conversation->id ?? null,
-                'trace' => $e->getTraceAsString()
+            \Log::error('Send message error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send message'
+            ], 500);
+        }
+    }
+
+    public function sendMessage(Request $request, $conversationId)
+    {
+        try {
+            $validated = $request->validate([
+                'content' => 'required|string'
             ]);
-            
+
+            $message = Message::create([
+                'conversation_id' => $conversationId,
+                'sender_id' => Auth::id(),
+                'content' => $validated['content']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error sending message: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to send message'

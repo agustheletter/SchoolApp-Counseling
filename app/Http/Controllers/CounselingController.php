@@ -14,6 +14,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Carbon\Carbon; // Import Carbon for now()
 
 class CounselingController extends Controller
 {
@@ -49,13 +50,13 @@ class CounselingController extends Controller
     public function request(): View {
         $counselors = User::where('role', 'guru')->get();
         return view('counseling.request', compact('counselors'));
-    }   
+    }
 
     public function storeRequest(Request $request)
     {
         try {
             Log::info('Current user ID:', ['id' => Auth::id()]);
-            
+
             $user = User::find(Auth::id());
             if (!$user) {
                 Log::error('User not found:', ['id' => Auth::id()]);
@@ -93,7 +94,7 @@ class CounselingController extends Controller
                 $counseling->save();
 
                 \DB::commit();
-                
+
                 return redirect()->route('counseling.my-requests')
                     ->with('success', 'Permintaan konseling berhasil dikirim.');
 
@@ -149,11 +150,11 @@ class CounselingController extends Controller
     public function cancel($id)
     {
         $request = CounselingRequest::findOrFail($id);
-        
+
         if ($request->status !== 'Pending') {
             return back()->with('error', 'Hanya permintaan yang masih menunggu yang dapat dibatalkan.');
         }
-        
+
         $request->delete();
         return redirect()->route('counseling.my-requests')
             ->with('success', 'Permintaan konseling berhasil dibatalkan.');
@@ -180,7 +181,7 @@ class CounselingController extends Controller
             'activeStudents',
             'monthlySessions',
             'latestRequests',
-            'todaySchedule'  // Added this line
+            'todaySchedule'
         ));
     }
 
@@ -203,22 +204,23 @@ class CounselingController extends Controller
 
         // Style header
         $headerStyle = [
-            'font' => ['bold' => true],
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF']
+            ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => '4B0082'],
             ],
-            'font' => [
-                'color' => ['rgb' => 'FFFFFF'],
-            ],
         ];
         $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
 
-        // Add data
+        // Populate data
         $row = 2;
         foreach ($counselingSessions as $session) {
             $sheet->setCellValue('A' . $row, $row - 1);
-            $sheet->setCellValue('B' . $row, \Carbon\Carbon::parse($session->tanggal_permintaan)->format('d/m/Y'));
+            // Assuming tanggal_permintaan is cast to datetime in CounselingRequest model
+            $sheet->setCellValue('B' . $row, $session->tanggal_permintaan->format('d/m/Y'));
             $sheet->setCellValue('C' . $row, $session->kategori);
             $sheet->setCellValue('D' . $row, $session->status);
             $sheet->setCellValue('E' . $row, $session->counselor->nama ?? 'N/A');
@@ -231,15 +233,15 @@ class CounselingController extends Controller
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        // Create response
+        // Create Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'laporan_konseling_' . date('Y-m-d') . '.xlsx';
+        $fileName = 'laporan_konseling_' . Carbon::now()->format('Y-m-d') . '.xlsx';
 
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
+        $tempFile = tempnam(sys_get_temp_dir(), 'excel');
+        $writer->save($tempFile);
 
-        $writer->save('php://output');
-        exit;
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend();
     }
 }

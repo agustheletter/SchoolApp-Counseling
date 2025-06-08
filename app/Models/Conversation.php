@@ -22,12 +22,12 @@ class Conversation extends Model
 
     public function sender()
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(User::class, 'sender_id')->withDefault();
     }
 
     public function receiver()
     {
-        return $this->belongsTo(User::class, 'receiver_id');
+        return $this->belongsTo(User::class, 'receiver_id')->withDefault();
     }
 
     public function messages()
@@ -38,5 +38,10 @@ class Conversation extends Model
     public function latestMessage()
     {
         return $this->hasOne(Message::class)->latest();
+    }
+
+    public function getOtherUserAttribute()
+    {
+        return $this->sender_id === auth()->id() ? $this->receiver : $this->sender;
     }
 }

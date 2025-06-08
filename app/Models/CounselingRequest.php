@@ -3,14 +3,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Counseling;
+use App\Models\Counseling; // Ensure this is imported if Counseling model is in the same namespace
 
 class CounselingRequest extends Model
 {
     use HasFactory;
 
     protected $table = 'tbl_konselingrequest';
-    
+
     protected $fillable = [
         'idsiswa',
         'idguru',
@@ -20,11 +20,20 @@ class CounselingRequest extends Model
         'status',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'tanggal_permintaan' => 'datetime', // Add this line to cast to a DateTime object
+    ];
+
     public function student()
     {
         return $this->belongsTo(User::class, 'idsiswa');
     }
-    
+
     public function counselor()
     {
         return $this->belongsTo(User::class, 'idguru');

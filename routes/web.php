@@ -12,6 +12,7 @@ use App\Http\Controllers\UserSettingController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Admin\CounselorController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\FirebaseController; // Add this import
 use Illuminate\Support\Facades\Broadcast;
 
 
@@ -64,13 +65,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
         Route::get('/request/export', [TeacherController::class, 'exportRequests'])->name('request.export');
         Route::get('/request', [TeacherController::class, 'request'])->name('request');
-        
-        // Add ownership middleware to these routes
-        Route::middleware(['check.counselor.ownership'])->group(function() {
-            Route::post('/request/{id}/approve', [TeacherController::class, 'approveRequest'])->name('request.approve');
-            Route::post('/request/{id}/reject', [TeacherController::class, 'rejectRequest'])->name('request.reject');
-            Route::post('/request/{id}/complete', [TeacherController::class, 'completeRequest'])->name('request.complete');
-        });
+        Route::post('/request/{id}/approve', [TeacherController::class, 'approveRequest'])->name('request.approve');
+        Route::post('/request/{id}/reject', [TeacherController::class, 'rejectRequest'])->name('request.reject');
+        Route::post('/request/{id}/complete', [TeacherController::class, 'completeRequest'])->name('request.complete');
     });
 
     Route::prefix('admin')->name('admin.')->middleware(['auth', CheckRole::class . ':admin'])->group(function () {
@@ -103,16 +100,52 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings/login-history', [UserSettingController::class, 'getLoginHistory'])->name('settings.login-history');
     Route::put('/settings/counselor', [UserSettingController::class, 'updateCounselor'])->name('settings.counselor');
 
-
+    // Messages routes
     Route::middleware(['auth'])->group(function () {
-        Route::get('counseling/messages', [MessageController::class, 'index'])->name('counseling.messages');
-        Route::get('/messages/contacts', [MessageController::class, 'contacts'])->name('messages.contacts');
-        Route::post('/messages/start', [MessageController::class, 'startConversation'])->name('messages.start');
-        Route::get('/messages/check-new', [MessageController::class, 'checkNew'])->name('messages.check-new');
-        Route::get('/messages/{conversation}', [MessageController::class, 'show'])->name('messages.show');
-        Route::post('/messages/{conversation}/send', [MessageController::class, 'send'])->name('messages.send');
-        Route::post('/messages/{conversation}/mark-read', [MessageController::class, 'markAsRead'])->name('messages.mark-read');
+        Route::prefix('messages')->group(function () {
+            Route::get('/', [MessageController::class, 'index'])->name('counseling.messages');
+            Route::get('/contacts', [MessageController::class, 'contacts'])->name('messages.contacts');
+            Route::get('/conversation/{conversation}', [MessageController::class, 'show'])->name('messages.conversation.show');
+            Route::post('/conversation/start', [MessageController::class, 'startConversation'])->name('messages.conversation.start');
+            Route::post('/{conversation}/send', [MessageController::class, 'send'])->name('messages.send');
+            Route::get('/check-new', [MessageController::class, 'checkNew'])->name('messages.check-new');
+            Route::post('/conversation/{conversation}/mark-read', [MessageController::class, 'markAsRead'])->name('messages.mark-read');
+            Route::get('/contacts/available', [MessageController::class, 'availableContacts'])
+             ->name('messages.contacts.available');
+        });
+
+        // Add this route temporarily for debugging
+        Route::get('/debug-counselors', function() {
+            $counselors = \App\Models\Counselor::all();
+            return response()->json($counselors);
+        });
+
+        // Firebase route - Add this line
+        Route::get('/firebase/token', [FirebaseController::class, 'getToken'])->name('firebase.token');
     });
+
+    Route::get('/debug/users', function() {
+        $user = Auth::user();
+        
+        $allUsers = \App\Models\User::select('id', 'nama', 'role', 'username')
+                                    ->get();
+        
+        $availableUsers = \App\Models\User::where('id', '!=', $user->id)
+                                        ->select('id', 'nama', 'role', 'username')
+                                        ->get();
+        
+        return response()->json([
+            'current_user' => [
+                'id' => $user->id,
+                'nama' => $user->nama,
+                'role' => $user->role
+            ],
+            'all_users' => $allUsers,
+            'available_users' => $availableUsers,
+            'table_name' => (new \App\Models\User())->getTable(),
+            'database_connection' => config('database.default')
+        ]);
+    })->middleware('auth');
 
     // Other counseling routes
     Route::get('/counseling/request', [CounselingController::class, 'request'])->name('counseling.request');
@@ -121,10 +154,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/counseling/reports', [CounselingController::class, 'reports'])->name('counseling.reports');
 });
 
-// Add this route temporarily for debugging
-Route::get('/debug-counselors', function() {
-    $counselors = \App\Models\Counselor::all();
-    return response()->json($counselors);
-});
-
+// Broadcast routes
 Broadcast::routes(['middleware' => ['web', 'auth']]);

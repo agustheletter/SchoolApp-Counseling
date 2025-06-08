@@ -87,8 +87,22 @@
                         <h5>Pilih percakapan untuk memulai</h5>
                     </div>
                     
-                    <div id="chatArea" style="display: none;">
-                        <!-- Chat content will be loaded here -->
+                    <!-- Replace the existing chatArea div with this -->
+                    <div id="chatArea" style="display: none;" class="d-flex flex-column h-100">
+                        <div class="chat-header p-3 border-bottom">
+                            <h6 class="mb-0" id="chatUserName"></h6>
+                        </div>
+                        
+                        <div class="chat-messages p-3 flex-grow-1 overflow-auto">
+                            <!-- Messages will be loaded here -->
+                        </div>
+                        
+                        <div class="chat-input p-3 border-top">
+                            <form id="messageForm" class="d-flex">
+                                <input type="text" id="messageInput" class="form-control me-2" placeholder="Ketik pesan...">
+                                <button type="submit" class="btn btn-primary">Kirim</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -97,17 +111,17 @@
 </div>
 
 <!-- Add Contact Modal -->
-<div class="modal fade" id="addContactModal" tabindex="-1" aria-labelledby="addContactModalLabel" aria-hidden="true">
+<div class="modal fade" id="addContactModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addContactModalLabel">Tambah Kontak</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Tambah Kontak</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="contactSelect" class="form-label">Pilih Kontak</label>
-                    <select class="form-select" id="contactSelect">
+                    <label for="contactSelect" class="form-label">Cari Kontak</label>
+                    <select id="contactSelect" class="form-select" style="width: 100%">
                         <option value="">Pilih kontak...</option>
                     </select>
                 </div>
@@ -144,452 +158,506 @@
         height: 400px;
         overflow-y: auto;
     }
+
+    /* Add this to your existing style section */
+    .select2-results__options {
+        max-height: 250px !important;
+    }
+    
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection--single {
+        padding-top: 5px;
+    }
 </style>
+@endsection
+
+@section('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 @endsection
 
 @section('scripts')
 @parent
-<script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ mix('js/app.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+    import { getDatabase, ref, onChildAdded, push, set, off } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
+    import { getAuth, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 
-    var pusher = new Pusher('12c72e9a9c9cab0a82e9', {
-      cluster: 'ap1'
-    });
+    // Initialize Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyBXgJzaeKW9VT42GWDUekLosTVNCNMKzCw",
+        authDomain: "schoolapp-counseling.firebaseapp.com",
+        databaseURL: "https://schoolapp-counseling-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "schoolapp-counseling",
+        storageBucket: "schoolapp-counseling.appspot.com",
+        messagingSenderId: "1011035829400",
+        appId: "1:1011035829400:web:c31c1f201ee8dec1f8cced"
+    };
 
-    var channel = pusher.subscribe('my-channel');
-    channel.bind('my-event', function(data) {
-      alert(JSON.stringify(data));
-    });
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const auth = getAuth(app);
 
-    document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded');
-
-    // Setup real-time message listener
-    const userId = {{ auth()->id() }};
+    // Declare variables at the top level scope
     let currentConversationId = null;
-    
-    if (window.Echo) {
-        window.Echo.private(`messages.${userId}`)
-            .listen('.NewMessageReceived', (data) => {
-                console.log('Message received:', data);
-                handleNewMessage(data);
-            });
-            
-        // Also listen for message read events
-        window.Echo.private(`user.${userId}`)
-            .listen('.message.read', (data) => {
-                console.log('Messages marked as read:', data);
-                handleMessageRead(data);
-            });
-    } else {
-        console.error('Echo not initialized');
-    }
+    const userId = {{ auth()->id() }};
 
-    // Initialize contacts click handlers
-    setupContactClickHandlers();
-    setupAddContactHandlers();
-    requestNotificationPermission();
-    initializeMessagePolling();
+    // Add this function after your Firebase initialization and before the DOMContentLoaded event
 
-    // Event handler functions
-    function handleNewMessage(data) {
-        console.log('Handling new message:', data);
-        
-        // Update conversation preview regardless
-        updateConversationPreview(data);
-        
-        // If this message is for the currently active conversation
-        if (currentConversationId && currentConversationId == data.conversation_id) {
-            // Only append if the message is not from the current user
-            if (data.sender_id !== userId) {
-                appendNewMessage(data);
-                // Mark messages as read since user is viewing the conversation
-                markConversationAsRead(data.conversation_id);
+    function setupChatHandlers() {
+        // Message form submission
+        document.querySelector('#messageForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const input = document.querySelector('#messageInput');
+            const content = input.value.trim();
+
+            if (!content || !currentConversationId) return;
+
+            try {
+                const response = await fetch(`/messages/${currentConversationId}/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message || 'Failed to send message');
+
+                // Push to Firebase
+                const messagesRef = ref(database, `messages/${currentConversationId}`);
+                const newMessageRef = push(messagesRef);
+                await set(newMessageRef, {
+                    id: data.message.id,
+                    sender_id: userId,
+                    content: content,
+                    created_at: new Date().toISOString(),
+                    is_sent: true
+                });
+
+                // Clear input
+                input.value = '';
+                
+                // Immediately append the sent message
+                appendMessage({
+                    content: content,
+                    sender_id: userId,
+                    created_at: new Date().toISOString(),
+                    is_sent: true
+                });
+
+            } catch (error) {
+                console.error('Error sending message:', error);
+                Swal.fire('Error', 'Failed to send message', 'error');
             }
-        } else {
-            // Show notification for messages not in current conversation
-            if (data.sender_id !== userId) {
-                showNotification(data);
-            }
+        });
+
+        // Contact click handlers
+        document.querySelectorAll('.contact-clickable').forEach(contact => {
+            contact.addEventListener('click', handleContactClick);
+        });
+
+        // Firebase message listener
+        if (currentConversationId) {
+            const messagesRef = ref(database, `messages/${currentConversationId}`);
+            onChildAdded(messagesRef, (snapshot) => {
+                const message = snapshot.val();
+                if (message && message.sender_id !== userId) {
+                    appendMessage(message);
+                }
+            });
         }
     }
-    
-    function handleMessageRead(data) {
-        // Update UI to show messages as read if needed
-        console.log('Messages read:', data);
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('DOM loaded');
+
+        try {
+            const response = await fetch('/firebase/token');
+            const data = await response.json();
+            
+            if (!data.success) throw new Error(data.error || 'Failed to get token');
+
+            await signInWithCustomToken(auth, data.token);
+            console.log('Firebase authentication successful');
+            
+            // Initialize chat components
+            await loadContacts();  // Load contacts first
+            setupChatHandlers();   // Then setup handlers
+            
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Failed to initialize chat: ' + error.message,
+                icon: 'error'
+            });
+        }
+    });
+
+    // Fix moment.js date formatting
+    function formatTimestamp(timestamp) {
+        if (!timestamp) return moment().format('HH:mm');
+        return moment(timestamp).isValid() ? 
+            moment(timestamp).format('HH:mm') : 
+            moment().format('HH:mm');
     }
 
-    function setupContactClickHandlers() {
-        document.querySelectorAll('.contact-clickable').forEach(contact => {
-            contact.addEventListener('click', function() {
-                const conversationId = this.getAttribute('data-conversation-id');
-                console.log('Clicked conversation:', conversationId);
-                
-                // Update current conversation ID
-                currentConversationId = conversationId;
-                
-                document.querySelectorAll('.contact-clickable').forEach(el => {
-                    el.classList.remove('active');
+    function appendMessage(message) {
+        const chatMessages = document.querySelector('.chat-messages');
+        const isSender = message.sender_id === userId;
+        const timestamp = moment(message.created_at).format('HH:mm');
+        
+        const messageHtml = `
+            <div class="message mb-3 ${isSender ? 'sent' : 'received'}">
+                <div class="message-content p-2 rounded">
+                    <p class="mb-1">${message.content}</p>
+                    <small class="text-muted">${timestamp}</small>
+                </div>
+            </div>
+        `;
+        
+        chatMessages.insertAdjacentHTML('beforeend', messageHtml);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Replace the loadContacts function with this:
+    async function loadContacts() {
+        try {
+            const response = await fetch('/messages/contacts');
+            const data = await response.json();
+            
+            if (!data.success) throw new Error('Failed to load contacts');
+
+            // Update contacts list in the main view
+            const contactsList = document.querySelector('.contacts-list');
+            if (contactsList) {
+                contactsList.innerHTML = data.contacts.map(contact => `
+                    <div class="contact-item p-3 border-bottom contact-clickable" 
+                         data-contact-id="${contact.id}"
+                         data-conversation-id="${contact.conversation_id || ''}"
+                         style="cursor: pointer;">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${contact.nama}</h6>
+                                <small class="text-muted">${contact.role}</small>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add click handlers for contacts
+                document.querySelectorAll('.contact-item').forEach(item => {
+                    item.addEventListener('click', handleContactClick);
                 });
-                this.classList.add('active');
-                
-                loadConversation(conversationId);
-                
-                // Mark messages as read when opening conversation
-                markConversationAsRead(conversationId);
+            }
+
+            // Update modal select
+            const contactSelect = document.querySelector('#contactSelect');
+            if (contactSelect) {
+                contactSelect.innerHTML = `
+                    <option value="">Pilih kontak...</option>
+                    ${data.contacts.map(contact => `
+                        <option value="${contact.id}">${contact.nama} (${contact.role})</option>
+                    `).join('')}
+                `;
+            }
+
+        } catch (error) {
+            console.error('Error loading contacts:', error);
+            Swal.fire('Error', 'Failed to load contacts', 'error');
+        }
+    }
+
+    function handleContactClick(event) {
+        const contactElement = event.currentTarget;
+        const conversationId = contactElement.dataset.conversationId;
+        const contactId = contactElement.dataset.contactId;
+
+        if (conversationId) {
+            loadConversation(conversationId);
+        } else {
+            startNewConversation(contactId);
+        }
+    }
+
+    async function startNewConversation(contactId) {
+        try {
+            const response = await fetch('/messages/conversation/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ user_id: contactId })
             });
+
+            const data = await response.json();
+            if (!data.success) throw new Error(data.message || 'Failed to start conversation');
+
+            // Load the new conversation
+            await loadConversation(data.conversation.id);
+            
+            // Refresh contacts list to update conversation IDs
+            await loadContacts();
+
+        } catch (error) {
+            console.error('Error starting conversation:', error);
+            Swal.fire('Error', 'Failed to start conversation', 'error');
+        }
+    }
+
+    // Add this function to handle real-time message updates
+    function setupMessageListeners(conversationId) {
+        // Remove any existing listeners
+        if (currentConversationId) {
+            const oldRef = ref(database, `messages/${currentConversationId}`);
+            off(oldRef);
+        }
+
+        // Set up new listener
+        const messagesRef = ref(database, `messages/${conversationId}`);
+        onChildAdded(messagesRef, (snapshot) => {
+            const message = snapshot.val();
+            if (message && message.sender_id !== userId) {
+                appendMessage(message);
+            }
         });
     }
 
-    function setupAddContactHandlers() {
-        const addContactBtn = document.getElementById('addContactBtn');
-        const startConversationBtn = document.getElementById('startConversation');
+    // Update loadConversation function to set up listeners
+    async function loadConversation(conversationId) {
+        try {
+            const response = await fetch(`/messages/conversation/${conversationId}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const data = await response.json();
+            if (!data.success) throw new Error('Failed to load conversation');
 
-        if (addContactBtn) {
-            addContactBtn.addEventListener('click', fetchContacts);
-        }
+            // Update UI
+            document.querySelector('#emptyChatState').style.display = 'none';
+            document.querySelector('#chatArea').style.display = 'flex';
+            document.querySelector('#chatUserName').textContent = data.conversation.other_user_name;
 
-        if (startConversationBtn) {
-            startConversationBtn.addEventListener('click', startNewConversation);
-        }
-    }
+            // Clear and load messages
+            const chatMessages = document.querySelector('.chat-messages');
+            chatMessages.innerHTML = '';
+            data.messages.forEach(message => appendMessage(message));
 
-    function fetchContacts() {
-        fetch('{{ route("messages.contacts") }}')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const contactSelect = document.getElementById('contactSelect');
-                    contactSelect.innerHTML = '<option value="">Pilih kontak...</option>';
-                    
-                    data.contacts.forEach(user => {
-                        contactSelect.innerHTML += `
-                            <option value="${user.id}">${user.nama} (${user.role})</option>
-                        `;
-                    });
-                } else {
-                    console.error('API returned error:', data);
-                    alert('Gagal memuat daftar kontak');
+            // Update current conversation ID and set up listeners
+            currentConversationId = conversationId;
+            setupMessageListeners(conversationId);
+
+            // Update active contact
+            document.querySelectorAll('.contact-clickable').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.conversationId === conversationId) {
+                    item.classList.add('active');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Gagal memuat daftar kontak');
             });
+
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        } catch (error) {
+            console.error('Error loading conversation:', error);
+            Swal.fire('Error', 'Failed to load conversation', 'error');
+        }
     }
 
-    function startNewConversation() {
-        const selectedContactId = document.getElementById('contactSelect').value;
-        if (!selectedContactId) {
-            alert('Silakan pilih kontak terlebih dahulu');
+    // Add event listener for new contact button
+    document.querySelector('#startNewChat')?.addEventListener('click', async function() {
+        const contactSelect = document.querySelector('#contactSelect');
+        const selectedId = contactSelect.value;
+        
+        if (!selectedId) {
+            Swal.fire('Error', 'Please select a contact', 'warning');
             return;
         }
 
-        fetch('{{ route("messages.start") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ receiver_id: selectedContactId })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addContactModal'));
-                modal.hide();
-                window.location.reload();
-            } else {
-                throw new Error(data.message || 'Gagal memulai percakapan');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Gagal memulai percakapan: ' + error.message);
-        });
-    }
-
-    function loadConversation(conversationId) {
-        console.log('Loading conversation:', conversationId);
-        
-        fetch(`/messages/${conversationId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) {
-                    throw new Error(data.error || 'Failed to load conversation');
-                }
-                
-                // Hide empty state and show chat area
-                document.getElementById('emptyChatState').style.display = 'none';
-                const chatArea = document.getElementById('chatArea');
-                chatArea.style.display = 'block';
-                chatArea.dataset.conversationId = conversationId;
-
-                // Get other user's name
-                const otherUser = data.conversation.sender_id === {{ Auth::id() }} 
-                    ? data.conversation.receiver 
-                    : data.conversation.sender;
-
-                // Update chat area HTML
-                chatArea.innerHTML = `
-                    <div class="chat-header p-3 border-bottom">
-                        <h6 class="mb-0">${otherUser.nama}</h6>
-                    </div>
-                    <div class="chat-messages p-3" id="messageContainer">
-                        ${data.messages.map(message => `
-                            <div class="message ${message.sender_id === {{ Auth::id() }} ? 'sent' : 'received'} mb-2">
-                                <div class="message-content p-2 rounded">
-                                    ${message.content}
-                                </div>
-                                <small class="text-muted">${moment(message.created_at).format('HH:mm')}</small>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="chat-input p-3 border-top">
-                        <form id="messageForm">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="messageInput" placeholder="Ketik pesan...">
-                                <button class="btn btn-primary" type="submit">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                `;
-
-                // Setup message form handler
-                const messageForm = document.getElementById('messageForm');
-                messageForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const input = document.getElementById('messageInput');
-                    const content = input.value.trim();
-                    
-                    if (!content) return;
-
-                    // Disable form while sending
-                    const submitBtn = messageForm.querySelector('button[type="submit"]');
-                    submitBtn.disabled = true;
-
-                    fetch(`/messages/${conversationId}/send`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ content })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            input.value = '';
-                            // Append the sent message immediately
-                            appendSentMessage(data.message);
-                        } else {
-                            throw new Error(data.error || 'Failed to send message');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Gagal mengirim pesan: ' + error.message);
-                    })
-                    .finally(() => {
-                        submitBtn.disabled = false;
-                    });
-                });
-
-                // Scroll to bottom of messages
-                scrollToBottom();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to load conversation: ' + error.message
-                });
-            });
-    }
-
-    function appendNewMessage(message) {
-        const messageContainer = document.getElementById('messageContainer');
-        if (!messageContainer) return;
-
-        const messageHtml = `
-            <div class="message received mb-2">
-                <div class="message-content p-2 rounded">
-                    ${message.content}
-                </div>
-                <small class="text-muted">${moment(message.created_at).format('HH:mm')}</small>
-            </div>
-        `;
-        messageContainer.insertAdjacentHTML('beforeend', messageHtml);
-        scrollToBottom();
-    }
-    
-    function appendSentMessage(message) {
-        const messageContainer = document.getElementById('messageContainer');
-        if (!messageContainer) return;
-
-        const messageHtml = `
-            <div class="message sent mb-2">
-                <div class="message-content p-2 rounded">
-                    ${message.content}
-                </div>
-                <small class="text-muted">${moment(message.created_at).format('HH:mm')}</small>
-            </div>
-        `;
-        messageContainer.insertAdjacentHTML('beforeend', messageHtml);
-        scrollToBottom();
-    }
-    
-    function scrollToBottom() {
-        const messageContainer = document.getElementById('messageContainer');
-        if (messageContainer) {
-            messageContainer.scrollTop = messageContainer.scrollHeight;
-        }
-    }
-
-    function updateConversationPreview(message) {
-        const conversationElement = document.querySelector(`[data-conversation-id="${message.conversation_id}"]`);
-        if (!conversationElement) return;
-
-        const previewElement = conversationElement.querySelector('.message-preview');
-        const badgeElement = conversationElement.querySelector('.unread-badge');
-        
-        if (previewElement) {
-            previewElement.textContent = message.content;
-        }
-        
-        // Only show unread badge if message is not from current user and not in current conversation
-        if (badgeElement && message.sender_id !== userId && currentConversationId != message.conversation_id) {
-            badgeElement.style.display = 'block';
-        }
-    }
-    
-    function markConversationAsRead(conversationId) {
-        fetch(`/messages/${conversationId}/mark-read`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Messages marked as read:', data.marked_count);
-                // Hide unread badge for this conversation
-                const conversationElement = document.querySelector(`[data-conversation-id="${conversationId}"]`);
-                if (conversationElement) {
-                    const badgeElement = conversationElement.querySelector('.unread-badge');
-                    if (badgeElement) {
-                        badgeElement.style.display = 'none';
-                    }
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error marking as read:', error);
-        });
-    }
-
-    function showNotification(message) {
-        if (Notification.permission === 'granted') {
-            const notification = new Notification('Pesan Baru', {
-                body: `${message.sender_name}: ${message.content}`,
-                icon: '/path/to/your/icon.png'
+        try {
+            const response = await fetch('/messages/conversation/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ user_id: selectedId })
             });
 
-            notification.onclick = function() {
-                window.focus();
-                // Find and click the conversation to load it
-                const conversationElement = document.querySelector(`[data-conversation-id="${message.conversation_id}"]`);
-                if (conversationElement) {
-                    conversationElement.click();
-                }
-            };
-        }
-    }
+            const data = await response.json();
+            if (!data.success) throw new Error(data.message || 'Failed to start conversation');
 
-    function requestNotificationPermission() {
-        if ('Notification' in window) {
-            if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-                Swal.fire({
-                    title: 'Notifikasi Pesan',
-                    text: 'Izinkan kami mengirim notifikasi ketika ada pesan baru?',
-                    icon: 'info',
-                    showCancelButton: true,
-                    confirmButtonText: 'Izinkan',
-                    cancelButtonText: 'Nanti saja'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Notification.requestPermission();
-                    }
-                });
-            }
-        }
-    }
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.querySelector('#newChatModal'));
+            modal.hide();
 
-    function initializeMessagePolling() {
-        // Reduced polling interval since we have real-time updates
-        setInterval(checkNewMessages, 30000);
-    }
-
-    function checkNewMessages() {
-        fetch('/messages/check-new')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) {
-                    throw new Error(data.error || 'Failed to check new messages');
-                }
-                updateUnreadCount(data.unreadCount);
-                updateUnreadConversations(data.unreadConversations);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
-
-    function updateUnreadCount(count) {
-        const unreadCountBadge = document.querySelector('.unread-count');
-        if (count > 0) {
-            unreadCountBadge.style.display = 'block';
-            unreadCountBadge.textContent = count;
-        } else {
-            unreadCountBadge.style.display = 'none';
-        }
-    }
-
-    function updateUnreadConversations(conversations) {
-        document.querySelectorAll('.contact-clickable').forEach(contact => {
-            const conversationId = contact.dataset.conversationId;
-            const badge = contact.querySelector('.unread-badge');
+            // Load the new conversation
+            await loadConversation(data.conversation.id);
             
-            if (conversations.includes(parseInt(conversationId))) {
-                badge.style.display = 'block';
-            } else {
-                badge.style.display = 'none';
-            }
+            // Refresh contacts list
+            await loadContacts();
+
+        } catch (error) {
+            console.error('Error starting new conversation:', error);
+            Swal.fire('Error', 'Failed to start conversation', 'error');
+        }
+    });
+
+    // Add these event listeners after your existing DOMContentLoaded event
+    // Replace the existing Select2 initialization in your messages.blade.php with this:
+
+// Replace the existing Select2 initialization in your messages.blade.php with this:
+
+// Replace the Select2 initialization section in your messages.blade.php with this:
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 when modal is shown
+    $('#addContactModal').on('shown.bs.modal', function() {
+        console.log('Modal shown, initializing Select2...');
+        
+        // Destroy any existing Select2 instance
+        if ($('#contactSelect').hasClass('select2-hidden-accessible')) {
+            $('#contactSelect').select2('destroy');
+        }
+        
+        // Clear existing options
+        $('#contactSelect').empty().append('<option value="">Pilih kontak...</option>');
+        
+        // Initialize Select2
+        $('#contactSelect').select2({
+            theme: 'bootstrap-5',
+            dropdownParent: $('#addContactModal'),
+            placeholder: 'Cari kontak...',
+            allowClear: true,
+            width: '100%',
+            minimumInputLength: 0,
+            ajax: {
+                url: '/messages/contacts/available',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    console.log('Select2 AJAX request params:', params);
+                    return {
+                        search: params.term || '',
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(data, params) {
+                    console.log('Select2 AJAX response:', data);
+                    
+                    if (!data.success) {
+                        console.error('AJAX request failed:', data);
+                        return { 
+                            results: [],
+                            pagination: { more: false }
+                        };
+                    }
+                    
+                    // Format results for Select2
+                    const results = data.contacts.map(contact => ({
+                        id: contact.id,
+                        text: `${contact.nama} (${contact.role})`,
+                        nama: contact.nama,
+                        role: contact.role
+                    }));
+                    
+                    console.log('Processed results:', results);
+                    
+                    return {
+                        results: results,
+                        pagination: { more: false }
+                    };
+                },
+                cache: false // Disable caching for debugging
+            },
+            templateResult: formatContact,
+            templateSelection: formatContactSelection
         });
-    }
+        
+        // Trigger a search to load initial data
+        setTimeout(() => {
+            $('#contactSelect').select2('open');
+            $('#contactSelect').select2('close');
+        }, 100);
+    });
+
+    // Start conversation button handler
+    $('#startConversation').on('click', async function() {
+        const selectedId = $('#contactSelect').val();
+        
+        if (!selectedId) {
+            Swal.fire('Error', 'Silahkan pilih kontak', 'warning');
+            return;
+        }
+
+        try {
+            const response = await fetch('/messages/conversation/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ user_id: selectedId })
+            });
+
+            const data = await response.json();
+            if (!data.success) throw new Error(data.message || 'Failed to start conversation');
+
+            // Close modal
+            $('#addContactModal').modal('hide');
+
+            // Load the new conversation
+            await loadConversation(data.conversation.id);
+            
+            // Refresh contacts list
+            await loadContacts();
+
+        } catch (error) {
+            console.error('Error starting new conversation:', error);
+            Swal.fire('Error', 'Failed to start conversation', 'error');
+        }
+    });
+
+    // Clean up Select2 when modal is hidden
+    $('#addContactModal').on('hidden.bs.modal', function() {
+        if ($('#contactSelect').hasClass('select2-hidden-accessible')) {
+            $('#contactSelect').select2('destroy');
+        }
+    });
 });
+
+// Updated format functions
+function formatContact(contact) {
+    if (!contact.id) return contact.text;
+    
+    return $(`
+        <div class="d-flex align-items-center py-2">
+            <div class="flex-grow-1">
+                <div class="fw-bold">${contact.nama || contact.text}</div>
+                ${contact.role ? `<small class="text-muted text-capitalize">${contact.role}</small>` : ''}
+            </div>
+        </div>
+    `);
+}
+
+function formatContactSelection(contact) {
+    return contact.text || contact.nama || 'Select contact...';
+}
 </script>
 @endsection
