@@ -196,7 +196,7 @@
     // Initialize Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyBXgJzaeKW9VT42GWDUekLosTVNCNMKzCw",
-        authDomain: "schoolapp-counseling.firebaseapp.com", // Change this back to Firebase default
+        authDomain: "counseling.firaasraihansyah.my.id",
         databaseURL: "https://schoolapp-counseling-default-rtdb.asia-southeast1.firebasedatabase.app",
         projectId: "schoolapp-counseling",
         storageBucket: "schoolapp-counseling.appspot.com",
@@ -457,22 +457,8 @@
     // Update loadConversation function to set up listeners
     async function loadConversation(conversationId) {
         try {
-            const response = await fetch(`${baseUrl}/messages/conversation/${conversationId}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            });
+            const data = await fetchWithAuth(`${baseUrl}/messages/conversation/${conversationId}`);
             
-            if (response.status === 403) {
-                throw new Error('You do not have permission to view this conversation');
-            }
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
             if (!data.success) throw new Error('Failed to load conversation');
 
             // Update UI
@@ -547,39 +533,51 @@
     });
 
     // Add this helper function near the top of your script
-    async function fetchWithError(url, options = {}) {
-        try {
-            const response = await fetch(url, {
-                ...options,
-                headers: {
-                    ...options.headers,
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            });
+    async function fetchWithAuth(url, options = {}) {
+        const defaultOptions = {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        };
 
+        const mergedOptions = {
+            ...defaultOptions,
+            ...options,
+            headers: {
+                ...defaultOptions.headers,
+                ...options.headers
+            }
+        };
+
+        try {
+            const response = await fetch(url, mergedOptions);
+            
+            if (response.status === 403) {
+                console.error('Access forbidden:', url);
+                throw new Error('You do not have permission to access this resource');
+            }
+            
+            if (response.status === 404) {
+                console.error('Resource not found:', url);
+                throw new Error('Resource not found');
+            }
+            
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                console.error('HTTP error:', response.status, url);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
-            if (!data.success) {
-                throw new Error(data.error || 'Operation failed');
-            }
-
             return data;
         } catch (error) {
-            console.error('Fetch error:', error);
+            console.error('Fetch error:', error.message, url);
             throw error;
         }
     }
 
-    // Replace the existing Select2 initialization in your messages.blade.php with this:
-
-// Replace the existing Select2 initialization in your messages.blade.php with this:
-
-// Replace the Select2 initialization section in your messages.blade.php with this:
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Select2 when modal is shown
